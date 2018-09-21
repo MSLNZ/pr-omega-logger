@@ -3,7 +3,7 @@ Start all OMEGA loggers and the web server.
 
 Usage:
 
-omega-logger start /path/to/config.xml
+omega-logger /path/to/config.xml
 """
 import os
 import sys
