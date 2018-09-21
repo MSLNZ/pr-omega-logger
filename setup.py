@@ -5,7 +5,7 @@ setup(
     version='0.1.0',
     author='Joseph Borbely',
     author_email='joseph.borbely@measurement.govt.nz',
-    url='https://github.com/MSLNZ/omega_logger',
+    url='https://github.com/MSLNZ/omega-logger',
     long_description=open('README.rst').read().strip(),
     license='MIT',
     classifiers=[
@@ -34,7 +34,6 @@ setup(
         'https://github.com/MSLNZ/msl-equipment/tarball/master#egg=msl-equipment-0'
     ],
     packages=find_packages(include=('omega_logger',)),
-    include_package_data=True,
     entry_points={
         'console_scripts': [
             'omega-logger = omega_logger.main:start',
