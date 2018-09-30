@@ -1,11 +1,11 @@
 Used to log the temperature, humidity and dew point from an OMEGA iServer to a SQLite database.
-The information in the database can be accessed via a web browser (at the URL ``http://<hostname>:1875``).
+The information in the database can be accessed via a web browser (at the URL ``http://<hostname>:<port>``).
 
 Install
 =======
 .. code-block:: console
 
-   pip install git+https://github.com/MSLNZ/omega-logger.git --process-dependency-links
+   pip install git+https://github.com/MSLNZ/omega-logger.git@v0.1.0 --process-dependency-links
 
 Usage
 =====
@@ -25,13 +25,13 @@ Requires a Configuration File that is compatible with `MSL-Equipment`_
         <log_dir>D:\OMEGA</log_dir>
 
         <serials>
-            4070777
-            17480215
+            4370757
+            12481415
         </serials>
 
         <calibrations>
             <!-- the coefficients value equals the polynomial coefficients c0;c1;c2;c3;... -->
-            <omega serial="4070777">
+            <omega serial="4370757">
                 <report date="2018-07-21" number="Humidity/2018/386">
                     <start_date>2018-06-08</start_date>
                     <end_date>2018-06-11</end_date>
@@ -61,14 +61,14 @@ Requires a Configuration File that is compatible with `MSL-Equipment`_
                     </humidity>
                 </report>
             </omega>
-            <omega serial="17480215">
+            <omega serial="12481415">
                 <report date="2018-07-21" number="Humidity/2018/388">
                     <start_date>2018-06-08</start_date>
                     <end_date>2018-06-11</end_date>
                     <coverage_factor>2.0</coverage_factor>
                     <confidence>95%</confidence>
                     <temperature units="C" min="18" max="24">
-                        <coefficients>0.0</coefficients>
+                        <coefficients>0.04;0.13</coefficients>
                         <expanded_uncertainty>0.13</expanded_uncertainty>
                     </temperature>
                     <humidity units="%rh" min="30" max="85">
