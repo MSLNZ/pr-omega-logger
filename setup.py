@@ -5,7 +5,7 @@ setup(
     version='0.1.0',
     author='Joseph Borbely',
     author_email='joseph.borbely@measurement.govt.nz',
-    url='https://github.com/MSLNZ/omega-logger',
+    url='https://github.com/MSLNZ/pr-omega-logger',
     long_description=open('README.rst').read().strip(),
     license='MIT',
     classifiers=[
