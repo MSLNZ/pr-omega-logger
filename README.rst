@@ -1,11 +1,12 @@
-Used to log the temperature, humidity and dew point from an OMEGA iServer to a SQLite database.
-The information in the database can be accessed via a web browser (at the URL ``http://<hostname>:<port>``).
+Logs the temperature, humidity and dew point from OMEGA iServer's to a database and creates a
+Dash_ webapp to view the data. The information in the database can be viewed via a web browser,
+at the URL ``http://<hostname>:<port>``.
 
 Install
 =======
 .. code-block:: console
 
-   pip install git+https://github.com/MSLNZ/omega-logger.git@v0.1.0 --process-dependency-links
+   pip install https://github.com/MSLNZ/pr-omega-logger/archive/v0.1.0.tar.gz
 
 Usage
 =====
@@ -96,3 +97,4 @@ Requires a Configuration File that is compatible with `MSL-Equipment`_
     </msl>
 
 .. _MSL-Equipment: https://msl-equipment.readthedocs.io/en/latest/
+.. _Dash: https://plot.ly/products/dash/

@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='omega_logger',
@@ -6,6 +6,8 @@ setup(
     author='Joseph Borbely',
     author_email='joseph.borbely@measurement.govt.nz',
     url='https://github.com/MSLNZ/pr-omega-logger',
+    description='Logs the temperature, humidity and dew point from OMEGA iServer\'s'
+                'and creates a Dash webapp to view the data',
     long_description=open('README.rst').read().strip(),
     license='MIT',
     classifiers=[
@@ -22,7 +24,7 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
-        'msl-equipment',
+        'msl-equipment @ https://github.com/MSLNZ/msl-equipment/archive/master.tar.gz',
         'gevent',
         'plotly==2.2.3',
         'dash==0.21.1',
@@ -30,10 +32,7 @@ setup(
         'dash-html-components==0.11.0',
         'dash-renderer==0.13.0',
     ],
-    dependency_links=[
-        'https://github.com/MSLNZ/msl-equipment/tarball/master#egg=msl-equipment-0'
-    ],
-    packages=find_packages(include=('omega_logger',)),
+    packages=['omega_logger'],
     entry_points={
         'console_scripts': [
             'omega-logger = omega_logger.main:start',
