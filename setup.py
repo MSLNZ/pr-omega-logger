@@ -22,6 +22,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     install_requires=[
         'msl-equipment @ https://github.com/MSLNZ/msl-equipment/archive/master.tar.gz',
