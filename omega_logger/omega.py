@@ -29,5 +29,5 @@ else:
     omega.start_logging(
         cfg.value('log_dir'),
         wait=60.0,
-        num_probes=record.connection.properties.get('nprobes', 1),
+        nprobes=record.connection.properties.get('nprobes', 1),
     )
