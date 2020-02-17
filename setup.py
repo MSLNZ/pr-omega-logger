@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='omega_logger',
-    version='0.1.0',
+    version='0.2.0.dev0',
     author='Joseph Borbely',
     author_email='joseph.borbely@measurement.govt.nz',
     url='https://github.com/MSLNZ/pr-omega-logger',
