@@ -15,11 +15,17 @@ logging.basicConfig(
 try:
     cfg = Config(sys.argv[1])
     record = cfg.database().records(manufacturer='OMEGA', serial=sys.argv[2])[0]
-    omega = record.connect()
 except:
     traceback.print_exc(file=sys.stdout)
     input('Press <ENTER> to close ...')
 else:
+    omega = None
+    while omega is None:
+        try:
+            omega = record.connect()
+        except:
+            pass
+
     omega.start_logging(
         cfg.value('log_dir'),
         wait=60.0,
