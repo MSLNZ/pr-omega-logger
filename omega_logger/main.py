@@ -7,6 +7,7 @@ omega-logger /path/to/config.xml
 """
 import os
 import sys
+import time
 
 from msl.equipment import Config
 
@@ -31,6 +32,14 @@ def start():
 
     # change the current working directory to where the package files are located
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+    # wait for the equipment and connection register files to be available
+    # since Windows can take a while to map the Shared drive on startup
+    register_path = cfg.find(r'registers/register/path').text
+    connection_path = cfg.find(r'connections/connection/path').text
+    print('Waiting for the register files to be available...')
+    while not (os.path.isfile(register_path) and os.path.isfile(connection_path)):
+        time.sleep(1)
 
     # start all OMEGA loggers
     for serial in serials:
