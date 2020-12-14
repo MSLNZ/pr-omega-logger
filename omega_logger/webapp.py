@@ -1,7 +1,7 @@
 """
 Start the Dash app.
 """
-import io
+#import io
 import os
 import sys
 import time
@@ -10,7 +10,7 @@ import logging
 import traceback
 from datetime import datetime
 
-import flask
+#import flask
 import numpy as np
 import dash
 import dash_core_components as dcc
@@ -179,7 +179,7 @@ app.layout = serve_layout  # set app.layout to a function to serve a dynamic lay
 @app.callback(Output('download-link', 'href'), [Input('plot-viewer', 'children')])
 def update_download_link(children):
     data = children[0]['props']['figure']['data']
-    title = children[0]['props']['figure']['layout']['title']
+    title = children[0]['props']['figure']['layout']['title']['text']
     if not data:
         csv_string = ''
     else:
@@ -320,7 +320,7 @@ def value_changed(*args):
                     xaxis={'title': 'Timestamp', 'type': 'date'},
                     yaxis={'title': tab.title() + (' [%]' if tab == 'humidity' else ' [C]')},
                     hovermode='closest',
-                    legend=dict(orientation='v', x=0, y=100),
+                    legend=dict(orientation='v', x=0, y=2),
                 )
             }
         ),
