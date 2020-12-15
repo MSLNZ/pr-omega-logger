@@ -1,6 +1,7 @@
 """
 Start logging a particular OMEGA iServer.
 """
+import os
 import sys
 import logging
 import traceback
@@ -15,19 +16,19 @@ logging.basicConfig(
 try:
     cfg = Config(sys.argv[1])
     record = cfg.database().records(manufacturer='OMEGA', serial=sys.argv[2])[0]
-except:
-    traceback.print_exc(file=sys.stdout)
-    input('Press <ENTER> to close ...')
-else:
-    omega = None
-    while omega is None:
+
+    iserver = None
+    while iserver is None:
         try:
-            omega = record.connect()
+            iserver = record.connect()
         except:
             pass
 
-    omega.start_logging(
+    iserver.start_logging(
         cfg.value('log_dir'),
         wait=60.0,
         nprobes=record.connection.properties.get('nprobes', 1),
     )
+except:
+    traceback.print_exc(file=sys.stdout)
+    input('Press <ENTER> to close ...')
