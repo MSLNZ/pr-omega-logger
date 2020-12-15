@@ -28,7 +28,11 @@ def start():
     if not serials:
         sys.exit('You have not specified any OMEGA serial numbers to log.\n'
                  'Create a "serials" element with each serial number on a new line.')
-    serials = [s.strip() for s in serials.splitlines() if s.strip()]
+
+    if isinstance(serials, int):  # then only a single serial number was specified
+        serials = [str(serials)]
+    else:
+        serials = [s.strip() for s in serials.splitlines() if s.strip()]
 
     # change the current working directory to where the package files are located
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -37,15 +41,20 @@ def start():
     # since Windows can take a while to map the Shared drive on startup
     register_path = cfg.find(r'registers/register/path').text
     connection_path = cfg.find(r'connections/connection/path').text
-    print('Waiting for the register files to be available...')
+    max_dots = 4
+    num_dots = 0
     while not (os.path.isfile(register_path) and os.path.isfile(connection_path)):
+        print('Waiting for the register files to be available.' + '.'*num_dots + ' '*(max_dots-num_dots), end='\r')
+        num_dots += 1
+        if num_dots > max_dots:
+            num_dots = 0
         time.sleep(1)
 
     # start all OMEGA loggers
     for serial in serials:
-        cmd = ' '.join(['start', sys.executable, '-m', 'omega.py', '"{}"'.format(xml), serial])
+        cmd = ' '.join(['start', sys.executable, '-m', 'omega', '"{}"'.format(xml), serial])
         os.system(cmd)
 
     # start the Dash web application
-    cmd = ' '.join(['start', sys.executable, '-m', 'webapp.py', '"{}"'.format(xml)])
+    cmd = ' '.join(['start', sys.executable, '-m', 'webapp', '"{}"'.format(xml)])
     os.system(cmd)
