@@ -29,6 +29,8 @@ try:
         wait=60.0,
         nprobes=record.connection.properties.get('nprobes', 1),
     )
+except KeyboardInterrupt:
+    pass
 except:
     traceback.print_exc(file=sys.stdout)
     input('Press <ENTER> to close ...')
