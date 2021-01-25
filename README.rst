@@ -6,7 +6,7 @@ Install
 =======
 .. code-block:: console
 
-   pip install https://github.com/MSLNZ/pr-omega-logger/archive/v0.1.0.tar.gz
+   pip install https://github.com/MSLNZ/pr-omega-logger/archive/master.tar.gz
 
 Usage
 =====
