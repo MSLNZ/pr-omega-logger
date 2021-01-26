@@ -28,6 +28,7 @@ try:
         cfg.value('log_dir'),
         wait=60.0,
         nprobes=record.connection.properties.get('nprobes', 1),
+        nbytes=record.connection.properties.get('nbytes'),
     )
 except KeyboardInterrupt:
     pass
