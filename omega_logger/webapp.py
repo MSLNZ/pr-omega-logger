@@ -55,9 +55,9 @@ dropdown_options = list()
 calibrations = dict()
 cfg = Config(sys.argv[1])
 omegas = cfg.database().records(manufacturer='OMEGA')
-for omega in sorted(omegas, key=lambda r: r.user_defined['usual_location']):
+for omega in sorted(omegas, key=lambda r: r.alias):
     dropdown_options.append({
-        'label': omega.user_defined['usual_location'] + ' - ' + omega.serial,
+        'label': omega.alias + ' - ' + omega.serial,
         'value': omega.model + '_' + omega.serial + '.sqlite3'
     })
     element = cfg.root.find('.//omega[@serial="%s"]' % omega.serial)
