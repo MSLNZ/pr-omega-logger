@@ -25,9 +25,9 @@ from msl.equipment import Config
 from msl.equipment.resources.omega.ithx import iTHX
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='                 [%(asctime)s] "%(message)s"',
-    datefmt='%Y-%m-%d %H:%M:%S',
+   level=logging.INFO,
+   format='%(asctime)s [%(levelname)5s] %(message)s',
+   datefmt='%Y-%m-%d %H:%M:%S',
 )
 
 
@@ -207,8 +207,6 @@ def update_download_link(children):
 
         # use '%0A' instead of '\n' if using the flask.send_file method
         csv_string = '\n'.join(','.join(row) for row in csv_data)
-
-    logging.info('size(csv_string)={} MB'.format(len(csv_string)/1e6))
 
     return 'data:text/csv;charset=utf-8,' + csv_string
     #return '/data/download?value={}'.format(csv_string)
@@ -394,7 +392,7 @@ host = cfg.value('host', default=socket.gethostname())
 port = cfg.value('port', default=1875)
 
 try:
-    http_server = WSGIServer((host, port), app.server)
+    http_server = WSGIServer((host, port), application=app.server, log=None)
 except:
     traceback.print_exc(file=sys.stdout)
     input('Press <ENTER> to close ...')
