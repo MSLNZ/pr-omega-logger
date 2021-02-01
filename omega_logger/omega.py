@@ -66,5 +66,5 @@ try:
 except KeyboardInterrupt:
     pass
 except:
-    traceback.print_exc(file=sys.stdout)
+    traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')
