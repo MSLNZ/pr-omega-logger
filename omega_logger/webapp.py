@@ -12,7 +12,7 @@ import traceback
 from math import floor, ceil
 from datetime import datetime
 
-#import flask
+from flask import request
 import numpy as np
 import dash
 import dash_core_components as dcc
@@ -263,8 +263,8 @@ def value_changed(*args):
         t0 = time.time()
         values = iTHX.data(dbase, date1=date1, date2=date2, as_datetime=False, select=select)
         dt = time.time() - t0
-        logging.info('Fetched {} {} records for {!r} in {:.3f} seconds'
-                     .format(len(values), select, label, dt))
+        logging.info('[{}] Fetched {} {!r} records for {!r} in {:.3f} seconds'
+                     .format(request.remote_addr, len(values), select[1], label, dt))
         data = np.asarray(values, dtype=[('timestamp', 'U19'), (tab, float)])
 
         # apply the calibration equation
