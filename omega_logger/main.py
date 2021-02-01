@@ -14,20 +14,32 @@ from msl.equipment import Config
 
 def start():
     if len(sys.argv) == 1:
-        sys.exit('You must pass in the path to the XML configuration file.')
+        print('You must pass in the path to the XML configuration file.', file=sys.stderr)
+        return 1
 
     xml = os.path.abspath(sys.argv[1])
-    cfg = Config(xml)
+    try:
+        cfg = Config(xml)
+    except IOError as e:
+        print('{}: {}'.format(e.__class__.__name__, e), file=sys.stderr)
+        return 1
 
     log_dir = cfg.value('log_dir')
     if not log_dir:
-        sys.exit('The is no "log_dir" element in the config file.\n'
-                 'Where do you want to log the data to?')
+        print('There is no "log_dir" element in the config file.\n'
+              'What directory do you want to log the data to?', file=sys.stderr)
+        return 1
+
+    if not os.path.isdir(log_dir):
+        print('The log_dir value of {!r} is not a valid directory.'.format(log_dir), file=sys.stderr)
+        return 1
 
     serials = cfg.value('serials')
     if not serials:
-        sys.exit('You have not specified any OMEGA serial numbers to log.\n'
-                 'Create a "serials" element with each serial number on a new line.')
+        print('You have not specified a serial number of an OMEGA iServer.\n'
+              'Create a "serials" element with each serial number separated\n'
+              'by white space and/or a comma.', file=sys.stderr)
+        return 1
 
     if isinstance(serials, int):  # then only a single serial number was specified
         serials = [str(serials)]
@@ -36,6 +48,18 @@ def start():
 
     # change the current working directory to where the package files are located
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+    register_path = cfg.find(r'registers/register/path')
+    if register_path is None:
+        print('You have not specified a "registers/register/path" element '
+              'in the configuration file', file=sys.stderr)
+        return 1
+
+    connection_path = cfg.find(r'connections/connection/path')
+    if connection_path is None:
+        print('You have not specified a "connections/connection/path" element '
+              'in the configuration file', file=sys.stderr)
+        return 1
 
     # wait for the equipment and connection register files to be available
     # since Windows can take a while to map the Shared drive on startup
