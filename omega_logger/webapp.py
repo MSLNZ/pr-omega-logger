@@ -386,5 +386,8 @@ else:
     logging.info('Serving at http://{}:{}'.format(host, port))
     try:
         http_server.serve_forever()
+    except Exception:
+        traceback.print_exc(file=sys.stderr)
+        input('Press <ENTER> to close ...')
     except KeyboardInterrupt:
         pass
