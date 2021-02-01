@@ -1,21 +1,44 @@
 """
 Start logging a particular OMEGA iServer.
 """
-import os
+import re
 import sys
 import logging
 import traceback
 
 from msl.equipment import Config
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)-5s] %(message)s',
-)
+
+class AliasFormatter(logging.Formatter):
+
+    def __init__(self, fmt, alias):
+        """Inserts the alias of the equipment record into a logging message."""
+        super(AliasFormatter, self).__init__(fmt=fmt)
+        self.alias = alias
+
+    def format(self, record):
+        if self.alias and record.levelno > logging.INFO:
+            record.msg = '[{}] {}'.format(self.alias, record.msg)
+        return super(AliasFormatter, self).format(record)
+
 
 try:
-    cfg = Config(sys.argv[1])
-    record = cfg.database().records(manufacturer='OMEGA', serial=sys.argv[2])[0]
+    path, serial = sys.argv[1:]
+    cfg = Config(path)
+    db = cfg.database()
+
+    records = db.records(manufacturer='OMEGA', serial=serial, flags=re.IGNORECASE)
+    if not records:
+        raise ValueError('No equipment record exists for '
+                         'manufacturer=OMEGA and serial={}'.format(serial))
+
+    record = records[0]
+
+    hdlr = logging.StreamHandler(sys.stdout)
+    formatter = AliasFormatter('%(asctime)s [%(levelname)-5s] %(message)s', record.alias)
+    hdlr.setFormatter(formatter)
+    logging.root.addHandler(hdlr)
+    logging.root.setLevel(logging.INFO)
 
     iserver = None
     while iserver is None:
