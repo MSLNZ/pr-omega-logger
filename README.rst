@@ -43,11 +43,6 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             12481415
         </serials>
 
-        <!--
-          The 'coefficients' element represents the polynomial coefficients c0,c1,c2,c3...
-          (you can either separate the coefficients by a comma or a semi-colon).
-          The corrected value is calculated as "c0 + c1*x + c2*x^2 + c3*x^3 ..."
-        -->
         <calibrations>
             <omega serial="4370757">
                 <report date="2018-07-21" number="Humidity/2018/386">
@@ -56,6 +51,12 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                     <coverage_factor>2.0</coverage_factor>
                     <confidence>95%</confidence>
                     <temperature units="C" min="18" max="24">
+                        <!--
+                          The 'coefficients' element represents the polynomial coefficients
+                          c0,c1,c2,c3... to apply as the calibration equation. You can
+                          either separate the coefficients by a comma or a semi-colon.
+                          The corrected values are calculated as c0 + c1*x + c2*x^2 + c3*x^3 ...
+                        -->
                         <coefficients>0.01</coefficients>
                         <expanded_uncertainty>0.13</expanded_uncertainty>
                     </temperature>
