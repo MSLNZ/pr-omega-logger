@@ -348,8 +348,10 @@ def value_changed(*args):
                         'range': y_range,
                     },
                     hovermode='closest',
-                    legend=dict(orientation='v', x=0, y=2),
-                )
+                    legend=dict(orientation='v', x=1, y=1),
+                    # height=500,
+                    margin=go.layout.Margin(autoexpand=True, l=75, r=0, b=75, t=50, pad=10)
+                ),
             }
         ),
         html.Table(
