@@ -52,6 +52,10 @@ class CalibrationReport(object):
             }
             setattr(self, name, d)
 
+    def __str__(self):
+        return '<CalibrationReport serial={} component={!r} number={!r}>'\
+            .format(self.serial, self.component, self.number)
+
 
 # get the info about the OMEGA loggers
 dropdown_options = list()
