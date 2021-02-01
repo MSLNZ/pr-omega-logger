@@ -374,8 +374,8 @@ def now_date(n_clicks):
     return datetime.now().strftime('%Y-%m-%d')
 
 
-host = socket.gethostname()
-port = 1875
+host = cfg.value('host', default=socket.gethostname())
+port = cfg.value('port', default=1875)
 
 try:
     http_server = WSGIServer((host, port), app.server)
