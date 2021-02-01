@@ -3,6 +3,7 @@ Start the Dash app.
 """
 #import io
 import os
+import re
 import sys
 import time
 import socket
@@ -42,12 +43,13 @@ class CalibrationReport(object):
         self.confidence = report.find('confidence').text
         for name in ['temperature', 'humidity']:
             e = report.find(name)
-            d = dict()
-            d['units'] = e.attrib['units']
-            d['min'] = float(e.attrib['min'])
-            d['max'] = float(e.attrib['max'])
-            d['coefficients'] = [float(val) for val in e.find('coefficients').text.split(';')]
-            d['expanded_uncertainty'] = float(e.find('expanded_uncertainty').text)
+            d = {
+                'units': e.attrib['units'],
+                'min': float(e.attrib['min']),
+                'max': float(e.attrib['max']),
+                'coefficients': [float(val) for val in re.split(r'[;,]', e.find('coefficients').text)],
+                'expanded_uncertainty': float(e.find('expanded_uncertainty').text),
+            }
             setattr(self, name, d)
 
 
