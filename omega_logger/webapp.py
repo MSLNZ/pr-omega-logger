@@ -281,13 +281,13 @@ def value_changed(*args):
             row += 1
             if data[item].size > 0:
 
-                    # if the max or min values are outside of the range that was used
-                    # in the calibration report then change the color of the row
-                    style, mx, mn = None, np.max(data[item]), np.min(data[item])
-                    if item != 'dewpoint':
-                        obj = getattr(report, item)
-                        if mx > obj['max'] or mn < obj['min']:
-                            style = dict(backgroundColor='#FF0000')
+                # if the max or min values are outside of the range that was used
+                # in the calibration report then change the color of the row
+                style, mx, mn = None, np.max(data[item]), np.min(data[item])
+                if item != 'dewpoint':
+                    obj = getattr(report, item)
+                    if mx > obj['max'] or mn < obj['min']:
+                        style = dict(backgroundColor='#FF0000')
 
                 table.append(
                     html.Tr([
