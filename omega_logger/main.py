@@ -6,6 +6,7 @@ Usage:
 omega-logger /path/to/config.xml
 """
 import os
+import re
 import sys
 import time
 
@@ -44,7 +45,7 @@ def start():
     if isinstance(serials, int):  # then only a single serial number was specified
         serials = [str(serials)]
     else:
-        serials = [s.strip() for s in serials.splitlines() if s.strip()]
+        serials = [s.strip() for s in re.split(r'\s|,', serials) if s.strip()]
 
     # change the current working directory to where the package files are located
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
