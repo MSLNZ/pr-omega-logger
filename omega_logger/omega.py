@@ -47,11 +47,21 @@ try:
         except:
             pass
 
+    nprobes = record.connection.properties.get('nprobes', 1)
+
+    msg_format = None
+    elements = cfg.findall('msg_format')
+    for element in elements:
+        if nprobes == int(element.attrib.get('nprobes', 1)):
+            msg_format = element.text
+            break
+
     iserver.start_logging(
         cfg.value('log_dir'),
-        wait=60.0,
-        nprobes=record.connection.properties.get('nprobes', 1),
+        wait=cfg.value('wait', 60),
+        nprobes=nprobes,
         nbytes=record.connection.properties.get('nbytes'),
+        msg_format=msg_format,
     )
 except KeyboardInterrupt:
     pass
