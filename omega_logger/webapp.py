@@ -8,6 +8,7 @@ import time
 import socket
 import logging
 import traceback
+from math import floor, ceil
 from datetime import datetime
 
 #import flask
@@ -238,6 +239,7 @@ def value_changed(*args):
     date1 = '{} {}:{}:{}'.format(*args[2:6])
     date2 = '{} {}:{}:{}'.format(*args[6:])
     plots = []
+    y_range = [sys.maxsize, -sys.maxsize]
     table = [html.Tr([html.Th('OMEGA logger'), html.Th('Report No.'), html.Th('Description'), html.Th('Average'),
                       html.Th('Stdev'), html.Th('Median'), html.Th('Max'), html.Th('Min'), html.Th('# Points')])]
     if sqlite_databases:
@@ -303,13 +305,30 @@ def value_changed(*args):
                         ], style=dict(backgroundColor='#F2F2F2' if row % 2 else '#FFFFFF'))
                     )
 
-            plots.append(
-                go.Scatter(
-                    x=data['timestamp'],
-                    y=data[tab],
-                    name=name,  # the name displayed in the legend
-                )
+        plots.append(
+            go.Scatter(
+                x=data['timestamp'],
+                y=data[tab],
+                name=name,  # the name displayed in the legend
             )
+        )
+
+        # if there is no data for the specified date range then calling
+        # np.min or np.max will raise the following exception
+        #   ValueError: zero-size array to reduction operation minimum which has no identity
+        if data[tab].size > 0:
+            y_range = [
+                min(np.min(data[tab]), y_range[0]),
+                max(np.max(data[tab]), y_range[1])
+            ]
+
+    # want the y_range values to be nice numbers like 20.1 not 20.0913136
+    if y_range[0] == sys.maxsize:
+        y_range = [0, 1]
+    else:
+        factor = 10.
+        y_range = [floor(y_range[0]*factor)/factor, ceil(y_range[1]*factor)/factor]
+
     return [
         dcc.Graph(
             id='plot',
@@ -318,7 +337,10 @@ def value_changed(*args):
                 'layout': go.Layout(
                     title=tab.title(),
                     xaxis={'title': 'Timestamp', 'type': 'date'},
-                    yaxis={'title': tab.title() + (' [%]' if tab == 'humidity' else ' [C]')},
+                    yaxis={
+                        'title': tab.title() + (' [%]' if tab == 'humidity' else ' [&#176;C]'),
+                        'range': y_range,
+                    },
                     hovermode='closest',
                     legend=dict(orientation='v', x=0, y=2),
                 )
