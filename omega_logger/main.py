@@ -64,16 +64,16 @@ def start():
 
     # wait for the equipment and connection register files to be available
     # since Windows can take a while to map the Shared drive on startup
-    register_path = cfg.find(r'registers/register/path').text
-    connection_path = cfg.find(r'connections/connection/path').text
-    max_dots = 4
-    num_dots = 0
+    i = 0
+    register_path = register_path.text
+    connection_path = connection_path.text
+    options = ['|', '/', '-', '\\', '|', '/', '-', '\\']
     while not (os.path.isfile(register_path) and os.path.isfile(connection_path)):
-        print('Waiting for the register files to be available.' + '.'*num_dots + ' '*(max_dots-num_dots), end='\r')
-        num_dots += 1
-        if num_dots > max_dots:
-            num_dots = 0
-        time.sleep(1)
+        print('Waiting for the register files to be available ' + options[i], end='\r')
+        i += 1
+        if i == len(options):
+            i = 0
+        time.sleep(0.1)
 
     # start all OMEGA loggers
     for serial in serials:
