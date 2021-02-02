@@ -77,7 +77,9 @@ for omega in sorted(omegas, key=lambda r: r.alias):
                 label = omega.alias
                 if component:
                     label += ' - {}'.format(component)
-                calibrations[label] = reports
+                    calibrations[label] = [r for r in reports if r.component == component]
+                else:
+                    calibrations[label] = reports
                 dropdown_options.append({
                     'label': label,
                     'value': '{};;{};;{}'.format(label, component, dbase_file),
