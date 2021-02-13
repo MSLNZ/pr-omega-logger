@@ -23,7 +23,9 @@ setup(
     ],
     install_requires=[
         'msl-equipment @ https://github.com/MSLNZ/msl-equipment/archive/master.tar.gz',
+        'numpy',
         'gevent',
+        'flask',
         'plotly',
         'dash',
         'dash-core-components',
