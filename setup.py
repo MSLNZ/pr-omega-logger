@@ -1,14 +1,26 @@
+import re
 from setuptools import setup
+
+
+def read(filename):
+    with open(filename) as fp:
+        return fp.read()
+
+
+def fetch_init(key):
+    # open the __init__.py file to determine the value instead of importing the package to get the value
+    init_text = read(r'omega_logger\__init__.py')
+    return re.search(r'{}\s*=\s*(.*)'.format(key), init_text).group(1).strip('\'\"')
 
 setup(
     name='omega_logger',
-    version='0.2.0.dev0',
-    author='Joseph Borbely',
-    author_email='joseph.borbely@measurement.govt.nz',
+    version=fetch_init('__version__'),
+    author=fetch_init('__author__'),
+    author_email='info@measurement.govt.nz',
     url='https://github.com/MSLNZ/pr-omega-logger',
     description='Logs the temperature, humidity and dew point from OMEGA iServer\'s'
                 'and creates a Dash webapp to view the data',
-    long_description=open('README.rst').read().strip(),
+    long_description=read('README.rst'),
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
