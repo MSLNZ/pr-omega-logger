@@ -81,5 +81,8 @@ def start():
         os.system(cmd)
 
     # start the Dash web application
-    cmd = ' '.join(['start', sys.executable, '-m', 'webapp', '"{}"'.format(xml)])
-    os.system(cmd)
+    cmd = ' '.join(['start', sys.executable, '-m', 'webapp', '"{}"'.format(xml), ','.join(serials)])
+    try:
+        os.system(cmd)
+    except KeyboardInterrupt:
+        pass

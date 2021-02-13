@@ -1,18 +1,13 @@
 """
 Start the Dash app.
 """
-#import io
-import os
-import re
 import sys
-import time
 import socket
 import logging
 import traceback
 from math import floor, ceil
 from datetime import datetime
 
-from flask import request
 import numpy as np
 import dash
 import dash_core_components as dcc
@@ -20,119 +15,25 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 from gevent.pywsgi import WSGIServer
-
+from flask import request, jsonify
 from msl.equipment import Config
-from msl.equipment.resources.omega.ithx import iTHX
+
+from utils import (
+    fromisoformat,
+    initialize_webapp,
+    find_report,
+    find_reports,
+    read_database,
+    apply_calibration,
+    HTMLTable,
+)
+from datetime_range_picker import DatetimeRangePicker
 
 logging.basicConfig(
    level=logging.INFO,
    format='%(asctime)s [%(levelname)5s] %(message)s',
    datefmt='%Y-%m-%d %H:%M:%S',
 )
-
-
-class CalibrationReport(object):
-
-    def __init__(self, serial, report):
-        self.serial = serial
-        self.component = report.attrib.get('component', '')
-        self.date = datetime.strptime(report.attrib['date'], '%Y-%m-%d')
-        self.number = report.attrib['number']
-        self.start_date = datetime.strptime(report.find('start_date').text, '%Y-%m-%d')
-        self.end_date = datetime.strptime(report.find('end_date').text, '%Y-%m-%d')
-        self.coverage_factor = float(report.find('coverage_factor').text)
-        self.confidence = report.find('confidence').text
-        for name in ['temperature', 'humidity']:
-            e = report.find(name)
-            d = {
-                'units': e.attrib['units'],
-                'min': float(e.attrib['min']),
-                'max': float(e.attrib['max']),
-                'coefficients': [float(val) for val in re.split(r'[;,]', e.find('coefficients').text)],
-                'expanded_uncertainty': float(e.find('expanded_uncertainty').text),
-            }
-            setattr(self, name, d)
-
-    def __str__(self):
-        return '<CalibrationReport serial={} component={!r} number={!r}>'\
-            .format(self.serial, self.component, self.number)
-
-
-# get the info about the OMEGA loggers
-dropdown_options = list()
-calibrations = dict()
-cfg = Config(sys.argv[1])
-
-log_dir = cfg.value('log_dir')
-omegas = cfg.database().records(manufacturer='OMEGA')
-for omega in sorted(omegas, key=lambda r: r.alias):
-    dbase_file = os.path.join(log_dir, omega.model + '_' + omega.serial + '.sqlite3')
-    if not os.path.isfile(dbase_file):
-        continue
-    for element in cfg.find('calibrations'):
-        if element.attrib.get('serial') == omega.serial:
-            reports = [CalibrationReport(omega.serial, report) for report in element.findall('report')]
-            components = sorted(set(r.component for r in reports))
-            for component in components:
-                label = omega.alias
-                if component:
-                    label += ' - {}'.format(component)
-                    calibrations[label] = [r for r in reports if r.component == component]
-                else:
-                    calibrations[label] = reports
-                dropdown_options.append({
-                    'label': label,
-                    'value': '{};;{};;{}'.format(label, component, dbase_file),
-                })
-
-
-def div_timestamp(prefix):
-    now = datetime.now()
-    return html.Div([
-        html.Div(
-            dcc.DatePickerSingle(
-                id=prefix+'-date',
-                date=now.strftime('%Y-%m-%d'),
-                display_format='YYYY-MM-DD',
-            ),
-            title=prefix.title() + ': Date',
-            style={'display': 'inline-block'},
-        ),
-        html.Div(
-            dcc.Dropdown(
-                id=prefix+'-hour',
-                options=[{'label': '%02d' % i, 'value': '%02d' % i} for i in range(24)],
-                value='00' if prefix == 'from' else '%02d' % now.hour,
-                clearable=False,
-            ),
-            title=prefix.title() + ': Hour',
-            style={'display': 'inline-block', 'vertical-align': 'middle', 'paddingLeft': '0.2%'},
-        ),
-        html.Div(
-            dcc.Dropdown(
-                id=prefix+'-minute',
-                options=[{'label': '%02d' % i, 'value': '%02d' % i} for i in range(60)],
-                value='00' if prefix == 'from' else '%02d' % now.minute,
-                clearable=False,
-            ),
-            title=prefix.title() + ': Minute',
-            style={'display': 'inline-block', 'vertical-align': 'middle', 'paddingLeft': '0.2%'},
-        ),
-        html.Div(
-            dcc.Dropdown(
-                id=prefix+'-second',
-                options=[{'label': '%02d' % i, 'value': '%02d' % i} for i in range(60)],
-                value='00',
-                clearable=False,
-            ),
-            title=prefix.title() + ': Second',
-            style={'display': 'inline-block', 'vertical-align': 'middle', 'paddingLeft': '0.2%'},
-        ),
-        html.Div(
-            html.Button('Now', id='now-button', title='Set the To timestamp to now'),
-            style={'display': 'inline-block', 'vertical-align': 'middle', 'paddingLeft': '0.2%'},
-        ) if prefix == 'to' else None
-    ])
 
 
 def serve_layout():
@@ -143,26 +44,23 @@ def serve_layout():
             multi=True,
             placeholder='Select the OMEGA logger(s)...',
         ),
-        html.Div([
-            html.Div(div_timestamp('from'), style={'display': 'inline-block', 'width': '50%'}),
-            html.Div(div_timestamp('to'), style={'display': 'inline-block', 'width': '50%'}),
-        ]),
+        DatetimeRangePicker(
+            id='datetime-range',
+            max_date=datetime.today(),
+            date_format='D MMM YYYY',
+            time_format='h:mm:ss a',
+            date_style={'color': '#514EA6', 'fontSize': '32px'},
+            time_style={'color': '#027368', 'fontSize': '24px'},
+            arrow={'width': '50px', 'height': '70px', 'color': '#025159'},
+        ),
         dcc.Tabs(
             id='tabs',
             value='temperature',
             children=[
-                dcc.Tab(
-                    label='Temperature',
-                    value='temperature'
-                ),
-                dcc.Tab(
-                    label='Humidity',
-                    value='humidity'
-                ),
-                dcc.Tab(
-                    label='Dewpoint',
-                    value='dewpoint'
-                )
+                dcc.Tab(label='Current Readings', value='current-readings'),
+                dcc.Tab(label='Temperature', value='temperature'),
+                dcc.Tab(label='Humidity', value='humidity'),
+                dcc.Tab(label='Dewpoint', value='dewpoint'),
             ],
             style={'display': 'inline-block'},
         ),
@@ -177,17 +75,132 @@ def serve_layout():
                   '* Chrome limit is #points < 78,000 (i.e., a < 2MB CSV file)'
         ),
         html.Div(id='plot-viewer'),
+        html.Div(id='current-readings-viewer'),
+        dcc.Interval(id='current-readings-interval', interval=1000),
     ])
 
 
-# create the application
+try:
+    path, serials = sys.argv[1:]
+    cfg = Config(path)
+    dropdown_options, calibrations, omegas = initialize_webapp(cfg, serials)
+except:
+    traceback.print_exc(file=sys.stdout)
+    input('Press <ENTER> to close ...')
+    sys.exit(1)
+
 app = dash.Dash()
-app.title = 'OMEGA Loggers'
+app.title = 'OMEGA iServers'
 app.layout = serve_layout  # set app.layout to a function to serve a dynamic layout on every page load
+app.server.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 
-@app.callback(Output('download-link', 'href'), [Input('plot-viewer', 'children')])
+@app.server.route('/aliases')
+def aliases():
+    """Get the aliases of the OMEGA iServer's.
+
+    Examples
+    --------
+    /aliases
+        Return the aliases that are used. The keys are the serial numbers
+        of each OMEGA iServer and the values are the aliases.
+    """
+    data = dict((value.serial, value.alias) for value in omegas.values())
+    return jsonify(data)
+
+
+@app.server.route('/now')
+def now():
+    """Get the current temperature, humidity and dewpoint values.
+
+    Endpoint
+    --------
+    /now[?[serial=][alias=][corrected=true]]
+
+    serial: the serial number of the OMEGA iServer to get the values from.
+
+    alias: the alias of the OMEGA iServer to get the values from.
+      If a serial number is also specified then it gets precedence over
+      the alias.
+
+    corrected: whether to apply the calibration equation. Default is true.
+
+    Examples
+    --------
+    /now
+        Return the corrected values from all OMEGA devices.
+    /now?serial=12345
+        Return the corrected values from the OMEGA device that
+        has the serial number 12345.
+    /now?alias=Mass2
+        Return the corrected values from the OMEGA device that
+        has the alias Mass2.
+    /now?corrected=false
+        Return the uncorrected values from all OMEGA devices.
+    /now?serial=12345&corrected=false
+        Return the uncorrected values from the OMEGA device that
+        has the serial number 12345.
+    /now?alias=Mass2&corrected=false
+        Return the uncorrected values from the OMEGA device that
+        has the alias Mass2.
+    """
+    apply_corr = request.args.get('corrected', 'true').lower() == 'true'
+    requested = request.args.get('serial')
+    if not requested:
+        requested = request.args.get('alias')
+
+    data = dict()
+    for serial, omega in omegas.items():
+        if requested and requested not in [serial, omega.alias]:
+            continue
+
+        nprobes = omega.connection.properties.get('nprobes', 1)
+        nbytes = omega.connection.properties.get('nbytes')
+
+        error = None
+        try:
+            cxn = omega.connect()
+            thd = cxn.temperature_humidity_dewpoint(probe=1, nbytes=nbytes)
+            if nprobes == 2:
+                thd += cxn.temperature_humidity_dewpoint(probe=2, nbytes=nbytes)
+            cxn.disconnect()
+        except Exception as e:
+            error = str(e)
+            thd = [None] * (nprobes * 3)
+
+        timestamp = datetime.now().replace(microsecond=0).isoformat(sep=' ')
+        data[serial] = {
+            'error': error,
+            'alias': omega.alias,
+            'timestamp': timestamp
+        }
+        if len(thd) == 3:
+            data[serial].update({
+                'temperature': thd[0], 'humidity': thd[1], 'dewpoint': thd[2]
+            })
+        else:
+            data[serial].update({
+                'temperature1': thd[0], 'humidity1': thd[1], 'dewpoint1': thd[2],
+                'temperature2': thd[3], 'humidity2': thd[4], 'dewpoint2': thd[5]
+            })
+
+    if apply_corr:
+        corrected = dict()
+        for serial, values in data.items():
+            for report in find_reports(calibrations, serial):
+                values = apply_calibration(values, report)
+            corrected[serial] = values
+        return jsonify(corrected)
+    return jsonify(data)
+
+
+@app.callback(
+    Output('download-link', 'href'),
+    [Input('plot-viewer', 'children')])
 def update_download_link(children):
+    if not children:
+        return
+
     data = children[0]['props']['figure']['data']
     title = children[0]['props']['figure']['layout']['title']['text']
     if not data:
@@ -227,105 +240,43 @@ def update_download_link(children):
 #        as_attachment=True,
 #    )
 
+@app.callback(
+    Output('current-readings-interval', 'disabled'),
+    [Input('tabs', 'value')])
+def update_interval_state(tab):
+    return tab != 'current-readings'
+
 
 @app.callback(
     Output('plot-viewer', 'children'),
     [Input('tabs', 'value'),
      Input('omega-dropdown', 'value'),
-     Input('from-date', 'date'),
-     Input('from-hour', 'value'),
-     Input('from-minute', 'value'),
-     Input('from-second', 'value'),
-     Input('to-date', 'date'),
-     Input('to-hour', 'value'),
-     Input('to-minute', 'value'),
-     Input('to-second', 'value'),])
-def value_changed(*args):
-    tab = args[0]
-    dropdown_values = args[1] or []
-    date1 = '{} {}:{}:{}'.format(*args[2:6])
-    date2 = '{} {}:{}:{}'.format(*args[6:])
-    plots = []
-    y_range = [sys.maxsize, -sys.maxsize]
-    table = [html.Tr([html.Th('OMEGA logger'), html.Th('Report No.'), html.Th('Description'), html.Th('Average'),
-                      html.Th('Stdev'), html.Th('Median'), html.Th('Max'), html.Th('Min'), html.Th('# Points')])]
-    row = 0
-    for value in dropdown_values:
-        label, component, dbase = value.split(';;')
+     Input('datetime-range', 'start'),
+     Input('datetime-range', 'end')])
+def plot_viewer(tab, dropdown, start, end):
+    if tab == 'current-readings' or not start or not end:
+        return ''
 
-        # get the results from the latest Calibration Report
-        report = calibrations[label][0]
-        for r in calibrations[label][1:]:
-            if (r.start_date > report.start_date) and (r.component == component):
-                report = r
+    plots = []
+    labels = dropdown or []  # dropdown values could be None, but we still need an iterable
+    start_date = fromisoformat(start)
+    end_date = fromisoformat(end)
+    y_range = [sys.maxsize, -sys.maxsize]
+    table = HTMLTable()
+    for label in labels:
+        # find the latest CalibrationReport
+        report = find_report(calibrations[label])
 
         # fetch the data
-        probe_number = re.search(r'(\d)', component).group(0) if component else ''
-        select = ('timestamp', tab+probe_number)
-        t0 = time.time()
-        values = iTHX.data(dbase, date1=date1, date2=date2, as_datetime=False, select=select)
-        dt = time.time() - t0
-        logging.info('[{}] Fetched {} {!r} records for {!r} in {:.3f} seconds'
-                     .format(request.remote_addr, len(values), select[1], label, dt))
-        data = np.asarray(values, dtype=[('timestamp', 'U19'), (tab, float)])
+        data, message = read_database(report, tab, date1=start_date, date2=end_date, label=label)
+        logging.info('[{}] {}'.format(request.remote_addr, message))
 
         # apply the calibration equation
         if tab != 'dewpoint':
-            coefficients = getattr(report, tab)['coefficients']
-            correction = coefficients[0] * np.ones(data[tab].size)
-            for n, c in enumerate(coefficients[1:], start=1):
-                correction += c * data[tab]**n
-            data[tab] += correction
+            data = apply_calibration(data, report)
 
-        # create the HTML table
-        for item in (tab,):  # 'temperature', 'humidity', 'dewpoint'):
-            report_number = '<uncorrected>' if item == 'dewpoint' else report.number
-            row += 1
-            if data[item].size > 0:
-
-                # if the max or min values are outside of the range that was used
-                # in the calibration report then change the color of the row
-                style, mx, mn = None, np.max(data[item]), np.min(data[item])
-                if item != 'dewpoint':
-                    obj = getattr(report, item)
-                    if mx > obj['max'] or mn < obj['min']:
-                        style = dict(backgroundColor='#FF0000')
-
-                table.append(
-                    html.Tr([
-                        html.Td(label, style=style),
-                        html.Td(report_number, style=style),
-                        html.Td(item.title() if not style else item.title() + ' [value out of range]', style=style),
-                        html.Td('{:.1f}'.format(np.average(data[item])), style=style),
-                        html.Td('{:.1f}'.format(np.std(data[item])), style=style),
-                        html.Td('{:.1f}'.format(np.median(data[item])), style=style),
-                        html.Td('{:.1f}'.format(mx), style=style),
-                        html.Td('{:.1f}'.format(mn), style=style),
-                        html.Td('{}'.format(data[item].size), style=style),
-                    ], style=dict(backgroundColor='#F2F2F2' if row % 2 else '#FFFFFF'))
-                )
-            else:
-                table.append(
-                    html.Tr([
-                        html.Td(label),
-                        html.Td(report_number),
-                        html.Td(item.title()),
-                        html.Td(''),
-                        html.Td(''),
-                        html.Td(''),
-                        html.Td(''),
-                        html.Td(''),
-                        html.Td('0'),
-                    ], style=dict(backgroundColor='#F2F2F2' if row % 2 else '#FFFFFF'))
-                )
-
-        plots.append(
-            go.Scatter(
-                x=data['timestamp'],
-                y=data[tab],
-                name=label,  # the name displayed in the legend
-            )
-        )
+        # add the data to the HTML table
+        table.append(data, report, label)
 
         # if there is no data for the specified date range then calling
         # np.min or np.max will raise the following exception
@@ -335,6 +286,14 @@ def value_changed(*args):
                 min(np.min(data[tab]), y_range[0]),
                 max(np.max(data[tab]), y_range[1])
             ]
+
+        plots.append(
+            go.Scatter(
+                x=data['timestamp'],
+                y=data[tab],
+                name=label,  # the name displayed in the legend
+            )
+        )
 
     # want the y_range values to be nice numbers like 20.1 not 20.0913136
     if y_range[0] == sys.maxsize:
@@ -364,36 +323,40 @@ def value_changed(*args):
         ),
         html.Table(
             className='summary-table',
-            children=table,
+            children=table.get(),
             style=dict(width='100%', border='2px solid black', textAlign='center'),
         ),
     ]
 
 
-@app.callback(Output('to-second', 'value'), [Input('now-button', 'n_clicks')])
-def now_second(n_clicks):
-    return datetime.now().strftime('%S')
+@app.callback(
+    Output('current-readings-viewer', 'children'),
+    [Input('tabs', 'value'),
+     Input('current-readings-interval', 'n_intervals')])
+def current_readings_viewer(tab, n_intervals):
+    if tab != 'current-readings':
+        return
 
+    children = []
+    for serial, data in now().json.items():
+        b = '{} - {} @ {}'.format(serial, data['alias'], data['timestamp'][11:])
+        children.append(html.B(b))
+        if data['error']:
+            children.append(html.P(data['error']))
+        else:
+            p = []
+            for key in sorted(data):
+                if key in ['error', 'alias', 'timestamp']:
+                    continue
+                p.append(html.I(key+':', style={'color': 'grey'}))
+                p.append(html.Span('{:.2f} '.format(data[key])))
+            children.append(html.P(p))
+    return html.Div(children, style={'fontSize': '24px'})
 
-@app.callback(Output('to-minute', 'value'), [Input('now-button', 'n_clicks')])
-def now_minute(n_clicks):
-    return datetime.now().strftime('%M')
-
-
-@app.callback(Output('to-hour', 'value'), [Input('now-button', 'n_clicks')])
-def now_hour(n_clicks):
-    return datetime.now().strftime('%H')
-
-
-@app.callback(Output('to-date', 'date'), [Input('now-button', 'n_clicks')])
-def now_date(n_clicks):
-    return datetime.now().strftime('%Y-%m-%d')
-
-
-host = cfg.value('host', default=socket.gethostname())
-port = cfg.value('port', default=1875)
 
 try:
+    host = cfg.value('host', default=socket.gethostname())
+    port = cfg.value('port', default=1875)
     http_server = WSGIServer((host, port), application=app.server, log=None)
 except:
     traceback.print_exc(file=sys.stdout)
