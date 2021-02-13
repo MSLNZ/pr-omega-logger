@@ -1,0 +1,8 @@
+include datetime_range_picker/datetime_range_picker.css
+include datetime_range_picker/datetime_range_picker.min.js
+include datetime_range_picker/datetime_range_picker.min.js.map
+include datetime_range_picker/metadata.json
+include datetime_range_picker/package-info.json
+include README.md
+include LICENSE
+include package.json
