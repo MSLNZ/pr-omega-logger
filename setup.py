@@ -32,6 +32,9 @@ setup(
         'dash-html-components',
         'dash-renderer',
     ],
+    extras_require={
+        'tests': ['pytest', 'requests'],
+    },
     packages=['omega_logger'],
     entry_points={
         'console_scripts': [
