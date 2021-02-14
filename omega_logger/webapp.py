@@ -69,7 +69,10 @@ def serve_layout():
         ),
         html.Div(id='plot-viewer'),
         html.Div(id='current-readings-viewer'),
-        dcc.Interval(id='current-readings-interval', interval=1000),
+        dcc.Interval(
+            id='current-readings-interval',
+            interval=cfg.value('current_readings_interval', 10) * 1000,
+        ),
     ])
 
 

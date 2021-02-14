@@ -34,6 +34,9 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <host>localhost</host>
         <port>8080</port>
 
+        <!-- Optional: The number of seconds to wait to update the Current Readings tab. -->
+        <current_readings_interval>30</current_readings_interval>
+
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>
 
