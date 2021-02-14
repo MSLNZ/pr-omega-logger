@@ -358,15 +358,10 @@ try:
     host = cfg.value('host', default=socket.gethostname())
     port = cfg.value('port', default=1875)
     http_server = WSGIServer((host, port), application=app.server, log=None)
+    logging.info(f'Serving at http://{host}:{port}')
+    http_server.serve_forever()
+except KeyboardInterrupt:
+    pass
 except:
     traceback.print_exc(file=sys.stdout)
     input('Press <ENTER> to close ...')
-else:
-    logging.info('Serving at http://{}:{}'.format(host, port))
-    try:
-        http_server.serve_forever()
-    except Exception:
-        traceback.print_exc(file=sys.stderr)
-        input('Press <ENTER> to close ...')
-    except KeyboardInterrupt:
-        pass
