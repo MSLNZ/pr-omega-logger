@@ -98,6 +98,7 @@ def aliases():
         Return the aliases that are used. The keys are the serial numbers
         of each OMEGA iServer and the values are the aliases.
     """
+    logging.info(f'[{request.remote_addr}] {request.full_path}')
     data = dict((value.serial, value.alias) for value in omegas.values())
     return jsonify(data)
 
@@ -137,6 +138,8 @@ def now():
         Return the uncorrected values from the OMEGA device that
         has the alias Mass2.
     """
+    if request.full_path.startswith('/now'):  # the dcc.Interval callback also calls this function
+        logging.info(f'[{request.remote_addr}] {request.full_path}')
     apply_corr = request.args.get('corrected', 'true').lower() == 'true'
     requested = request.args.get('serial')
     if not requested:
@@ -240,7 +243,7 @@ def update_plot_viewer(tab, dropdown, start, end):
 
         # fetch the data
         data, message = read_database(report, tab, date1=start_date, date2=end_date, label=label)
-        logging.info('[{}] {}'.format(request.remote_addr, message))
+        logging.info(f'[{request.remote_addr}] {message}')
 
         # apply the calibration equation
         if tab != 'dewpoint':
@@ -357,6 +360,10 @@ def create_csv_file_for_download(n_clicks, figure):
 def current_readings_viewer(tab, n_intervals):
     if tab != 'current-readings':
         return
+
+    n = n_intervals or 0  # n_intervals is initially None
+    n += 1
+    logging.info(f'[{request.remote_addr}] Current reading interval {n}')
 
     children = []
     for serial, data in now().json.items():
