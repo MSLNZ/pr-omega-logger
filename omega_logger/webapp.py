@@ -64,16 +64,6 @@ def serve_layout():
             ],
             style={'display': 'inline-block'},
         ),
-        html.A(
-            'Download',
-            id='download-link',
-            download='omega-data.csv',
-            href='',
-            target='_blank',
-            title='Download the data in the plot\n'
-                  '* Not supported in Internet Explorer\n'
-                  '* Chrome limit is #points < 78,000 (i.e., a < 2MB CSV file)'
-        ),
         html.Div(id='plot-viewer'),
         html.Div(id='current-readings-viewer'),
         dcc.Interval(id='current-readings-interval', interval=1000),
@@ -303,6 +293,14 @@ def plot_viewer(tab, dropdown, start, end):
         y_range = [floor(y_range[0]*factor)/factor, ceil(y_range[1]*factor)/factor]
 
     return [
+        html.A(
+            id='download-link',
+            children='Download',
+            download='omega-logger-data.csv',
+            href='/download',
+            target='_blank',
+            title='Download the data in the plot as a CSV file',
+        ),
         dcc.Graph(
             id='plot',
             figure={
