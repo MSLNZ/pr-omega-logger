@@ -718,3 +718,18 @@ def test_apply_calibration_8():
     assert data4['temperature'] is None
     assert data4['humidity'] is None
     assert data4['dewpoint'] is None
+
+
+def test_human_file_size():
+    assert utils.human_file_size(0) == '0 B'
+    assert utils.human_file_size(1) == '1 B'
+    assert utils.human_file_size(2) == '2 B'
+    assert utils.human_file_size(10) == '10 B'
+    assert utils.human_file_size(210) == '210 B'
+    assert utils.human_file_size(3210) == '3 kB'
+    assert utils.human_file_size(43210) == '43 kB'
+    assert utils.human_file_size(543210) == '543 kB'
+    assert utils.human_file_size(6543210) == '7 MB'
+    assert utils.human_file_size(76543210) == '77 MB'
+    assert utils.human_file_size(876543210) == '877 MB'
+    assert utils.human_file_size(9876543210) == '10 GB'

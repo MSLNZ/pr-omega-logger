@@ -1,11 +1,34 @@
 import os
 import re
+from math import log, floor
 from time import perf_counter
 from datetime import datetime
 
 import numpy as np
 import dash_html_components as html
 from msl.equipment.resources.omega.ithx import iTHX
+
+
+def human_file_size(size):
+    """Return the human-readable size of a file.
+
+    For example, 123456789 becomes '123 MB'.
+
+    Parameters
+    ----------
+    size : :class:`int`
+        The file size.
+
+    Returns
+    -------
+    :class:`str`
+        The file size that is human readable.
+    """
+    thresh = 1000.  # use 1024 instead?
+    n = floor(log(size) / log(thresh)) if size > 0 else 0
+    prefix = size / (thresh ** n)
+    suffix = ['B', 'kB', 'MB', 'GB', 'TB'][n]
+    return f'{prefix:.0f} {suffix}'
 
 
 def fromisoformat(date_string):
