@@ -243,9 +243,9 @@ def update_interval_state(tab):
      Input('omega-dropdown', 'value'),
      Input('datetime-range', 'start'),
      Input('datetime-range', 'end')])
-def plot_viewer(tab, dropdown, start, end):
+def update_plot_viewer(tab, dropdown, start, end):
     if tab == 'current-readings' or not start or not end:
-        return ''
+        return []
 
     plots = []
     labels = dropdown or []  # dropdown values could be None, but we still need an iterable
