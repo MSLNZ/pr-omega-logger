@@ -367,7 +367,7 @@ def current_readings_viewer(tab, n_intervals):
 
     n = n_intervals or 0  # n_intervals is initially None
     n += 1
-    logging.info(f'[{request.remote_addr}] Current reading interval {n}')
+    logging.info(f'[{request.remote_addr}] Current Readings #{n}')
 
     children = []
     margin_right = cfg.value('current_readings/margin_right', '16px')
