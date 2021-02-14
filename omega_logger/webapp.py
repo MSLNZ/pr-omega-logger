@@ -191,12 +191,17 @@ def now():
 
 @app.server.route('/download')
 def download():
+    """Download a CSV file of the data in the plot.
 
+    This route is not meant to be called directly. Clicking the
+    Download link that is provided on the web page is the proper
+    way to download the data in the plot as a CSV file.
+    """
     filename = f'{request.remote_addr}.csv'
     file_path = os.path.join(tempfile.gettempdir(), filename)
     if not os.path.isfile(file_path):
         return 'You cannot download the data this way.<br/>' \
-               'Please use the download link that is provided', 401
+               'Please use the download link that is provided', 400
 
     def stream_then_remove_file():
         yield from file_handle
