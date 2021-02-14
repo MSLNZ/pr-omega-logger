@@ -62,7 +62,7 @@ class DatetimeRangePicker(Component):
     class_name : :class:`str`, optional
         A class name in the ``datetime_range_picker.css`` file.
         Default is ``datetime-range-center``
-     text : :class:`str`, optional
+    text : :class:`str`, optional
         The text to display to the user to update the end date to the
         current date and time. Use the ``<br/>`` tag to insert a line break.
     """
