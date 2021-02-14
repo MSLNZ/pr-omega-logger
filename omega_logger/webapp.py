@@ -29,6 +29,7 @@ from utils import (
     read_database,
     apply_calibration,
     HTMLTable,
+    datetime_range_picker_kwargs,
 )
 from datetime_range_picker import DatetimeRangePicker
 
@@ -49,12 +50,7 @@ def serve_layout():
         ),
         DatetimeRangePicker(
             id='datetime-range',
-            max_date=datetime.today(),
-            date_format='D MMM YYYY',
-            time_format='h:mm:ss a',
-            date_style={'color': '#514EA6', 'fontSize': '32px'},
-            time_style={'color': '#027368', 'fontSize': '24px'},
-            arrow={'width': '50px', 'height': '70px', 'color': '#025159'},
+            **datetime_range_picker_kwargs(cfg)
         ),
         dcc.Tabs(
             id='tabs',

@@ -2,11 +2,43 @@ import os
 import re
 from math import log, floor
 from time import perf_counter
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 import dash_html_components as html
 from msl.equipment.resources.omega.ithx import iTHX
+
+
+def datetime_range_picker_kwargs(cfg):
+    """Parse the configuration file for the DatetimeRangerPicker kwargs.
+
+    Parameters
+    ----------
+    cfg : :class:`msl.equipment.config.Config`
+        The configuration-file object.
+
+    Returns
+    -------
+    :class:`dict`
+        The keyword arguments.
+    """
+    kwargs = dict()
+    for element in cfg.find('datetime_range_picker'):
+        text = element.text.strip()
+        if text:
+            kwargs[element.tag] = text
+        else:
+            kwargs[element.tag] = dict()
+            for sub_element in element:
+                kwargs[element.tag][sub_element.tag] = sub_element.text
+
+    today = datetime.today()
+    for key in ['start', 'end', 'max_date', 'min_date']:
+        if key in kwargs:
+            dt = timedelta(**dict((k, int(v)) for k, v in kwargs[key].items()))
+            kwargs[key] = today + dt
+
+    return kwargs
 
 
 def human_file_size(size):

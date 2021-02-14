@@ -733,3 +733,20 @@ def test_human_file_size():
     assert utils.human_file_size(76543210) == '77 MB'
     assert utils.human_file_size(876543210) == '877 MB'
     assert utils.human_file_size(9876543210) == '10 GB'
+
+
+def test_datetime_range_picker_kwargs():
+    kwargs = utils.datetime_range_picker_kwargs(cfg)
+    assert isinstance(kwargs['start'], datetime)
+    assert isinstance(kwargs['end'], datetime)
+    assert isinstance(kwargs['max_date'], datetime)
+    assert isinstance(kwargs['min_date'], datetime)
+    assert kwargs['date_format'] == 'D MMM YYYY'
+    assert kwargs['time_format'] == 'h:mm:ss a'
+    assert kwargs['date_style'] == {'color': '#514EA6', 'fontSize': '32px'}
+    assert kwargs['time_style'] == {'color': '#027368', 'fontSize': '24px'}
+    assert kwargs['arrow'] == {'width': '50px', 'height': '70px', 'color': '#025159'}
+    assert kwargs['class_name'] == 'datetime-range-right'
+    assert kwargs['text'] == 'Refresh'
+
+

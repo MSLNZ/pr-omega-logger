@@ -37,6 +37,66 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <!-- Optional: The number of seconds to wait to update the Current Readings tab. -->
         <current_readings_interval>30</current_readings_interval>
 
+        <!--
+          Optional: Settings for the DatetimeRangePicker.
+          Each sub-element is also optional.
+        -->
+        <datetime_range_picker>
+            <!--
+              The dates are relative to the current date and time
+              when the DatetimeRangePicker loads in the webpage.
+            -->
+            <start>
+                <weeks>0</weeks>
+                <days>-10</days>
+                <hours>0</hours>
+                <minutes>0</minutes>
+                <seconds>0</seconds>
+            </start>
+            <end>
+                <weeks>0</weeks>
+                <days>1</days>
+                <hours>0</hours>
+                <minutes>0</minutes>
+                <seconds>0</seconds>
+            </end>
+            <min_date>
+                <weeks>-10</weeks>
+                <days>0</days>
+                <hours>0</hours>
+                <minutes>0</minutes>
+                <seconds>0</seconds>
+            </min_date>
+            <max_date>
+                <weeks>10</weeks>
+                <days>0</days>
+                <hours>0</hours>
+                <minutes>0</minutes>
+                <seconds>0</seconds>
+            </max_date>
+            <!--
+              See https://www.tutorialspoint.com/momentjs/momentjs_format.htm
+              for valid date and time formats.
+            -->
+            <date_format>D MMM YYYY</date_format>
+            <time_format>h:mm:ss a</time_format>
+            <date_style>
+                <color>#514EA6</color>
+                <fontSize>32px</fontSize>
+            </date_style>
+            <time_style>
+                <color>#027368</color>
+                <fontSize>24px</fontSize>
+            </time_style>
+            <arrow>
+                <width>50px</width>
+                <height>70px</height>
+                <color>#025159</color>
+            </arrow>
+            <class_name>datetime-range-left</class_name>
+            <text>Refresh</text>
+        </datetime_range_picker>
+
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>
 

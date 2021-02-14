@@ -4,6 +4,53 @@
     <port>1875</port>
     <log_dir>tests\resources</log_dir>
     <serials>01234, 56789</serials>
+    <datetime_range_picker>
+        <start> <!-- relative to now -->
+            <weeks>-1</weeks>
+            <days>-10</days>
+            <hours>0</hours>
+            <minutes>0</minutes>
+            <seconds>-22</seconds>
+        </start>
+        <end> <!-- relative to now -->
+            <weeks>1</weeks>
+            <days>1</days>
+            <hours>1</hours>
+            <minutes>1</minutes>
+            <seconds>1</seconds>
+        </end>
+        <date_format>D MMM YYYY</date_format>
+        <time_format>h:mm:ss a</time_format>
+        <date_style>
+            <color>#514EA6</color>
+            <fontSize>32px</fontSize>
+        </date_style>
+        <time_style>
+            <color>#027368</color>
+            <fontSize>24px</fontSize>
+        </time_style>
+        <arrow>
+            <width>50px</width>
+            <height>70px</height>
+            <color>#025159</color>
+        </arrow>
+        <class_name>datetime-range-right</class_name>
+        <text>Refresh</text>
+        <min_date> <!-- relative to now -->
+            <weeks>-100</weeks>
+            <days>0</days>
+            <hours>0</hours>
+            <minutes>0</minutes>
+            <seconds>0</seconds>
+        </min_date>
+        <max_date> <!-- relative to now -->
+            <weeks>0</weeks>
+            <days>0</days>
+            <hours>8</hours>
+            <minutes>0</minutes>
+            <seconds>0</seconds>
+        </max_date>
+    </datetime_range_picker>
     <calibrations>
         <omega serial="01234">
 			<report date="2020-12-17" number="H502">
