@@ -41,7 +41,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             <!-- The size of the font to use to display the readings. -->
             <font_size>24px</font_size>
             <!-- The amount of whitespace to separate the values by (on the same line). -->
-            <margin_right>12px</font_size>
+            <margin_right>12px</margin_right>
         </current_readings>
 
         <!--
