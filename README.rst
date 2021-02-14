@@ -77,6 +77,10 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             -->
             <date_format>D MMM YYYY</date_format>
             <time_format>h:mm:ss a</time_format>
+            <!--
+              See https://www.w3schools.com/jsref/dom_obj_style.asp
+              for supported style options.
+            -->
             <date_style>
                 <color>#514EA6</color>
                 <fontSize>32px</fontSize>
