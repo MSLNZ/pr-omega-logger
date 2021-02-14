@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from msl.equipment import Config
 
@@ -736,11 +736,39 @@ def test_human_file_size():
 
 
 def test_datetime_range_picker_kwargs():
+    today = datetime.today()
     kwargs = utils.datetime_range_picker_kwargs(cfg)
+
+    start = today + timedelta(weeks=-1, days=-10)
     assert isinstance(kwargs['start'], datetime)
+    assert kwargs['start'].year == start.year
+    assert kwargs['start'].month == start.month
+    assert kwargs['start'].day == start.day
+    assert kwargs['start'].hour == 7
+    assert kwargs['start'].minute == 0
+    assert kwargs['start'].second == 22
+
+    end = today + timedelta(weeks=1, days=1)
     assert isinstance(kwargs['end'], datetime)
+    assert kwargs['end'].year == end.year
+    assert kwargs['end'].month == end.month
+    assert kwargs['end'].day == end.day
+    assert kwargs['end'].hour == 0
+    assert kwargs['end'].minute == 1
+    assert kwargs['end'].second == 0
+
+    max_date = today + timedelta(days=23)
     assert isinstance(kwargs['max_date'], datetime)
+    assert kwargs['max_date'].year == max_date.year
+    assert kwargs['max_date'].month == max_date.month
+    assert kwargs['max_date'].day == max_date.day
+
+    min_date = today + timedelta(weeks=-100, days=3)
     assert isinstance(kwargs['min_date'], datetime)
+    assert kwargs['min_date'].year == min_date.year
+    assert kwargs['min_date'].month == min_date.month
+    assert kwargs['min_date'].day == min_date.day
+
     assert kwargs['date_format'] == 'D MMM YYYY'
     assert kwargs['time_format'] == 'h:mm:ss a'
     assert kwargs['date_style'] == {'color': '#514EA6', 'fontSize': '32px'}

@@ -5,19 +5,16 @@
     <log_dir>tests\resources</log_dir>
     <serials>01234, 56789</serials>
     <datetime_range_picker>
-        <start> <!-- relative to now -->
-            <weeks>-1</weeks>
-            <days>-10</days>
-            <hours>0</hours>
-            <minutes>0</minutes>
-            <seconds>-22</seconds>
+        <start>
+            <weeks>-1</weeks>  <!-- relative to now -->
+            <days>-10</days>  <!-- relative to now -->
+            <hour>7</hour>  <!-- absolute -->
+            <second>22</second>  <!-- absolute -->
         </start>
-        <end> <!-- relative to now -->
-            <weeks>1</weeks>
-            <days>1</days>
-            <hours>1</hours>
-            <minutes>1</minutes>
-            <seconds>1</seconds>
+        <end>
+            <weeks>1</weeks>  <!-- relative to now -->
+            <days>1</days>  <!-- relative to now -->
+            <minute>1</minute>  <!-- absolute -->
         </end>
         <date_format>D MMM YYYY</date_format>
         <time_format>h:mm:ss a</time_format>
@@ -36,19 +33,12 @@
         </arrow>
         <class_name>datetime-range-right</class_name>
         <text>Refresh</text>
-        <min_date> <!-- relative to now -->
-            <weeks>-100</weeks>
-            <days>0</days>
-            <hours>0</hours>
-            <minutes>0</minutes>
-            <seconds>0</seconds>
+        <min_date>
+            <weeks>-100</weeks>  <!-- relative to now -->
+            <days>3</days>  <!-- relative to now -->
         </min_date>
-        <max_date> <!-- relative to now -->
-            <weeks>0</weeks>
-            <days>0</days>
-            <hours>8</hours>
-            <minutes>0</minutes>
-            <seconds>0</seconds>
+        <max_date>
+            <days>23</days>  <!-- relative to now -->
         </max_date>
     </datetime_range_picker>
     <calibrations>

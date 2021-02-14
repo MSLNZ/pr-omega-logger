@@ -35,8 +35,17 @@ def datetime_range_picker_kwargs(cfg):
     today = datetime.today()
     for key in ['start', 'end', 'max_date', 'min_date']:
         if key in kwargs:
-            dt = timedelta(**dict((k, int(v)) for k, v in kwargs[key].items()))
-            kwargs[key] = today + dt
+            value = kwargs[key]
+            dt = timedelta(
+                weeks=int(value.get('weeks', 0)),
+                days=int(value.get('days', 0))
+            )
+            new_date = today + dt
+            kwargs[key] = new_date.replace(
+                hour=int(value.get('hour', 0)),
+                minute=int(value.get('minute', 0)),
+                second=int(value.get('second', 0))
+            )
 
     return kwargs
 

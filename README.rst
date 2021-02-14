@@ -42,37 +42,27 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
           Each sub-element is also optional.
         -->
         <datetime_range_picker>
-            <!--
-              The dates are relative to the current date and time
-              when the DatetimeRangePicker loads in the webpage.
-            -->
             <start>
-                <weeks>0</weeks>
-                <days>-10</days>
-                <hours>0</hours>
-                <minutes>0</minutes>
-                <seconds>0</seconds>
+                <weeks>-1</weeks> <!-- relative to the current date -->
+                <days>0</days> <!-- relative to the current date -->
+                <hour>7</hour> <!-- absolute value between 0-23 -->
+                <minute>0</minute> <!-- absolute value between 0-59 -->
+                <second>0</second> <!-- absolute value between 0-59 -->
             </start>
             <end>
                 <weeks>0</weeks>
                 <days>1</days>
-                <hours>0</hours>
-                <minutes>0</minutes>
-                <seconds>0</seconds>
+                <hour>12</hour>
+                <minute>0</minute>
+                <second>0</second>
             </end>
             <min_date>
-                <weeks>-10</weeks>
+                <weeks>-52</weeks>
                 <days>0</days>
-                <hours>0</hours>
-                <minutes>0</minutes>
-                <seconds>0</seconds>
             </min_date>
             <max_date>
-                <weeks>10</weeks>
-                <days>0</days>
-                <hours>0</hours>
-                <minutes>0</minutes>
-                <seconds>0</seconds>
+                <weeks>0</weeks>
+                <days>10</days>
             </max_date>
             <!--
               See https://www.tutorialspoint.com/momentjs/momentjs_format.htm
