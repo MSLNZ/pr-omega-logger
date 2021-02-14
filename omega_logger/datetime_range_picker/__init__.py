@@ -31,15 +31,15 @@ class DatetimeRangePicker(Component):
     id : :class:`str`, optional
         The ID used to identify this component in Dash callbacks.
     start : :class:`str` or :class:`datetime.datetime`, optional
-        The start date of the range picker. Use the ISO 8601 format
+        The start date and time of the range picker. Use the ISO 8601 format
         ``yyyy-mm-dd`` or ``yyyy-mm-dd HH:MM:SS`` for a string. A Dash
         callback is triggered when the range picker closes. The default
-        date is yesterday at 8:00 am.
+        date and time is yesterday at 8:00 am.
     end : :class:`str` or :class:`datetime.datetime`, optional
-        The end date of the range picker. Use the ISO 8601 format
+        The end date and time of the range picker. Use the ISO 8601 format
         ``yyyy-mm-dd`` or ``yyyy-mm-dd HH:MM:SS`` for a string. A Dash
         callback is triggered when the range picker closes. The default
-        date is the current date and time.
+        value is the current date and time.
     min_date : :class:`str` or :class:`datetime.datetime`, optional
         The minimum date that can be picked.
     max_date : :class:`str` or :class:`datetime.datetime`, optional
@@ -54,8 +54,12 @@ class DatetimeRangePicker(Component):
         for supported formats.
     date_style : :class:`dict`, optional
         The style to use to render the date that was picked.
+        See :ref:`https://www.w3schools.com/jsref/dom_obj_style.asp` for
+        supported options.
     time_style : :class:`dict`, optional
         The style to use to render the time that was picked.
+        See :ref:`https://www.w3schools.com/jsref/dom_obj_style.asp` for
+        supported options.
     arrow : :class:`dict`, optional
         The SVG properties of the arrow. Default is
         ``{width: '30px', height: '30px', color: 'black'}``
