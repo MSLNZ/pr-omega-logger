@@ -44,11 +44,11 @@ export default class DatetimeRangeWrapper extends Component {
         //onStartDateChange={(e) =>
         //  this.props.setProps({ start: this.toPythonISOString(e) })
         //}
-        onEndDateClose={(e) =>
-          this.props.setProps({ end: this.toPythonISOString(e) })
-        }
-        onStartDateClose={(e) =>
-          this.props.setProps({ start: this.toPythonISOString(e) })
+        onStartEndClose={(e) =>
+          this.props.setProps({
+            start: this.toPythonISOString(e.start),
+            end: this.toPythonISOString(e.end)
+          })
         }
       />
     );

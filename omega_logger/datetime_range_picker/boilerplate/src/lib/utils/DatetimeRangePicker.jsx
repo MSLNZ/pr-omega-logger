@@ -95,8 +95,10 @@ export default class DatetimeRangePicker extends Component {
   }
 
   onClose( date ) {
-    this.props.onStartDateClose(this.state.start.toDate());
-    this.props.onEndDateClose(this.state.end.toDate());
+    this.props.onStartEndClose({
+      start: this.state.start.toDate(),
+      end: this.state.end.toDate()
+    });
   }
 
   onFocus() {
@@ -110,8 +112,10 @@ export default class DatetimeRangePicker extends Component {
       state.start = state.end;
     }
     this.setState(state, () => {
-      this.props.onStartDateClose(this.state.start.toDate());
-      this.props.onEndDateClose(this.state.end.toDate());
+      this.props.onStartEndClose({
+        start: this.state.start.toDate(),
+        end: this.state.end.toDate()
+      });
     });
   }
 
