@@ -1,9 +1,11 @@
 """
 Start the Dash app.
 """
+import os
 import sys
 import socket
 import logging
+import tempfile
 import traceback
 from math import floor, ceil
 from datetime import datetime
@@ -12,13 +14,14 @@ import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 from gevent.pywsgi import WSGIServer
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 from msl.equipment import Config
 
 from utils import (
+    human_file_size,
     fromisoformat,
     initialize_webapp,
     find_report,
@@ -184,51 +187,29 @@ def now():
     return jsonify(data)
 
 
-@app.callback(
-    Output('download-link', 'href'),
-    [Input('plot-viewer', 'children')])
-def update_download_link(children):
-    if not children:
-        return
+@app.server.route('/download')
+def download():
 
-    data = children[0]['props']['figure']['data']
-    title = children[0]['props']['figure']['layout']['title']['text']
-    if not data:
-        csv_string = ''
-    else:
-        nrows = max(len(plot['x']) for plot in data)
-        ncols = 2 * len(data)
+    filename = f'{request.remote_addr}.csv'
+    file_path = os.path.join(tempfile.gettempdir(), filename)
+    if not os.path.isfile(file_path):
+        return 'You cannot download the data this way.<br/>' \
+               'Please use the download link that is provided', 401
 
-        csv_data = np.asarray(
-            [[item for plot in data for item in (plot['name'], '')],
-             [item for _ in data for item in ('Timestamp', title)]] +
-            [[''] * ncols] * nrows
-        )
+    def stream_then_remove_file():
+        yield from file_handle
+        file_handle.close()
+        os.remove(file_path)
 
-        for i, plot in enumerate(data):
-            n = len(plot['x'])
-            csv_data[2:n+2, 2*i] = plot['x']
-            csv_data[2:n+2, 2*i+1] = plot['y']
+    file_handle = open(file_path, mode='rt')
+    return current_app.response_class(
+        stream_then_remove_file(),
+        headers={
+            'Content-Type': 'text/csv',
+            'Content-Disposition': 'attachment',
+        }
+    )
 
-        # use '%0A' instead of '\n' if using the flask.send_file method
-        csv_string = '\n'.join(','.join(row) for row in csv_data)
-
-    return 'data:text/csv;charset=utf-8,' + csv_string
-    #return '/data/download?value={}'.format(csv_string)
-
-
-#@app.server.route('/data/download')
-#def download_csv():
-#    value = flask.request.args.get('value')
-#    mem = io.BytesIO()
-#    mem.write(value.encode())
-#    mem.seek(0)
-#    return flask.send_file(
-#        mem,
-#        mimetype='text/csv',
-#        attachment_filename='omega_logger-data.csv',
-#        as_attachment=True,
-#    )
 
 @app.callback(
     Output('current-readings-interval', 'disabled'),
@@ -325,6 +306,48 @@ def update_plot_viewer(tab, dropdown, start, end):
             style=dict(width='100%', border='2px solid black', textAlign='center'),
         ),
     ]
+
+
+@app.callback(
+    Output('download-link', 'the_returned_value_is_not_used'),
+    [Input('download-link', 'n_clicks'),
+     State('plot', 'figure')])
+def create_csv_file_for_download(n_clicks, figure):
+    if n_clicks is None:
+        return
+
+    filename = f'{request.remote_addr}.csv'
+    temp_file = os.path.join(tempfile.gettempdir(), filename)
+
+    data = figure['data']
+    title = figure['layout']['title']['text']
+
+    if not data:  # avoid getting -> ValueError: max() arg is an empty sequence
+        n_rows = 0
+        n_cols = 0
+    else:
+        n_rows = max(len(plot['x']) for plot in data)
+        n_cols = 2 * len(data)
+
+    csv_data = np.asarray([
+        # the first row is the name from the plot legend and then an empty column
+        [item for plot in data for item in (plot['name'], '')],
+
+        # the second row is the description of the X and Y values
+        [item for _ in data for item in ('Timestamp', title)]] +
+
+        # the remaining rows are for the X and Y values
+        [[''] * n_cols] * n_rows
+    )
+
+    for i, plot in enumerate(data):
+        n = len(plot['x'])
+        csv_data[2:n+2, 2*i] = plot['x']
+        csv_data[2:n+2, 2*i+1] = plot['y']
+
+    np.savetxt(temp_file, csv_data, fmt='%s', delimiter=',')
+    size = human_file_size(os.path.getsize(temp_file))
+    logging.info(f'[{request.remote_addr}] Requested a {size} csv file')
 
 
 @app.callback(
