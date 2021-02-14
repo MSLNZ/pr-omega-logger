@@ -67,7 +67,7 @@ def serve_layout():
         html.Div(id='current-readings-viewer'),
         dcc.Interval(
             id='current-readings-interval',
-            interval=cfg.value('current_readings_interval', 10) * 1000,
+            interval=cfg.value('current_readings/interval', 10) * 1000,
         ),
     ])
 
@@ -365,6 +365,7 @@ def current_readings_viewer(tab, n_intervals):
     logging.info(f'[{request.remote_addr}] Current reading interval {n}')
 
     children = []
+    margin_right = cfg.value('current_readings/margin_right', '16px')
     for serial, data in now().json.items():
         b = '{} - {} @ {}'.format(serial, data['alias'], data['timestamp'][11:])
         children.append(html.B(b))
@@ -376,9 +377,12 @@ def current_readings_viewer(tab, n_intervals):
                 if key in ['error', 'alias', 'timestamp']:
                     continue
                 p.append(html.I(key+':', style={'color': 'grey'}))
-                p.append(html.Span('{:.2f} '.format(data[key])))
+                p.append(html.Span(f'{data[key]:.2f}', style={'margin-right': margin_right}))
             children.append(html.P(p))
-    return html.Div(children, style={'fontSize': '24px'})
+    return html.Div(
+        children=children,
+        style={'fontSize': cfg.value('current_readings/font_size', '24px')}
+    )
 
 
 try:

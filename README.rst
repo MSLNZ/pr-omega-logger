@@ -34,8 +34,15 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <host>localhost</host>
         <port>8080</port>
 
-        <!-- Optional: The number of seconds to wait to update the Current Readings tab. -->
-        <current_readings_interval>30</current_readings_interval>
+        <!-- Optional: Change the behaviour of the Current Readings tab. -->
+        <current_readings>
+            <!-- The number of seconds to wait to refresh the page. -->
+            <interval>30</interval>
+            <!-- The size of the font to use to display the readings. -->
+            <font_size>24px</font_size>
+            <!-- The amount of whitespace to separate the values by (on the same line). -->
+            <margin_right>12px</font_size>
+        </current_readings>
 
         <!--
           Optional: Settings for the DatetimeRangePicker.
