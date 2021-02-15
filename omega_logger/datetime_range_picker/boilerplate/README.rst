@@ -23,8 +23,8 @@ class.
 
 4. Answer the questions about the project
 
-   * `project_name`: Set this value to be `datetime_range_picker`
-   * `... enter whatever you want for the other questions ...`
+   * ``project_name``: Set this value to be ``datetime_range_picker``
+   * ... enter whatever you want for the other questions ...
 
 5. Copy all files and folders from the ``boilerplate`` directory into the
    `datetime_range_picker` directory that was created by the running the
