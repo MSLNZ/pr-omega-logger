@@ -394,9 +394,9 @@ def current_readings_viewer(tab, n_intervals):
 try:
     host = cfg.value('host', default=socket.gethostname())
     port = cfg.value('port', default=1875)
-    http_server = WSGIServer((host, port), application=app.server, log=None)
-    logging.info(f'Serving at http://{host}:{port}')
-    http_server.serve_forever()
+    with WSGIServer((host, port), application=app.server, log=None) as server:
+        logging.info(f'Serving at http://{host}:{port}')
+        server.serve_forever()
 except KeyboardInterrupt:
     pass
 except:
