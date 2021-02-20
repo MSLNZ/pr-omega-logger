@@ -139,6 +139,7 @@ def now():
     """
     if request.full_path.startswith('/now'):  # the dcc.Interval callback also calls this function
         logging.info(f'[{request.remote_addr}] {request.full_path}')
+
     apply_corr = request.args.get('corrected', 'true').lower() == 'true'
     requested = request.args.get('serial')
     if not requested:
@@ -163,7 +164,7 @@ def now():
             error = str(e)
             thd = [None] * (nprobes * 3)
 
-        timestamp = datetime.now().replace(microsecond=0).isoformat(sep=' ')
+        timestamp = datetime.now().replace(microsecond=0).isoformat()
         data[serial] = {
             'error': error,
             'alias': omega.alias,
