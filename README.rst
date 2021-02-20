@@ -1,3 +1,5 @@
+|travis| |appveyor|
+
 Logs the temperature, humidity and dew point from OMEGA iServer's to a database
 and creates a Dash_ application. The application is accessed through a web
 browser at ``http://<host>:<port>``.
@@ -204,6 +206,12 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
 API
 ---
 Coming soon.
+
+.. |travis| image:: https://img.shields.io/travis/MSLNZ/pr-omega-logger/master.svg?label=Travis-CI
+   :target: https://travis-ci.org/MSLNZ/pr-omega-logger
+
+.. |appveyor| image:: https://img.shields.io/appveyor/ci/jborbely/pr-omega-logger/master.svg?label=AppVeyor
+   :target: https://ci.appveyor.com/project/jborbely/pr-omega-logger/branch/master
 
 .. _MSL-Equipment: https://msl-equipment.readthedocs.io/en/latest/
 .. _Dash: https://plot.ly/products/dash/
