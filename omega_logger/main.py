@@ -32,7 +32,7 @@ def start():
         return 1
 
     if not os.path.isdir(log_dir):
-        print(f'The log_dir value of {log_dir:!r} is not a valid directory.', file=sys.stderr)
+        print(f'The log_dir value of {log_dir!r} is not a valid directory.', file=sys.stderr)
         return 1
 
     serials = cfg.value('serials')
