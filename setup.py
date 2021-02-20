@@ -55,4 +55,5 @@ setup(
             'omega-logger = omega_logger.main:start',
         ],
     },
+    include_package_data=True,
 )

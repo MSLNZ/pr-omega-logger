@@ -1,0 +1,3 @@
+include omega_logger/assets/*
+recursive-include omega_logger/datetime_range_picker *
+exclude omega_logger/datetime_range_picker/__pycache__/*
