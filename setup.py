@@ -9,7 +9,7 @@ def read(filename):
 
 def fetch_init(key):
     # open the __init__.py file to determine the value instead of importing the package to get the value
-    init_text = read(r'omega_logger\__init__.py')
+    init_text = read(r'omega_logger/__init__.py')
     return re.search(r'{}\s*=\s*(.*)'.format(key), init_text).group(1).strip('\'\"')
 
 setup(
