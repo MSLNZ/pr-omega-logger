@@ -18,7 +18,7 @@ def test_fromisoformat():
     assert dt == datetime(2020, month=2, day=23, hour=12, minute=32, second=5)
 
     dt = utils.fromisoformat('2020-02-23T12:32:05')
-    assert dt  == datetime(2020, month=2, day=23, hour=12, minute=32, second=5)
+    assert dt == datetime(2020, month=2, day=23, hour=12, minute=32, second=5)
 
 
 def test_initialize_webapp():
@@ -186,6 +186,26 @@ def test_initialize_webapp():
     assert len(calibrations['f - Probe 1']) == 2
     assert len(calibrations['f - Probe 2']) == 1
     assert len(omegas) == 1
+    assert '56789' in omegas
+
+
+def test_initialize_webapp_config_minimal():
+    # the 'config_minimal.xml' file does not contain any of the Optional XML elements
+    cfg_min = Config(os.path.join(root, 'config_minimal.xml'))
+    dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg_min, serials)
+
+    assert len(dropdown_options) == 3
+    assert dropdown_options[0] == {'label': 'b', 'value': 'b'}
+    assert dropdown_options[1] == {'label': 'f - Probe 1', 'value': 'f - Probe 1'}
+    assert dropdown_options[2] == {'label': 'f - Probe 2', 'value': 'f - Probe 2'}
+
+    assert len(calibrations) == 3
+    assert len(calibrations['b']) == 3
+    assert len(calibrations['f - Probe 1']) == 2
+    assert len(calibrations['f - Probe 2']) == 1
+
+    assert len(omegas) == 2
+    assert '01234' in omegas
     assert '56789' in omegas
 
 
@@ -778,3 +798,9 @@ def test_datetime_range_picker_kwargs():
     assert kwargs['text'] == 'Refresh'
 
 
+def test_datetime_range_picker_kwargs_config_minimal():
+    # the 'config_minimal.xml' file does not contain any of the Optional XML elements
+    cfg_min = Config(os.path.join(root, 'config_minimal.xml'))
+    kwargs = utils.datetime_range_picker_kwargs(cfg_min)
+    assert isinstance(kwargs, dict)
+    assert not kwargs

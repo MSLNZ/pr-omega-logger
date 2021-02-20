@@ -23,7 +23,11 @@ def datetime_range_picker_kwargs(cfg):
         The keyword arguments.
     """
     kwargs = dict()
-    for element in cfg.find('datetime_range_picker'):
+    datetime_range_picker = cfg.find('datetime_range_picker')
+    if not datetime_range_picker:
+        return kwargs
+
+    for element in datetime_range_picker:
         text = element.text.strip()
         if text:
             kwargs[element.tag] = text

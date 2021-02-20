@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<msl>
+    <log_dir>tests\resources</log_dir>
+    <serials>01234, 56789</serials>
+    <calibrations>
+        <omega serial="01234">
+			<report date="2020-12-17" number="H502">
+				<start_date>2020-12-11</start_date>
+				<end_date>2020-12-14</end_date>
+				<coverage_factor>2.0</coverage_factor>
+				<confidence>95%</confidence>
+				<temperature units="C" min="15" max="25">
+					<coefficients>0.07</coefficients>
+					<expanded_uncertainty>0.12</expanded_uncertainty>
+				</temperature>
+				<humidity units="%rh" min="30" max="80">
+					<coefficients> -5.11, 2.44e-2,   5.39e-4 </coefficients>
+					<expanded_uncertainty>1.1</expanded_uncertainty>
+				</humidity>
+			</report>
+			<report date="2018-07-21" number="H386">
+                <start_date>2018-06-08</start_date>
+                <end_date>2018-06-11</end_date>
+                <coverage_factor>2.0</coverage_factor>
+                <confidence>95%</confidence>
+                <temperature units="C" min="18" max="24">
+                    <coefficients>0.01</coefficients>
+                    <expanded_uncertainty>0.13</expanded_uncertainty>
+                </temperature>
+                <humidity units="%rh" min="30" max="85">
+                    <coefficients>-9.5;0.326;-0.00505;0.0000321</coefficients>
+                    <expanded_uncertainty>0.9</expanded_uncertainty>
+                </humidity>
+            </report>
+            <report date="2016-02-22" number="H322">
+                <start_date>2016-01-20</start_date>
+                <end_date>2016-01-22</end_date>
+                <coverage_factor>2.0</coverage_factor>
+                <confidence>95%</confidence>
+                <temperature units="C" min="17" max="23">
+                    <coefficients>0.05</coefficients>
+                    <expanded_uncertainty>0.12</expanded_uncertainty>
+                </temperature>
+                <humidity units="%rh" min="30" max="80">
+                    <coefficients>-3.44,0.0487</coefficients>
+                    <expanded_uncertainty>0.8</expanded_uncertainty>
+                </humidity>
+            </report>
+        </omega>
+        <omega serial="56789">
+            <report component="Probe 1" date="2020-06-12" number="H842">
+                <start_date>2020-06-01</start_date>
+                <end_date>2020-06-03</end_date>
+                <coverage_factor>2.0</coverage_factor>
+                <confidence>95%</confidence>
+                <temperature units="C" min="15" max="25">
+                    <coefficients>0.002, 0.32</coefficients>
+                    <expanded_uncertainty>0.12</expanded_uncertainty>
+                </temperature>
+                <humidity units="%rh" min="30" max="80">
+                    <coefficients>-8.3,1.23,3.56e-3</coefficients>
+                    <expanded_uncertainty>0.8</expanded_uncertainty>
+                </humidity>
+            </report>
+            <report component="Probe 1" date="2018-07-21" number="H388">
+                <start_date>2018-06-08</start_date>
+                <end_date>2018-06-11</end_date>
+                <coverage_factor>2.0</coverage_factor>
+                <confidence>95%</confidence>
+                <temperature units="C" min="18" max="24">
+                    <coefficients>0.04; 0.13</coefficients>
+                    <expanded_uncertainty>0.13</expanded_uncertainty>
+                </temperature>
+                <humidity units="%rh" min="30" max="85">
+                    <coefficients>-10.2;0.393;-0.00637;0.000039</coefficients>
+                    <expanded_uncertainty>1.0</expanded_uncertainty>
+                </humidity>
+            </report>
+            <report component="Probe 2" date="2018-07-21" number="H389">
+                <start_date>2018-06-08</start_date>
+                <end_date>2018-06-11</end_date>
+                <coverage_factor>2.0</coverage_factor>
+                <confidence>95%</confidence>
+                <temperature units="C" min="18" max="24">
+                    <coefficients>0.1,0.06,0.01,2.3e-4</coefficients>
+                    <expanded_uncertainty>0.14</expanded_uncertainty>
+                </temperature>
+                <humidity units="%rh" min="30" max="85">
+                    <coefficients>4.2, 0.931, 0.00482</coefficients>
+                    <expanded_uncertainty>0.8</expanded_uncertainty>
+                </humidity>
+            </report>
+        </omega>
+    </calibrations>
+    <registers>
+        <register>
+            <path>register.csv</path>
+        </register>
+    </registers>
+    <connections>
+        <connection>
+            <path>register.csv</path>
+        </connection>
+    </connections>
+</msl>
