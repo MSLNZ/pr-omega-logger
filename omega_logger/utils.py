@@ -144,7 +144,7 @@ def initialize_webapp(cfg, serials):
                 for component in components:
                     label = record.alias
                     if component:
-                        label += ' - {}'.format(component)
+                        label += f' - {component}'
                         calibrations[label] = [r for r in reports if r.component == component]
                     else:
                         calibrations[label] = reports
@@ -246,12 +246,12 @@ class HTMLTable(object):
                     html.Td(label, style=style),
                     html.Td(report_number, style=style),
                     html.Td(tab.title() if not style else tab.title() + ' [value out of range]', style=style),
-                    html.Td('{:.1f}'.format(np.average(values)), style=style),
-                    html.Td('{:.1f}'.format(np.std(values)), style=style),
-                    html.Td('{:.1f}'.format(np.median(values)), style=style),
-                    html.Td('{:.1f}'.format(mx), style=style),
-                    html.Td('{:.1f}'.format(mn), style=style),
-                    html.Td('{}'.format(values.size), style=style),
+                    html.Td(f'{np.average(values):.1f}', style=style),
+                    html.Td(f'{np.std(values):.1f}', style=style),
+                    html.Td(f'{np.median(values):.1f}', style=style),
+                    html.Td(f'{mx:.1f}', style=style),
+                    html.Td(f'{mn:.1f}', style=style),
+                    html.Td(f'{values.size}', style=style),
                 ], style=dict(backgroundColor='#F2F2F2' if nrows % 2 else '#FFFFFF'))
             )
         else:
@@ -357,7 +357,7 @@ def read_database(report, typ, date1=None, date2=None, label=''):
     values = iTHX.data(report.dbase_file, date1=date1, date2=date2, as_datetime=False, select=select)
     dt = perf_counter() - t0
     data = np.asarray(values, dtype=[('timestamp', 'U19'), (typ, float)])
-    message = 'Fetched {} {!r} records for {!r} in {:.3f} seconds'.format(data.size, select[1], label, dt)
+    message = f'Fetched {data.size} {select[1]!r} records for {label!r} in {dt:.3f} seconds'
     return data, message
 
 

@@ -18,7 +18,7 @@ class AliasFormatter(logging.Formatter):
 
     def format(self, record):
         if self.alias and record.levelno > logging.INFO:
-            record.msg = '[{}] {}'.format(self.alias, record.msg)
+            record.msg = f'[{self.alias}] {record.msg}'
         return super(AliasFormatter, self).format(record)
 
 
@@ -29,8 +29,7 @@ try:
 
     records = db.records(manufacturer='OMEGA', serial=serial, flags=re.IGNORECASE)
     if not records:
-        raise ValueError('No equipment record exists for '
-                         'manufacturer=OMEGA and serial={}'.format(serial))
+        raise ValueError(f'No equipment record exists for manufacturer=OMEGA and serial={serial}')
 
     record = records[0]
 

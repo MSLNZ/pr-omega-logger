@@ -77,7 +77,7 @@ try:
     cfg = Config(path)
     dropdown_options, calibrations, omegas = initialize_webapp(cfg, serials)
 except:
-    traceback.print_exc(file=sys.stdout)
+    traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')
     sys.exit(1)
 
@@ -373,7 +373,7 @@ def current_readings_viewer(tab, n_intervals):
     children = []
     margin_right = cfg.value('current_readings/margin_right', '16px')
     for serial, data in now().json.items():
-        b = '{} - {} @ {}'.format(serial, data['alias'], data['timestamp'][11:])
+        b = f'{serial} - {data["alias"]} @ {data["timestamp"][11:]}'
         children.append(html.B(b))
         if data['error']:
             children.append(html.P(data['error']))
@@ -400,5 +400,5 @@ try:
 except KeyboardInterrupt:
     pass
 except:
-    traceback.print_exc(file=sys.stdout)
+    traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')

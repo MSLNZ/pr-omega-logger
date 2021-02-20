@@ -22,7 +22,7 @@ def start():
     try:
         cfg = Config(xml)
     except IOError as e:
-        print('{}: {}'.format(e.__class__.__name__, e), file=sys.stderr)
+        print(f'{e.__class__.__name__}: {e}', file=sys.stderr)
         return 1
 
     log_dir = cfg.value('log_dir')
@@ -32,7 +32,7 @@ def start():
         return 1
 
     if not os.path.isdir(log_dir):
-        print('The log_dir value of {!r} is not a valid directory.'.format(log_dir), file=sys.stderr)
+        print(f'The log_dir value of {log_dir:!r} is not a valid directory.', file=sys.stderr)
         return 1
 
     serials = cfg.value('serials')
@@ -77,12 +77,9 @@ def start():
 
     # start all OMEGA loggers
     for serial in serials:
-        cmd = ' '.join(['start', sys.executable, '-m', 'omega', '"{}"'.format(xml), serial])
+        cmd = ' '.join(['start', sys.executable, '-m', 'omega', f'"{xml}"', serial])
         os.system(cmd)
 
     # start the Dash web application
-    cmd = ' '.join(['start', sys.executable, '-m', 'webapp', '"{}"'.format(xml), ','.join(serials)])
-    try:
-        os.system(cmd)
-    except KeyboardInterrupt:
-        pass
+    cmd = ' '.join(['start', sys.executable, '-m', 'webapp', f'"{xml}"', ','.join(serials)])
+    os.system(cmd)
