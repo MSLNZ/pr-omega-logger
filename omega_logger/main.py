@@ -75,11 +75,19 @@ def start():
             i = 0
         time.sleep(0.1)
 
+    if sys.platform == 'win32':
+        prefix = 'start '
+    elif sys.platform.startswith('linux'):
+        prefix = 'gnome-terminal -- '
+    else:
+        print('OS is not Windows or Linux', file=sys.stderr)
+        return 1
+
     # start all OMEGA loggers
     for serial in serials:
-        cmd = ' '.join(['start', sys.executable, '-m', 'omega', f'"{xml}"', serial])
+        cmd = prefix + ' '.join([sys.executable, '-m', 'omega', f'"{xml}"', serial])
         os.system(cmd)
 
     # start the Dash web application
-    cmd = ' '.join(['start', sys.executable, '-m', 'webapp', f'"{xml}"', ','.join(serials)])
+    cmd = prefix + ' '.join([sys.executable, '-m', 'webapp', f'"{xml}"', ','.join(serials)])
     os.system(cmd)

@@ -12,6 +12,7 @@ def fetch_init(key):
     init_text = read(r'omega_logger/__init__.py')
     return re.search(r'{}\s*=\s*(.*)'.format(key), init_text).group(1).strip('\'\"')
 
+
 setup(
     name='omega_logger',
     version=fetch_init('__version__'),
@@ -26,7 +27,8 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: Windows',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
