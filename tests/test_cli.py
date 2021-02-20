@@ -5,7 +5,7 @@ def test_no_args():
     process = run(['omega-logger'], stderr=PIPE, stdout=PIPE)
     assert process.returncode == 1
     assert not process.stdout
-    assert process.stderr == b'You must pass in the path to the XML configuration file.\n'
+    assert process.stderr.startswith(b'You must pass in the path to the XML configuration file')
 
 
 def test_invalid_config_path():
@@ -26,14 +26,14 @@ def test_invalid_log_dir():
     process = run(['omega-logger', 'tests/resources/config_invalid_log_dir.xml'], stderr=PIPE, stdout=PIPE)
     assert process.returncode == 1
     assert not process.stdout
-    assert process.stderr == b"The log_dir value of 'does/not/exist' is not a valid directory.\n"
+    assert process.stderr.startswith(b"The log_dir value of 'does/not/exist' is not a valid directory")
 
 
 def test_no_serials():
     process = run(['omega-logger', 'tests/resources/config_no_serials.xml'], stderr=PIPE, stdout=PIPE)
     assert process.returncode == 1
     assert not process.stdout
-    assert process.stderr.startswith(b'You have not specified a serial number of an OMEGA iServer.\n')
+    assert process.stderr.startswith(b'You have not specified a serial number of an OMEGA iServer')
 
 
 def test_no_registers():
