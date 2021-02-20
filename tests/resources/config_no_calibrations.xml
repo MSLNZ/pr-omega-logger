@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<msl>
+    <log_dir>tests/resources</log_dir>
+    <serials>01234, 56789</serials>
+    <registers>
+        <register>
+            <path>../tests/resources/register.csv</path>
+        </register>
+    </registers>
+    <connections>
+        <connection>
+            <path>../tests/resources/register.csv</path>
+        </connection>
+    </connections>
+</msl>

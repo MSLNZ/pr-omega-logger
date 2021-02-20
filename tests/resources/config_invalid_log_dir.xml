@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<msl>
+    <log_dir>does/not/exist</log_dir>
+</msl>
