@@ -131,12 +131,13 @@ def initialize_webapp(cfg, serials):
 
     serials = serials.split(',')
     log_dir = cfg.value('log_dir')
+    cal_elements = cfg.find('calibrations') or []
     records = cfg.database().records(manufacturer='OMEGA')
     for record in sorted(records, key=lambda r: r.alias):
         if record.serial not in serials:
             continue
         dbase_file = os.path.join(log_dir, record.model + '_' + record.serial + '.sqlite3')
-        for element in cfg.find('calibrations'):
+        for element in cal_elements:
             if element.attrib.get('serial') == record.serial:
                 reports = [CalibrationReport(record.serial, dbase_file, report)
                            for report in element.findall('report')]
