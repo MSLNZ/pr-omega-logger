@@ -2,7 +2,7 @@
 <msl>
     <host>127.0.0.1</host>
     <port>1875</port>
-    <log_dir>tests\resources</log_dir>
+    <log_dir>../tests/resources</log_dir>
     <serials>01234, 56789</serials>
     <datetime_range_picker>
         <start>

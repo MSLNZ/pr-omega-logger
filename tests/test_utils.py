@@ -5,8 +5,11 @@ from msl.equipment import Config
 
 from omega_logger import utils
 
-root = os.path.join(os.path.dirname(__file__), 'resources')
-cfg = Config(os.path.join(root, 'config.xml'))
+resources = os.path.join(os.path.dirname(__file__), 'resources')
+
+cfg = Config(os.path.join(resources, 'config.xml'))
+cfg.find('log_dir').text = resources
+
 serials = '01234,56789'
 
 
@@ -191,7 +194,7 @@ def test_initialize_webapp():
 
 def test_initialize_webapp_config_minimal():
     # the 'config_minimal.xml' file does not contain any of the Optional XML elements
-    cfg_min = Config(os.path.join(root, 'config_minimal.xml'))
+    cfg_min = Config(os.path.join(resources, 'config_minimal.xml'))
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg_min, serials)
 
     assert len(dropdown_options) == 3
@@ -800,7 +803,7 @@ def test_datetime_range_picker_kwargs():
 
 def test_datetime_range_picker_kwargs_config_minimal():
     # the 'config_minimal.xml' file does not contain any of the Optional XML elements
-    cfg_min = Config(os.path.join(root, 'config_minimal.xml'))
+    cfg_min = Config(os.path.join(resources, 'config_minimal.xml'))
     kwargs = utils.datetime_range_picker_kwargs(cfg_min)
     assert isinstance(kwargs, dict)
     assert not kwargs
