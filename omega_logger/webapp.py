@@ -190,6 +190,94 @@ def now():
     return jsonify(data)
 
 
+@app.server.route('/fetch')
+def fetch():
+    """Get temperature, humidity and/or dewpoint values between start and end datetimes for a specified OMEGA iServer.
+
+    Endpoint
+    --------
+    /fetch[?[start=][end=][serial=][alias=][corrected=true][typ=]]
+
+    start: start date and time as an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss). Default is earliest record in database.
+
+    end: end date and time as an ISO 8601 string. Default is now.
+
+    serial: the serial number of the OMEGA iServer to get the values from. Default is all available iServers.
+
+    alias: the alias of the OMEGA iServer to get the values from.
+      If a serial number is also specified then it gets precedence over
+      the alias.
+
+    corrected: whether to apply the calibration equation. Default is true.
+
+    typ: the type of data to retrieve (e.g. temperature, humidity, dewpoint). Default is all three.
+
+    Examples
+    --------
+    /fetch?
+        Return all available corrected values for temperature, humidity, and dewpoint since logging began,
+        from all OMEGA devices.
+    /fetch?serial=12345&start=2021-02-16T19:20:30
+        Return the corrected temperature, humidity, and dewpoint values since 19:20:30 on the 16th Feb 2021
+        from the OMEGA device that has the serial number 12345.
+    /fetch?alias=Mass+2&start=2021-02-16T19:20:30
+        Return the corrected temperature, humidity, and dewpoint values since 19:20:30 on the 16th Feb 2021
+        from the OMEGA device that has the alias Mass 2.
+    /fetch?serial=12345&corrected=false&start=2021-02-16T19:20:30&typ=temperature
+        Return the uncorrected temperature values since 19:20:30 on the 16th Feb 2021
+        from the OMEGA device that has the serial number 12345.
+    /fetch?alias=Mass+2&corrected=false&start=2021-02-16T12:00:00&end=2021-02-17T16:00:00&typ=humidity
+        Return the uncorrected humidity values between 12:00:00 on the 16th Feb 2021 and 16:00:00 on the 17th Feb 2021
+        from the OMEGA device that has the alias Mass 2.
+    """
+    if request.full_path.startswith('/fetch'):
+        logging.info(f'[{request.remote_addr}] {request.full_path}')
+
+    start = request.args.get('start')
+    start_timestamp = fromisoformat(start).isoformat(sep=' ') if start else None
+
+    end = request.args.get('end')
+    end_timestamp = fromisoformat(end).isoformat(sep=' ') if end else datetime.now().replace(microsecond=0).isoformat(sep=' ')
+
+    apply_corr = request.args.get('corrected', 'true').lower() == 'true'
+
+    typ = request.args.get('typ')
+    types = [typ] if typ else ['temperature', 'humidity', 'dewpoint']
+
+    requested = request.args.get('serial')
+    if not requested:
+        requested = request.args.get('alias')
+
+    logging.info(f'Requested: {requested}, Corrected: {apply_corr}')
+
+    fetched = dict()
+    for serial, omega in omegas.items():
+        if requested and requested not in [serial, omega.alias]:
+            continue
+
+        logging.info(f'Fetching data for {serial}')
+
+        nprobes = omega.connection.properties.get('nprobes', 1)
+
+        fetched[serial] = {
+            'alias': omega.alias,
+            'start': start_timestamp,
+            'end': end_timestamp,
+        }
+        for report in find_reports(calibrations, serial):
+            for typ in types:
+                data, message = read_database(report, typ, date1=start_timestamp, date2=end_timestamp, label=None)
+                if apply_corr:
+                    logging.info(f'Applying corrections for {serial} {typ}')
+                    data = apply_calibration(data, report)
+                if nprobes == 1:
+                    fetched[serial].update({typ: data.tolist()})
+                else:
+                    fetched[serial].update({typ + report.probe: data.tolist()})
+
+    return jsonify(fetched), 200
+
+
 @app.server.route('/download')
 def download():
     """Download a CSV file of the data in the plot.
