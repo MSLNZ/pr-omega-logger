@@ -343,7 +343,7 @@ def read_database(report, typ, date1=None, date2=None, label=''):
         ``yyyy-mm-dd`` or ``yyyy-mm-dd HH:MM:SS`` format.
     label : :class:`str`, optional
         The value is used to construct the message that is returned. If you do not
-        care about the returned message then you care ignore this argument.
+        care about the returned message then you can ignore this argument.
 
     Returns
     -------
