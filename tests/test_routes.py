@@ -339,7 +339,7 @@ def test_fetch_typ():
     assert json['56789']['temperature1'][0] == ['2015-01-01 23:56:47', 20.198]
     assert json['56789']['temperature2'][0] == ['2015-01-01 23:56:47', 35.45490875]
 
-    json = requests.get('http://127.0.0.1:1875/fetch?typ=humidity&corrected=False').json()
+    json = requests.get('http://127.0.0.1:1875/fetch?type=humidity&corrected=False').json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json

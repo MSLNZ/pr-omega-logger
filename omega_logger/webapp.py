@@ -196,7 +196,7 @@ def fetch():
 
     Endpoint
     --------
-    /fetch[?[start=][end=][serial=][alias=][corrected=true][typ=]]
+    /fetch[?[start=][end=][serial=][alias=][corrected=true][type=]]
 
     start: start date and time as an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss). Default is earliest record in database.
 
@@ -210,7 +210,8 @@ def fetch():
 
     corrected: whether to apply the calibration equation. Default is true.
 
-    typ: the type of data to retrieve (e.g. temperature, humidity, dewpoint). Default is all three.
+    type: the type of data to retrieve (e.g. temperature, humidity, dewpoint). Default is all three.
+      Include multiple using + as separator.
 
     Examples
     --------
@@ -223,10 +224,10 @@ def fetch():
     /fetch?alias=Mass+2&start=2021-02-16T19:20:30
         Return the corrected temperature, humidity, and dewpoint values since 19:20:30 on the 16th Feb 2021
         from the OMEGA device that has the alias Mass 2.
-    /fetch?serial=12345&corrected=false&start=2021-02-16T19:20:30&typ=temperature
+    /fetch?serial=12345&corrected=false&start=2021-02-16T19:20:30&type=temperature
         Return the uncorrected temperature values since 19:20:30 on the 16th Feb 2021
         from the OMEGA device that has the serial number 12345.
-    /fetch?alias=Mass+2&corrected=false&start=2021-02-16T12:00:00&end=2021-02-17T16:00:00&typ=humidity
+    /fetch?alias=Mass+2&corrected=false&start=2021-02-16T12:00:00&end=2021-02-17T16:00:00&type=humidity
         Return the uncorrected humidity values between 12:00:00 on the 16th Feb 2021 and 16:00:00 on the 17th Feb 2021
         from the OMEGA device that has the alias Mass 2.
     """
@@ -234,7 +235,7 @@ def fetch():
         logging.info(f'[{request.remote_addr}] {request.full_path}')
 
     error = ''
-    allowed_kwargs = ['start', 'end', 'serial', 'alias', 'corrected', 'typ']
+    allowed_kwargs = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
     for kwg, val in request.args.items():
         if kwg not in allowed_kwargs:
             logging.info(f'Received unknown argument {kwg} (={val})')
@@ -242,8 +243,6 @@ def fetch():
     if error:
         return f'Unknown arguments: {error}.<br/>' \
                f'Allowed kwargs are {allowed_kwargs}', 400
-    else:
-        error = None  # maintain consistency with other methods
 
     start = request.args.get('start')
     start_timestamp = fromisoformat(start).isoformat(sep=' ') if start else None
@@ -253,8 +252,27 @@ def fetch():
 
     apply_corr = request.args.get('corrected', 'true').lower() == 'true'
 
-    typ = request.args.get('typ')
-    types = [typ] if typ else ['temperature', 'humidity', 'dewpoint']
+    known_types = ['temperature', 'humidity', 'dewpoint']
+    types = []
+
+    type_vals = request.args.get('type')
+    if type_vals is not None:           # parse types to check they're spelled correctly
+        type_vals = type_vals.split()
+
+        for t in type_vals:
+            boo = [t == k for k in known_types]
+            if True in boo:
+                types.append(t)
+            else:
+                error += t + ","
+
+    if not types:
+        types = known_types
+    if error:
+        error = f"Unknown type value(s) received: {error}".strip(",")
+        logging.warning(error)
+    else:
+        error = None  # maintain consistency with other methods
 
     requested = request.args.get('serial')
     if not requested:
