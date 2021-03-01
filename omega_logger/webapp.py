@@ -248,14 +248,12 @@ def fetch():
     if not requested:
         requested = request.args.get('alias')
 
-    logging.info(f'Requested: {requested}, Corrected: {apply_corr}')
-
     fetched = dict()
     for serial, omega in omegas.items():
         if requested and requested not in [serial, omega.alias]:
             continue
 
-        logging.info(f'Fetching data for {serial}')
+        logging.info(f'Fetching data for {serial} {omega.alias}')
 
         nprobes = omega.connection.properties.get('nprobes', 1)
 
@@ -263,17 +261,22 @@ def fetch():
             'alias': omega.alias,
             'start': start_timestamp,
             'end': end_timestamp,
+            'error': error,
         }
         for report in find_reports(calibrations, serial):
+            c = report.component
             for typ in types:
+                logging.info(f'Reading {typ} data for {omega.alias} {c}')
                 data, message = read_database(report, typ, date1=start_timestamp, date2=end_timestamp, label=None)
                 if apply_corr:
-                    logging.info(f'Applying corrections for {serial} {typ}')
+                    logging.info(f'Applying {typ} correction from Report {report.number}')
                     data = apply_calibration(data, report)
                 if nprobes == 1:
                     fetched[serial].update({typ: data.tolist()})
                 else:
                     fetched[serial].update({typ + report.probe: data.tolist()})
+
+        logging.info("Finished fetch")
 
     return jsonify(fetched), 200
 
