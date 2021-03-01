@@ -215,6 +215,10 @@ def test_fetch():
     assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076] # that's a funky corrected value!
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
+    json = requests.get('http://127.0.0.1:1875/fetch?woofwoof')
+    assert json.status_code == 400
+    assert 'Unknown arguments' in json.text
+
 
 def test_fetch_uncorrected():
     json = requests.get('http://127.0.0.1:1875/fetch?corrected=False').json()
@@ -317,9 +321,31 @@ def test_fetch_serial_and_alias():
     assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076]
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
+    # Incorrect spelling of serial
+    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&seral=01234')
+    assert json.status_code == 400
+    assert 'Unknown arguments' in json.text
 
-def test_fetch_typ():
-    json = requests.get('http://127.0.0.1:1875/fetch?typ=temperature').json()
+    # Unknown serial number
+    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&serial=9876543210').json()
+    assert json == {}
+
+    # Incorrect spelling of alias
+    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&alis=01234')
+    assert json.status_code == 400
+    assert 'Unknown arguments' in json.text
+
+    # Unknown alias
+    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&alias=007').json()
+    assert json == {}
+
+    # Unknown serial number but known alias - note that this also returns an empty json object
+    json = requests.get('http://127.0.0.1:1875/fetch?serial=muesli&alias=b').json()
+    assert json == {}
+
+
+def test_fetch_type():
+    json = requests.get('http://127.0.0.1:1875/fetch?type=temperature').json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -350,6 +376,20 @@ def test_fetch_typ():
     assert json['01234']['humidity'][0] == ['2015-01-01 20:29:27', 68.2]
     assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 76.1]
     assert json['56789']['humidity2'][0] == ['2015-01-01 23:56:47', 24.0]
+
+    # One incorrectly spelled, other fine
+    json = requests.get('http://127.0.0.1:1875/fetch?type=temperature+humi').json()
+    assert len(json) == 2
+    assert 'Unknown type value(s) received: humi' in json['01234']['error']
+
+    # No correct type values (returns all data)
+    json = requests.get('http://127.0.0.1:1875/fetch?type=dew').json()
+    assert 'Unknown type value(s) received: dew' in json['56789']['error']
+    assert json['01234']['temperature'] is not None
+
+    json = requests.get('http://127.0.0.1:1875/fetch?type=temp+dew').json()
+    assert 'Unknown type value(s) received: temp,dew' in json['01234']['error']
+    assert json['01234']['temperature'] is not None
 
 
 def test_aliases():
