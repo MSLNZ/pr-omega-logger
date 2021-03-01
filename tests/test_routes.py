@@ -141,6 +141,12 @@ def test_now_serial():
     assert json['56789']['dewpoint2'] == 12.0
 
 
+def test_now_serial_unknown():
+    json = requests.get('http://127.0.0.1:1875/now?serial=unknown').json()
+    assert len(json) == 0
+    assert isinstance(json, dict)
+
+
 def test_now_alias():
     json = requests.get('http://127.0.0.1:1875/now?alias=b').json()
     assert len(json) == 1
@@ -162,6 +168,12 @@ def test_now_alias():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+
+
+def test_now_alias_unknown():
+    json = requests.get('http://127.0.0.1:1875/now?alias=unknown').json()
+    assert len(json) == 0
+    assert isinstance(json, dict)
 
 
 def test_now_serial_and_alias():
