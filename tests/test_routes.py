@@ -199,7 +199,7 @@ def test_fetch():
     assert '01234' in json
     assert '56789' in json
 
-    assert json['01234']['error'] == []
+    assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['start'] is None
 
@@ -207,7 +207,7 @@ def test_fetch():
     assert json['01234']['humidity'][0] == ['2015-01-01 20:29:27', 67.26109836]
     assert json['01234']['dewpoint'][0] == ['2015-01-01 20:29:27', 12.5]
 
-    assert json['56789']['error'] == []
+    assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['start'] is None
 
@@ -222,7 +222,7 @@ def test_fetch_uncorrected():
     assert '01234' in json
     assert '56789' in json
 
-    assert json['01234']['error'] == []
+    assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['start'] is None
     # Raw data in json: ["2015-01-01 20:29:27", 18.5, 68.2, 12.5],
@@ -230,7 +230,7 @@ def test_fetch_uncorrected():
     assert json['01234']['humidity'][0] == ['2015-01-01 20:29:27', 68.2]
     assert json['01234']['dewpoint'][0] == ['2015-01-01 20:29:27', 12.5]
 
-    assert json['56789']['error'] == []
+    assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['start'] is None
     # Raw data in json: ["2015-01-01 23:56:47", 15.3, 76.1, 11.1, 24.5, 24.0, 2.6],
@@ -244,7 +244,7 @@ def test_fetch_serial_end():
     assert len(json) == 1
     assert '01234' in json
     assert '56789' not in json
-    assert json['01234']['error'] == []
+    assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['start'] is None
     assert json['01234']['end'] == '2021-02-02 00:00:00'
@@ -257,7 +257,7 @@ def test_fetch_serial_end():
     assert len(json) == 1
     assert '01234' not in json
     assert '56789' in json
-    assert json['56789']['error'] == []
+    assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['start'] is None
     assert json['56789']['end'] == '2016-01-01 00:00:00'
@@ -279,7 +279,7 @@ def test_fetch_uncorrected_start():
     assert len(json) == 2
 
     assert '01234' in json
-    assert json['01234']['error'] == []
+    assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['start'] == '2021-01-01 12:00:00'
 
@@ -289,7 +289,7 @@ def test_fetch_uncorrected_start():
     assert json['01234']['dewpoint'][0][1] == 17.0
 
     assert '56789' in json
-    assert json['56789']['error'] == []
+    assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['start'] == '2021-01-01 12:00:00'
 
@@ -309,7 +309,7 @@ def test_fetch_serial_and_alias():
     assert '01234' not in json
     assert '56789' in json
 
-    assert json['56789']['error'] == []
+    assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['start'] is None
 
@@ -324,11 +324,11 @@ def test_fetch_typ():
     assert '01234' in json
     assert '56789' in json
 
-    assert json['01234']['error'] == []
+    assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['start'] is None
 
-    assert json['56789']['error'] == []
+    assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['start'] is None
 
