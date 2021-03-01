@@ -101,7 +101,7 @@ def test_now():
 
 def test_now_uncorrected():
     for c in ['false', 'False', 'not_equal_to_true']:
-        json = requests.get('http://127.0.0.1:1875/now?corrected={}'.format(c)).json()
+        json = requests.get(f'http://127.0.0.1:1875/now?corrected={c}').json()
         assert len(json) == 2
         assert json['01234']['error'] is None
         assert json['01234']['alias'] == 'b'
@@ -191,6 +191,16 @@ def test_now_serial_uncorrected():
     assert json['56789']['temperature2'] == 22.0
     assert json['56789']['humidity2'] == 42.0
     assert json['56789']['dewpoint2'] == 12.0
+
+
+def test_now_invalid_param():
+    response = requests.get('http://127.0.0.1:1875/now?seral=56789')
+    assert response.status_code == 400
+    assert b"Invalid parameter: 'seral'<br/>Valid parameters are: alias, corrected, serial" == response.content
+
+    response = requests.get('http://127.0.0.1:1875/now?apple=red')
+    assert response.status_code == 400
+    assert b"Invalid parameter: 'apple'<br/>Valid parameters are: alias, corrected, serial" == response.content
 
 
 def test_aliases():
