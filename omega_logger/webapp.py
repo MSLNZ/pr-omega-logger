@@ -233,6 +233,18 @@ def fetch():
     if request.full_path.startswith('/fetch'):
         logging.info(f'[{request.remote_addr}] {request.full_path}')
 
+    error = ''
+    allowed_kwargs = ['start', 'end', 'serial', 'alias', 'corrected', 'typ']
+    for kwg, val in request.args.items():
+        if kwg not in allowed_kwargs:
+            logging.info(f'Received unknown argument {kwg} (={val})')
+            error += kwg+'; '
+    if error:
+        return f'Unknown arguments: {error}.<br/>' \
+               f'Allowed kwargs are {allowed_kwargs}', 400
+    else:
+        error = None  # maintain consistency with other methods
+
     start = request.args.get('start')
     start_timestamp = fromisoformat(start).isoformat(sep=' ') if start else None
 
