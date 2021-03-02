@@ -10,6 +10,8 @@ import traceback
 from math import floor, ceil
 from datetime import datetime
 
+from difflib import get_close_matches
+
 import numpy as np
 import dash
 import dash_core_components as dcc
@@ -256,13 +258,13 @@ def fetch():
     types = []
 
     type_vals = request.args.get('type')
-    if type_vals is not None:           # parse types to check they're spelled correctly
+    if type_vals is not None:           # parse types to check they're spelled correctly (or find close match)
         type_vals = type_vals.split()
 
         for t in type_vals:
-            boo = [t == k for k in known_types]
-            if True in boo:
-                types.append(t)
+            match = get_close_matches(t, known_types, cutoff=0.5)
+            if match:
+                types.append(match[0])
             else:
                 error += t + ","
 

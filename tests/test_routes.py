@@ -377,19 +377,40 @@ def test_fetch_type():
     assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 76.1]
     assert json['56789']['humidity2'][0] == ['2015-01-01 23:56:47', 24.0]
 
-    # One incorrectly spelled, other fine
-    json = requests.get('http://127.0.0.1:1875/fetch?type=temperature+humi').json()
+    # Checking matches to incorrect spelling (but close)
+    json = requests.get('http://127.0.0.1:1875/fetch?type=temp+hum').json()
     assert len(json) == 2
-    assert 'Unknown type value(s) received: humi' in json['01234']['error']
-
-    # No correct type values (returns all data)
-    json = requests.get('http://127.0.0.1:1875/fetch?type=dew').json()
-    assert 'Unknown type value(s) received: dew' in json['56789']['error']
+    assert json['01234']['error'] is None
     assert json['01234']['temperature'] is not None
+    assert json['01234']['humidity'] is not None
+    assert 'dewpoint' not in json
+
+    json = requests.get('http://127.0.0.1:1875/fetch?type=dew').json()
+    assert len(json) == 2
+    assert json['01234']['error'] is None
+    assert 'temperature' not in json
+    assert 'humidity' not in json
+    assert json['01234']['dewpoint'] is not None
 
     json = requests.get('http://127.0.0.1:1875/fetch?type=temp+dew').json()
-    assert 'Unknown type value(s) received: temp,dew' in json['01234']['error']
+    assert json['01234']['error'] is None
     assert json['01234']['temperature'] is not None
+    assert json['01234']['dewpoint'] is not None
+    assert 'humidity' not in json
+
+    # No correct or close type values -- returns all data
+    json = requests.get('http://127.0.0.1:1875/fetch?type=dp').json()
+    assert 'Unknown type value(s) received: dp' in json['01234']['error']
+    assert 'Unknown type value(s) received: dp' in json['56789']['error']
+    assert json['01234']['temperature'] is not None
+    assert json['01234']['humidity'] is not None
+    assert json['01234']['dewpoint'] is not None
+
+    json = requests.get('http://127.0.0.1:1875/fetch?type=omega').json()
+    assert 'Unknown type value(s) received' in json['01234']['error']
+    assert json['01234']['temperature'] is not None
+    assert json['01234']['humidity'] is not None
+    assert json['01234']['dewpoint'] is not None
 
 
 def test_aliases():
