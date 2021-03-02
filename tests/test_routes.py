@@ -145,6 +145,12 @@ def test_now_serial():
     assert json['56789']['dewpoint2'] == 12.0
 
 
+def test_now_serial_unknown():
+    json = get('/now', params={'serial': 'unknown'}).json()
+    assert len(json) == 0
+    assert isinstance(json, dict)
+
+
 def test_now_alias():
     json = get('/now', params={'alias': 'b'}).json()
     assert len(json) == 1
@@ -166,6 +172,12 @@ def test_now_alias():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+
+
+def test_now_alias_unknown():
+    json = get('/now', params={'alias': 'unknown'}).json()
+    assert len(json) == 0
+    assert isinstance(json, dict)
 
 
 def test_now_serial_and_alias():
@@ -195,6 +207,16 @@ def test_now_serial_uncorrected():
     assert json['56789']['temperature2'] == 22.0
     assert json['56789']['humidity2'] == 42.0
     assert json['56789']['dewpoint2'] == 12.0
+
+
+def test_now_invalid_param():
+    response = get('/now', params={'seral': '56789'})
+    assert response.status_code == 400
+    assert b"Invalid parameter: 'seral'<br/>Valid parameters are: alias, corrected, serial" == response.content
+
+    response = get('/now', params={'apple': 'red'})
+    assert response.status_code == 400
+    assert b"Invalid parameter: 'apple'<br/>Valid parameters are: alias, corrected, serial" == response.content
 
 
 def test_fetch():
