@@ -80,9 +80,13 @@ def teardown_module(module):
         proc.terminate()
 
 
+def get(route, params=None):
+    return requests.get('http://127.0.0.1:1875/' + route, params=params, timeout=10)
+
+
 def test_now():
 
-    json = requests.get('http://127.0.0.1:1875/now').json()
+    json = get('now').json()
     assert len(json) == 2
     assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
@@ -101,7 +105,7 @@ def test_now():
 
 def test_now_uncorrected():
     for c in ['false', 'False', 'not_equal_to_true']:
-        json = requests.get('http://127.0.0.1:1875/now?corrected={}'.format(c)).json()
+        json = get('now?corrected={}'.format(c)).json()
         assert len(json) == 2
         assert json['01234']['error'] is None
         assert json['01234']['alias'] == 'b'
@@ -119,7 +123,7 @@ def test_now_uncorrected():
 
 
 def test_now_serial():
-    json = requests.get('http://127.0.0.1:1875/now?serial=01234').json()
+    json = get('now?serial=01234').json()
     assert len(json) == 1
     assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
@@ -128,7 +132,7 @@ def test_now_serial():
     assert json['01234']['dewpoint'] == 11.0
     assert '56789' not in json
 
-    json = requests.get('http://127.0.0.1:1875/now?serial=56789').json()
+    json = get('now?serial=56789').json()
     assert len(json) == 1
     assert '01234' not in json
     assert json['56789']['error'] is None
@@ -142,7 +146,7 @@ def test_now_serial():
 
 
 def test_now_alias():
-    json = requests.get('http://127.0.0.1:1875/now?alias=b').json()
+    json = get('now?alias=b').json()
     assert len(json) == 1
     assert '56789' not in json
     assert json['01234']['error'] is None
@@ -151,7 +155,7 @@ def test_now_alias():
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
 
-    json = requests.get('http://127.0.0.1:1875/now?alias=f').json()
+    json = get('now?alias=f').json()
     assert len(json) == 1
     assert '01234' not in json
     assert json['56789']['error'] is None
@@ -166,7 +170,7 @@ def test_now_alias():
 
 def test_now_serial_and_alias():
     # the serial number gets precedence over the alias
-    json = requests.get('http://127.0.0.1:1875/now?serial=56789&alias=b').json()
+    json = get('now?serial=56789&alias=b').json()
     assert len(json) == 1
     assert '01234' not in json
     assert json['56789']['error'] is None
@@ -180,7 +184,7 @@ def test_now_serial_and_alias():
 
 
 def test_now_serial_uncorrected():
-    json = requests.get('http://127.0.0.1:1875/now?serial=56789&corrected=false').json()
+    json = get('now?serial=56789&corrected=false').json()
     assert len(json) == 1
     assert '01234' not in json
     assert json['56789']['error'] is None
@@ -194,7 +198,7 @@ def test_now_serial_uncorrected():
 
 
 def test_fetch():
-    json = requests.get('http://127.0.0.1:1875/fetch').json()
+    json = get('fetch').json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -215,13 +219,13 @@ def test_fetch():
     assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076] # that's a funky corrected value!
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
-    json = requests.get('http://127.0.0.1:1875/fetch?woofwoof')
+    json = get('fetch?woofwoof')
     assert json.status_code == 400
     assert 'Unknown arguments' in json.text
 
 
 def test_fetch_uncorrected():
-    json = requests.get('http://127.0.0.1:1875/fetch?corrected=False').json()
+    json = get('fetch?corrected=False').json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -244,7 +248,7 @@ def test_fetch_uncorrected():
 
 
 def test_fetch_serial_end():
-    json = requests.get('http://127.0.0.1:1875/fetch?serial=01234&end=2021-02-02').json()
+    json = get('fetch?serial=01234&end=2021-02-02').json()
     assert len(json) == 1
     assert '01234' in json
     assert '56789' not in json
@@ -257,7 +261,7 @@ def test_fetch_serial_end():
     assert json['01234']['humidity'][-1] == ['2021-01-29 19:06:41', 41.757650510000005]
     assert json['01234']['dewpoint'][-1] == ['2021-01-29 19:06:41', 17.0]
 
-    json = requests.get('http://127.0.0.1:1875/fetch?serial=56789&end=2016-01-01').json()
+    json = get('fetch?serial=56789&end=2016-01-01').json()
     assert len(json) == 1
     assert '01234' not in json
     assert '56789' in json
@@ -279,7 +283,7 @@ def test_fetch_serial_end():
 
 
 def test_fetch_uncorrected_start():
-    json = requests.get('http://127.0.0.1:1875/fetch?corrected=false&start=2021-01-01T12:00:00').json()
+    json = get('fetch?corrected=false&start=2021-01-01T12:00:00').json()
     assert len(json) == 2
 
     assert '01234' in json
@@ -308,7 +312,7 @@ def test_fetch_uncorrected_start():
 
 def test_fetch_serial_and_alias():
     # the serial number gets precedence over the alias
-    json = requests.get('http://127.0.0.1:1875/fetch?serial=56789&alias=b').json()
+    json = get('fetch?serial=56789&alias=b').json()
     assert len(json) == 1
     assert '01234' not in json
     assert '56789' in json
@@ -322,30 +326,30 @@ def test_fetch_serial_and_alias():
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
     # Incorrect spelling of serial
-    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&seral=01234')
+    json = get('fetch?start=2021-01-01T12:00:00&seral=01234')
     assert json.status_code == 400
     assert 'Unknown arguments' in json.text
 
     # Unknown serial number
-    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&serial=9876543210').json()
+    json = get('fetch?start=2021-01-01T12:00:00&serial=9876543210').json()
     assert json == {}
 
     # Incorrect spelling of alias
-    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&alis=01234')
+    json = get('fetch?start=2021-01-01T12:00:00&alis=01234')
     assert json.status_code == 400
     assert 'Unknown arguments' in json.text
 
     # Unknown alias
-    json = requests.get('http://127.0.0.1:1875/fetch?start=2021-01-01T12:00:00&alias=007').json()
+    json = get('fetch?start=2021-01-01T12:00:00&alias=007').json()
     assert json == {}
 
     # Unknown serial number but known alias - note that this also returns an empty json object
-    json = requests.get('http://127.0.0.1:1875/fetch?serial=muesli&alias=b').json()
+    json = get('fetch?serial=muesli&alias=b').json()
     assert json == {}
 
 
 def test_fetch_type():
-    json = requests.get('http://127.0.0.1:1875/fetch?type=temperature').json()
+    json = get('fetch?type=temperature').json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -365,7 +369,7 @@ def test_fetch_type():
     assert json['56789']['temperature1'][0] == ['2015-01-01 23:56:47', 20.198]
     assert json['56789']['temperature2'][0] == ['2015-01-01 23:56:47', 35.45490875]
 
-    json = requests.get('http://127.0.0.1:1875/fetch?type=humidity&corrected=False').json()
+    json = get('fetch?type=humidity&corrected=False').json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -378,35 +382,35 @@ def test_fetch_type():
     assert json['56789']['humidity2'][0] == ['2015-01-01 23:56:47', 24.0]
 
     # Checking matches to incorrect spelling (but close)
-    json = requests.get('http://127.0.0.1:1875/fetch?type=temp+hum').json()
+    json = get('fetch?type=temp+hum').json()
     assert len(json) == 2
     assert json['01234']['error'] is None
     assert json['01234']['temperature'] is not None
     assert json['01234']['humidity'] is not None
     assert 'dewpoint' not in json
 
-    json = requests.get('http://127.0.0.1:1875/fetch?type=dew').json()
+    json = get('fetch?type=dew').json()
     assert len(json) == 2
     assert json['01234']['error'] is None
     assert 'temperature' not in json
     assert 'humidity' not in json
     assert json['01234']['dewpoint'] is not None
 
-    json = requests.get('http://127.0.0.1:1875/fetch?type=temp+dew').json()
+    json = get('fetch?type=temp+dew').json()
     assert json['01234']['error'] is None
     assert json['01234']['temperature'] is not None
     assert json['01234']['dewpoint'] is not None
     assert 'humidity' not in json
 
     # No correct or close type values -- returns all data
-    json = requests.get('http://127.0.0.1:1875/fetch?type=dp').json()
+    json = get('fetch?type=dp').json()
     assert 'Unknown type value(s) received: dp' in json['01234']['error']
     assert 'Unknown type value(s) received: dp' in json['56789']['error']
     assert json['01234']['temperature'] is not None
     assert json['01234']['humidity'] is not None
     assert json['01234']['dewpoint'] is not None
 
-    json = requests.get('http://127.0.0.1:1875/fetch?type=omega').json()
+    json = get('fetch?type=omega').json()
     assert 'Unknown type value(s) received' in json['01234']['error']
     assert json['01234']['temperature'] is not None
     assert json['01234']['humidity'] is not None
@@ -414,7 +418,7 @@ def test_fetch_type():
 
 
 def test_aliases():
-    json = requests.get('http://127.0.0.1:1875/aliases').json()
+    json = get('aliases').json()
     assert len(json) == 2
     assert json['01234'] == 'b'
     assert json['56789'] == 'f'
