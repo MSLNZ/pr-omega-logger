@@ -142,6 +142,13 @@ def now():
     if request.full_path.startswith('/now'):  # the dcc.Interval callback also calls this function
         logging.info(f'[{request.remote_addr}] {request.full_path}')
 
+    allowed_params = ('alias', 'corrected', 'serial')
+    for k, v in request.args.items():
+        if k not in allowed_params:
+            allowed = ', '.join(a for a in allowed_params)
+            return f'Invalid parameter: {k!r}<br/>' \
+                   f'Valid parameters are: {allowed}', 400
+
     apply_corr = request.args.get('corrected', 'true').lower() == 'true'
     requested = request.args.get('serial')
     if not requested:
@@ -243,8 +250,9 @@ def fetch():
             logging.info(f'Received unknown argument {kwg} (={val})')
             error += kwg+'; '
     if error:
+        allowed = ', '.join(a for a in allowed_kwargs)
         return f'Unknown arguments: {error}.<br/>' \
-               f'Allowed kwargs are {allowed_kwargs}', 400
+               f'Allowed kwargs are: {allowed}', 400
 
     start = request.args.get('start')
     start_timestamp = fromisoformat(start).isoformat(sep=' ') if start else None
