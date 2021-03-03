@@ -99,9 +99,18 @@ def fromisoformat(date_string):
         if not tstr:
             return date
 
-        time = datetime.strptime(tstr, '%H:%M:%S')
+        # Parses times of the form HH[:MM[:SS]]
+        hour, minute, second = 0, 0, 0
+        time_split = tuple(map(int, tstr.split(':')))
+        if len(time_split) == 1:
+            hour = time_split[0]
+        elif len(time_split) == 2:
+            hour, minute = time_split
+        elif len(time_split) == 3:
+            hour, minute, second = time_split
+
         return datetime(date.year, month=date.month, day=date.day,
-                        hour=time.hour, minute=time.minute, second=time.second)
+                        hour=hour, minute=minute, second=second)
 
 
 def initialize_webapp(cfg, serials):
