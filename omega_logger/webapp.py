@@ -266,7 +266,7 @@ def fetch():
                 timestamps[kwg] = datetime.now().replace(microsecond=0).isoformat(sep=' ')
         except ValueError:
             return f'The value for {kwg} must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>'\
-                   f'Received {time_arg}.'
+                   f'Received {time_arg}.', 400
 
     apply_corr = request.args.get('corrected', 'true').lower() == 'true'
 
