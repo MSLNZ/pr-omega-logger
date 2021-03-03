@@ -241,7 +241,17 @@ def test_fetch():
     assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076] # that's a funky corrected value!
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
+
+def test_fetch_invalid_params():
     json = get('/fetch?woofwoof')
+    assert json.status_code == 400
+    assert 'Unknown arguments' in json.text
+
+    json = get('/fetch', params='woofwoof')
+    assert json.status_code == 400
+    assert 'Unknown arguments' in json.text
+
+    json = get('/fetch', params={'ball': 'yellow', 'stick': 'brown'})
     assert json.status_code == 400
     assert 'Unknown arguments' in json.text
 
@@ -330,6 +340,18 @@ def test_fetch_uncorrected_start():
     assert json['56789']['temperature2'][0][1] == 25.3
     assert json['56789']['humidity2'][0][1] == 46.1
     assert json['56789']['dewpoint2'][0][1] == 12.8
+
+
+def test_fetch_invalid_timepoints():
+    json = get('/fetch', params={'start': 'yesterday', 'end': 'tomorrow'})
+    assert json.status_code == 400
+    assert b'The value for start must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>Received yesterday.'\
+        == json.content
+
+    json = get('/fetch', params={'end': 'tomorrow'})
+    assert json.status_code == 400
+    assert b'The value for end must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>Received tomorrow.'\
+        == json.content
 
 
 def test_fetch_serial_and_alias():
