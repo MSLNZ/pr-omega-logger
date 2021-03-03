@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
+import pytest
 from msl.equipment import Config
 
 from omega_logger import utils
@@ -22,6 +23,27 @@ def test_fromisoformat():
 
     dt = utils.fromisoformat('2020-02-23T12:32:05')
     assert dt == datetime(2020, month=2, day=23, hour=12, minute=32, second=5)
+
+    dt = utils.fromisoformat('2020-02-23T12')
+    assert dt == datetime(2020, month=2, day=23, hour=12, minute=0, second=0)
+
+    dt = utils.fromisoformat('2020-02-23T12:10')
+    assert dt == datetime(2020, month=2, day=23, hour=12, minute=10, second=0)
+
+    # these raise a ValueError
+    for item in ['1614715543.374186', '2021', '2021-', '2021-0-0', '2021-01',
+                 '01-01-2021', '2020.02.23', '2020-02-23T12-32-05',
+                 '2020.02.23 12.32.05', '2020-02-23T12:', '2020-02-23T12:10:']:
+        with pytest.raises(ValueError):
+            utils.fromisoformat(item)
+    for i in range(25):
+        with pytest.raises(ValueError):
+            utils.fromisoformat('x'*i)
+
+    # these raise a TypeError
+    for item in [None, 1614715543.374186, dict(), tuple(), set(), True, 2, 1+7j]:
+        with pytest.raises(TypeError):
+            utils.fromisoformat(item)
 
 
 def test_initialize_webapp():
