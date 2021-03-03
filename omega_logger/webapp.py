@@ -251,14 +251,22 @@ def fetch():
             error += kwg+'; '
     if error:
         allowed = ', '.join(a for a in allowed_kwargs)
-        return f'Unknown arguments: {error}.<br/>' \
+        return f'Unknown arguments: {error}<br/>' \
                f'Allowed kwargs are: {allowed}', 400
 
-    start = request.args.get('start')
-    start_timestamp = fromisoformat(start).isoformat(sep=' ') if start else None
-
-    end = request.args.get('end')
-    end_timestamp = fromisoformat(end).isoformat(sep=' ') if end else datetime.now().replace(microsecond=0).isoformat(sep=' ')
+    timestamps = {}
+    for kwg in ['start', 'end']:
+        time_arg = request.args.get(kwg)
+        try:
+            timestamps[kwg] = fromisoformat(time_arg).isoformat(sep=' ')
+        except TypeError:
+            if kwg == 'start':
+                timestamps[kwg] = None
+            else:
+                timestamps[kwg] = datetime.now().replace(microsecond=0).isoformat(sep=' ')
+        except ValueError:
+            return f'The value for {kwg} must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>'\
+                   f'Received {time_arg}.'
 
     apply_corr = request.args.get('corrected', 'true').lower() == 'true'
 
@@ -299,15 +307,15 @@ def fetch():
 
         fetched[serial] = {
             'alias': omega.alias,
-            'start': start_timestamp,
-            'end': end_timestamp,
+            'start': timestamps['start'],
+            'end': timestamps['end'],
             'error': error,
         }
         for report in find_reports(calibrations, serial):
             c = report.component
             for typ in types:
                 logging.info(f'Reading {typ} data for {omega.alias} {c}')
-                data, message = read_database(report, typ, date1=start_timestamp, date2=end_timestamp, label=None)
+                data, message = read_database(report, typ, date1=timestamps['start'], date2=timestamps['end'], label=None)
                 if apply_corr:
                     logging.info(f'Applying {typ} correction from Report {report.number}')
                     data = apply_calibration(data, report)
