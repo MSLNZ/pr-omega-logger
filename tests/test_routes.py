@@ -467,12 +467,3 @@ def test_aliases():
     assert json['01234'] == 'b'
     assert json['56789'] == 'f'
 
-
-if __name__ == "__main__":
-    setup_module(module='beehive')
-    test_fetch()
-    test_fetch_uncorrected()
-    test_fetch_serial_end()
-    test_fetch_uncorrected_start()
-    test_fetch_serial_and_alias()
-    test_fetch_type()
