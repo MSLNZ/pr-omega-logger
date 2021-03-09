@@ -426,7 +426,7 @@ def test_now_alias_unknown():
 
 def test_now_serial_and_alias():
     # the serial number gets precedence over the alias
-    json = get('/now', params={'serial': 56789, 'alias': 'b'}).json()
+    json = get('/now', params={'serial': '56789', 'alias': 'b'}).json()
     assert len(json) == 1
     assert '01234' not in json
     assert json['56789']['error'] is None
@@ -468,4 +468,3 @@ def test_aliases():
     assert len(json) == 2
     assert json['01234'] == 'b'
     assert json['56789'] == 'f'
-
