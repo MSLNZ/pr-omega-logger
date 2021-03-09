@@ -4,7 +4,6 @@ Start the Dash app.
 import os
 import sys
 import socket
-import logging
 import tempfile
 import traceback
 from math import floor, ceil
@@ -34,12 +33,6 @@ from utils import (
     datetime_range_picker_kwargs,
 )
 from datetime_range_picker import DatetimeRangePicker
-
-logging.basicConfig(
-   level=logging.INFO,
-   format='%(asctime)s [%(levelname)5s] %(message)s',
-   datefmt='%Y-%m-%d %H:%M:%S',
-)
 
 
 def serve_layout():
@@ -99,7 +92,6 @@ def aliases():
         Return the aliases that are used. The keys are the serial numbers
         of each OMEGA iServer and the values are the aliases.
     """
-    logging.info(f'[{request.remote_addr}] {request.full_path}')
     data = dict((value.serial, value.alias) for value in omegas.values())
     return jsonify(data)
 
@@ -139,9 +131,6 @@ def now():
         Return the uncorrected values from the OMEGA device that
         has the alias Mass2.
     """
-    if request.full_path.startswith('/now'):  # the dcc.Interval callback also calls this function
-        logging.info(f'[{request.remote_addr}] {request.full_path}')
-
     allowed_params = ('alias', 'corrected', 'serial')
     for k, v in request.args.items():
         if k not in allowed_params:
@@ -240,14 +229,10 @@ def fetch():
         Return the uncorrected humidity values between 12:00:00 on the 16th Feb 2021 and 16:00:00 on the 17th Feb 2021
         from the OMEGA device that has the alias Mass 2.
     """
-    if request.full_path.startswith('/fetch'):
-        logging.info(f'[{request.remote_addr}] {request.full_path}')
-
     error = ''
     allowed_kwargs = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
     for kwg, val in request.args.items():
         if kwg not in allowed_kwargs:
-            logging.info(f'Received unknown argument {kwg} (={val})')
             error += kwg+'; '
     if error:
         allowed = ', '.join(a for a in allowed_kwargs)
@@ -288,7 +273,6 @@ def fetch():
         types = known_types
     if error:
         error = f"Unknown type value(s) received: {error}".strip(",")
-        logging.warning(error)
     else:
         error = None  # maintain consistency with other methods
 
@@ -301,8 +285,6 @@ def fetch():
         if requested and requested not in [serial, omega.alias]:
             continue
 
-        logging.info(f'Fetching data for {serial} {omega.alias}')
-
         nprobes = omega.connection.properties.get('nprobes', 1)
 
         fetched[serial] = {
@@ -314,17 +296,13 @@ def fetch():
         for report in find_reports(calibrations, serial):
             c = report.component
             for typ in types:
-                logging.info(f'Reading {typ} data for {omega.alias} {c}')
                 data, message = read_database(report, typ, date1=timestamps['start'], date2=timestamps['end'], label=None)
                 if apply_corr:
-                    logging.info(f'Applying {typ} correction from Report {report.number}')
                     data = apply_calibration(data, report)
                 if nprobes == 1:
                     fetched[serial].update({typ: data.tolist()})
                 else:
                     fetched[serial].update({typ + report.probe: data.tolist()})
-
-        logging.info("Finished fetch")
 
     return jsonify(fetched), 200
 
@@ -387,7 +365,6 @@ def update_plot_viewer(tab, dropdown, start, end):
 
         # fetch the data
         data, message = read_database(report, tab, date1=start_date, date2=end_date, label=label)
-        logging.info(f'[{request.remote_addr}] {message}')
 
         # apply the calibration equation
         if tab != 'dewpoint':
@@ -494,7 +471,6 @@ def create_csv_file_for_download(n_clicks, figure):
 
     np.savetxt(temp_file, csv_data, fmt='%s', delimiter=',')
     size = human_file_size(os.path.getsize(temp_file))
-    logging.info(f'[{request.remote_addr}] Requested a {size} csv file')
 
 
 @app.callback(
@@ -507,7 +483,6 @@ def current_readings_viewer(tab, n_intervals):
 
     n = n_intervals or 0  # n_intervals is initially None
     n += 1
-    logging.info(f'[{request.remote_addr}] Current Readings #{n}')
 
     children = []
     margin_right = cfg.value('current_readings/margin_right', '16px')
@@ -533,8 +508,8 @@ def current_readings_viewer(tab, n_intervals):
 try:
     host = cfg.value('host', default=socket.gethostname())
     port = cfg.value('port', default=1875)
-    with WSGIServer((host, port), application=app.server, log=None) as server:
-        logging.info(f'Serving at http://{host}:{port}')
+    with WSGIServer((host, port), application=app.server) as server:
+        print(f'Serving at http://{host}:{port}')
         server.serve_forever()
 except KeyboardInterrupt:
     pass
