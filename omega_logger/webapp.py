@@ -8,7 +8,6 @@ import tempfile
 import traceback
 from math import floor, ceil
 from datetime import datetime
-
 from difflib import get_close_matches
 
 import numpy as np
