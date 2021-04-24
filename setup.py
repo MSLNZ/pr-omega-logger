@@ -36,7 +36,7 @@ setup(
         'Programming Language :: Python :: 3.9',
     ],
     install_requires=[
-        'msl-equipment @ https://github.com/MSLNZ/msl-equipment/archive/master.tar.gz',
+        'msl-equipment @ https://github.com/MSLNZ/msl-equipment/archive/main.tar.gz',
         'numpy',
         'gevent',
         'flask',

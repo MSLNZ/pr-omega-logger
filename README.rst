@@ -8,7 +8,7 @@ Install
 -------
 .. code-block:: console
 
-   pip install https://github.com/MSLNZ/pr-omega-logger/archive/master.tar.gz
+   pip install https://github.com/MSLNZ/pr-omega-logger/archive/main.tar.gz
 
 Usage
 -----
@@ -207,11 +207,11 @@ API
 ---
 Coming soon.
 
-.. |travis| image:: https://img.shields.io/travis/MSLNZ/pr-omega-logger/master.svg?label=Travis-CI
+.. |travis| image:: https://img.shields.io/travis/MSLNZ/pr-omega-logger/main.svg?label=Travis-CI
    :target: https://travis-ci.org/MSLNZ/pr-omega-logger
 
-.. |appveyor| image:: https://img.shields.io/appveyor/ci/jborbely/pr-omega-logger/master.svg?label=AppVeyor
-   :target: https://ci.appveyor.com/project/jborbely/pr-omega-logger/branch/master
+.. |appveyor| image:: https://img.shields.io/appveyor/ci/jborbely/pr-omega-logger/main.svg?label=AppVeyor
+   :target: https://ci.appveyor.com/project/jborbely/pr-omega-logger/branch/main
 
 .. _MSL-Equipment: https://msl-equipment.readthedocs.io/en/latest/
 .. _Dash: https://plot.ly/products/dash/
