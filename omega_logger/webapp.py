@@ -490,6 +490,13 @@ def current_readings_viewer(tab, n_intervals):
         children.append(html.B(b))
         if data['error']:
             children.append(html.P(data['error']))
+        elif 'temperature2' in data.keys():
+            for sensor in ['1', '2']:
+                p = []
+                for key in 'temperature' + sensor, 'humidity' + sensor, 'dewpoint' + sensor:
+                    p.append(html.Span(key + ':', style={'color': 'grey'}))
+                    p.append(html.Span(f'{data[key]:.2f}', style={'margin-right': margin_right}))
+                children.append(html.P(p))
         else:
             p = []
             for key in sorted(data):
