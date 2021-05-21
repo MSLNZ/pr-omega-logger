@@ -30,6 +30,8 @@ try:
     records = db.records(manufacturer='OMEGA', serial=serial, flags=re.IGNORECASE)
     if not records:
         raise ValueError(f'No equipment record exists for manufacturer=OMEGA and serial={serial}')
+    if len(records) > 1:
+        raise ValueError(f'Multiple equipment record exists for manufacturer=OMEGA and serial={serial}')
 
     record = records[0]
 
