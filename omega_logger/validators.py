@@ -1,3 +1,9 @@
+"""
+A Validator validates the data from an OMEGA iServer before the data is
+inserted into a database. All custom-written validators should inherit
+from the :class:`.Validator` class and override the
+:meth:`~.Validator.validate` method.
+"""
 from abc import (
     ABC,
     abstractmethod,
@@ -5,21 +11,21 @@ from abc import (
 
 
 class Validator(ABC):
-    """Base class for all iServer validators."""
+    """Base class for all OMEGA iServer validators."""
 
     @abstractmethod
     def validate(self, data, ithx):
-        """The callback that is used to validate the data from an iServer.
+        """The callback that is used to validate the data from an OMEGA iServer.
 
         Parameters
         ----------
         data : :class:`tuple`
             The temperature, humidity and dew point values for each iServer probe.
 
-            If a 1-probe iServer then
+            If a 1-probe iServer then::
                (temperature, humidity, dewpoint)
 
-            If a 2-probe iServer then
+            If a 2-probe iServer then::
                (temperature1, humidity1, dewpoint1, temperature2, humidity2, dewpoint2)
 
         ithx
