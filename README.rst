@@ -100,6 +100,9 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             <text>Refresh</text>
         </datetime_range_picker>
 
+        <!-- Optional: Use a validator to validate the data before inserting it into the database. -->
+        <validator hmax="60" dmin="10">simple-range</validator>
+
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>
 
