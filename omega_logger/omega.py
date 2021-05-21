@@ -16,10 +16,10 @@ class AliasFormatter(logging.Formatter):
         super(AliasFormatter, self).__init__(fmt=fmt)
         self.alias = alias
 
-    def format(self, record):
-        if self.alias and record.levelno > logging.INFO:
-            record.msg = f'[{self.alias}] {record.msg}'
-        return super(AliasFormatter, self).format(record)
+    def format(self, rec):
+        if self.alias and rec.levelno > logging.WARNING:
+            rec.msg = f'[{self.alias}] {rec.msg}'
+        return super(AliasFormatter, self).format(rec)
 
 
 try:
