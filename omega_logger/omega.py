@@ -51,8 +51,7 @@ try:
     nprobes = record.connection.properties.get('nprobes', 1)
 
     msg_format = None
-    elements = cfg.findall('msg_format')
-    for element in elements:
+    for element in cfg.findall('msg_format'):
         if nprobes == int(element.attrib.get('nprobes', 1)):
             msg_format = element.text
             break
