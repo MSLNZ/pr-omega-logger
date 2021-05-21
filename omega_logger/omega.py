@@ -8,6 +8,8 @@ import traceback
 
 from msl.equipment import Config
 
+from validators import validator_map
+
 
 class AliasFormatter(logging.Formatter):
 
@@ -56,13 +58,23 @@ try:
             msg_format = element.text
             break
 
+    validator_element = cfg.find('validator')
+    if validator_element is None:
+        validator = None
+    else:
+        name = validator_element.text
+        kwargs = validator_element.attrib
+        validator = validator_map[name](**kwargs)
+
     iserver.start_logging(
         cfg.value('log_dir'),
         wait=cfg.value('wait', 60),
         nprobes=nprobes,
         nbytes=record.connection.properties.get('nbytes'),
         msg_format=msg_format,
+        validator=validator.validate,
     )
+
 except KeyboardInterrupt:
     pass
 except:
