@@ -62,7 +62,7 @@ class SimpleRange(Validator):
             The minimum dew point value allowed.
         dmax : :class:`float`, optional
             The maximum dew point value allowed.
-        kwargs:
+        kwargs
             Anything else is ignored.
         """
         self.tmin = float(tmin)
@@ -112,6 +112,17 @@ class SimpleRange(Validator):
 class WithReset(Validator):
 
     def __init__(self, reset_criterion=5, **kwargs):
+        """Reset the iServer after a certain number of invalid data values.
+
+        Parameters
+        ----------
+        reset_criterion : :class:`int`, optional
+            The maximum number of times that the data can fall outside of
+            the specified range before resetting the iServer.
+        kwargs
+            All additional keyword arguments are passed to
+            :class:`.SimpleRange`.
+        """
         self.counter = 0
         self.reset_criterion = int(reset_criterion)
 
