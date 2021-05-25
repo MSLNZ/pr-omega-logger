@@ -40,7 +40,7 @@ class Validator(ABC):
 
 class SimpleRange(Validator):
 
-    def __init__(self, tmin=10, tmax=30, hmin=10, hmax=90, dmin=0, dmax=20):
+    def __init__(self, tmin=10, tmax=30, hmin=10, hmax=90, dmin=0, dmax=20, **kwargs):
         """Validates the data by verifying that it is within a certain range.
 
         The term "Simple" refers to the fact that nothing special is done if a
@@ -62,6 +62,8 @@ class SimpleRange(Validator):
             The minimum dew point value allowed.
         dmax : :class:`float`, optional
             The maximum dew point value allowed.
+        kwargs:
+            Anything else is ignored.
         """
         self.tmin = float(tmin)
         self.tmax = float(tmax)
@@ -107,6 +109,31 @@ class SimpleRange(Validator):
         return True
 
 
+class WithReset(Validator):
+
+    def __init__(self, reset_criterion=5, **kwargs):
+        self.counter = 0
+        self.reset_criterion = int(reset_criterion)
+
+        self.simplerange = SimpleRange(**kwargs)
+
+    def validate(self, data, ithx):
+
+        if self.simplerange.validate(data, ithx):
+            return True
+
+        self.counter += 1
+
+        if self.counter >= self.reset_criterion:
+            ithx.log_warning(
+                f'The Omega iServer will reset due to {self.reset_criterion} bad readings.'
+            )
+            ithx.reset(wait=True, password=None, port=2002, timeout=10)
+            self.counter = 0
+
+        return False
+
+
 # A mapping between a name and the validator to use.
 # The name is specified in a configuration file as the text of an XML element
 # and the attributes of the element are used as keyword arguments for the
@@ -119,4 +146,5 @@ class SimpleRange(Validator):
 # maximum dew point.
 validator_map = {
     'simple-range': SimpleRange,
+    'with-reset': WithReset,
 }
