@@ -1,6 +1,6 @@
 |github tests|
 
-Logs the temperature, humidity and dew point from OMEGA iServer's to a database
+Logs the temperature, humidity and dew point from OMEGA iServers to a database
 and creates a Dash_ application. The application is accessed through a web
 browser at ``http://<host>:<port>``.
 
@@ -106,7 +106,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>
 
-        <!-- The serial numbers (separated by white space and/or a comma) of the iServer's. -->
+        <!-- The serial numbers (separated by white space and/or a comma) of the iServers. -->
         <serials>
             4370757
             12481415
