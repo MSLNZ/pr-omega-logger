@@ -85,21 +85,21 @@ class SimpleRange(Validator):
             dewpoints = [d1, d2]
 
         for t in temperatures:
-            if not (self.tmin < t < self.tmax):
+            if not (self.tmin <= t <= self.tmax):
                 ithx.log_warning(
                     f'Temperature value of {t} is out of range [{self.tmin}, {self.tmax}]'
                 )
                 return False
 
         for h in humidities:
-            if not (self.hmin < h < self.hmax):
+            if not (self.hmin <= h <= self.hmax):
                 ithx.log_warning(
                     f'Humidity value of {h} is out of range [{self.hmin}, {self.hmax}]'
                 )
                 return False
 
         for d in dewpoints:
-            if not (self.dmin < d < self.dmax):
+            if not (self.dmin <= d <= self.dmax):
                 ithx.log_warning(
                     f'Dewpoint value of {d} is out of range [{self.dmin}, {self.dmax}]'
                 )
