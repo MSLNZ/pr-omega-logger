@@ -21,7 +21,7 @@ def start():
     xml = os.path.abspath(sys.argv[1])
     try:
         cfg = Config(xml)
-    except IOError as e:
+    except OSError as e:
         print(f'{e.__class__.__name__}: {e}', file=sys.stderr)
         return 1
 
