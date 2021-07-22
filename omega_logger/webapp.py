@@ -9,6 +9,7 @@ import traceback
 from math import floor, ceil
 from datetime import datetime
 from difflib import get_close_matches
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import dash
@@ -81,6 +82,54 @@ app.layout = serve_layout  # set app.layout to a function to serve a dynamic lay
 app.server.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 
+def read_raw(omega):
+    """Read the raw temperature, humidity and dewpoint values from an OMEGA iServer.
+
+    Parameters
+    ----------
+    omega : :class:`msl.equipment.record_types.EquipmentRecord`
+        The Equipment Record of an OMEGA iServer.
+
+    Returns
+    -------
+    :class:`str`
+        The serial number of the OMEGA iServer.
+    :class:`dict`
+        The data.
+    """
+    nprobes = omega.connection.properties.get('nprobes', 1)
+    nbytes = omega.connection.properties.get('nbytes')
+
+    error = None
+    try:
+        cxn = omega.connect()
+        thd = cxn.temperature_humidity_dewpoint(probe=1, nbytes=nbytes)
+        if nprobes == 2:
+            thd += cxn.temperature_humidity_dewpoint(probe=2, nbytes=nbytes)
+        cxn.disconnect()
+    except Exception as e:
+        error = str(e)
+        thd = [None] * (nprobes * 3)
+
+    timestamp = datetime.now().replace(microsecond=0).isoformat()
+    data = {
+        'error': error,
+        'alias': omega.alias,
+        'timestamp': timestamp
+    }
+    if len(thd) == 3:
+        data.update({
+            'temperature': thd[0], 'humidity': thd[1], 'dewpoint': thd[2]
+        })
+    else:
+        data.update({
+            'temperature1': thd[0], 'humidity1': thd[1], 'dewpoint1': thd[2],
+            'temperature2': thd[3], 'humidity2': thd[4], 'dewpoint2': thd[5]
+        })
+
+    return omega.serial, data
+
+
 @app.server.route('/aliases')
 def aliases():
     """Get the aliases of the OMEGA iServer's.
@@ -142,40 +191,15 @@ def now():
     if not requested:
         requested = request.args.get('alias')
 
-    data = dict()
+    records = []
     for serial, omega in omegas.items():
         if requested and requested not in [serial, omega.alias]:
             continue
+        records.append(omega)
 
-        nprobes = omega.connection.properties.get('nprobes', 1)
-        nbytes = omega.connection.properties.get('nbytes')
-
-        error = None
-        try:
-            cxn = omega.connect()
-            thd = cxn.temperature_humidity_dewpoint(probe=1, nbytes=nbytes)
-            if nprobes == 2:
-                thd += cxn.temperature_humidity_dewpoint(probe=2, nbytes=nbytes)
-            cxn.disconnect()
-        except Exception as e:
-            error = str(e)
-            thd = [None] * (nprobes * 3)
-
-        timestamp = datetime.now().replace(microsecond=0).isoformat()
-        data[serial] = {
-            'error': error,
-            'alias': omega.alias,
-            'timestamp': timestamp
-        }
-        if len(thd) == 3:
-            data[serial].update({
-                'temperature': thd[0], 'humidity': thd[1], 'dewpoint': thd[2]
-            })
-        else:
-            data[serial].update({
-                'temperature1': thd[0], 'humidity1': thd[1], 'dewpoint1': thd[2],
-                'temperature2': thd[3], 'humidity2': thd[4], 'dewpoint2': thd[5]
-            })
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(read_raw, record) for record in records]
+        data = dict(f.result() for f in futures)
 
     if apply_corr:
         corrected = dict()
