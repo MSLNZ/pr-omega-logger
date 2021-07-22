@@ -493,7 +493,6 @@ def create_csv_file_for_download(n_clicks, figure):
         csv_data[2:n+2, 2*i+1] = plot['y']
 
     np.savetxt(temp_file, csv_data, fmt='%s', delimiter=',')
-    size = human_file_size(os.path.getsize(temp_file))
 
 
 @app.callback(
