@@ -388,11 +388,38 @@ def test_now_serial():
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
 
+    json = get('/now', params={'serial': '01234,56789'}).json()
+    assert len(json) == 2
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['temperature'] == temperature
+    assert json['01234']['humidity'] == humidity
+    assert json['01234']['dewpoint'] == 11.0
+    assert json['56789']['error'] is None
+    assert json['56789']['alias'] == 'f'
+    assert json['56789']['temperature1'] == temperature1
+    assert json['56789']['humidity1'] == humidity1
+    assert json['56789']['dewpoint1'] == 11.0
+    assert json['56789']['temperature2'] == temperature2
+    assert json['56789']['humidity2'] == humidity2
+    assert json['56789']['dewpoint2'] == 12.0
+
 
 def test_now_serial_unknown():
     json = get('/now', params={'serial': 'unknown'}).json()
     assert len(json) == 0
     assert isinstance(json, dict)
+
+    json = get('/now', params={'serial': 'unknown,56789'}).json()
+    assert len(json) == 1
+    assert json['56789']['error'] is None
+    assert json['56789']['alias'] == 'f'
+    assert json['56789']['temperature1'] == temperature1
+    assert json['56789']['humidity1'] == humidity1
+    assert json['56789']['dewpoint1'] == 11.0
+    assert json['56789']['temperature2'] == temperature2
+    assert json['56789']['humidity2'] == humidity2
+    assert json['56789']['dewpoint2'] == 12.0
 
 
 def test_now_alias():
@@ -417,11 +444,35 @@ def test_now_alias():
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
 
+    json = get('/now', params={'alias': 'b,f'}).json()
+    assert len(json) == 2
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['temperature'] == temperature
+    assert json['01234']['humidity'] == humidity
+    assert json['01234']['dewpoint'] == 11.0
+    assert json['56789']['error'] is None
+    assert json['56789']['alias'] == 'f'
+    assert json['56789']['temperature1'] == temperature1
+    assert json['56789']['humidity1'] == humidity1
+    assert json['56789']['dewpoint1'] == 11.0
+    assert json['56789']['temperature2'] == temperature2
+    assert json['56789']['humidity2'] == humidity2
+    assert json['56789']['dewpoint2'] == 12.0
+
 
 def test_now_alias_unknown():
     json = get('/now', params={'alias': 'unknown'}).json()
     assert len(json) == 0
     assert isinstance(json, dict)
+
+    json = get('/now', params={'alias': 'b,unknown'}).json()
+    assert len(json) == 1
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['temperature'] == temperature
+    assert json['01234']['humidity'] == humidity
+    assert json['01234']['dewpoint'] == 11.0
 
 
 def test_now_serial_and_alias():

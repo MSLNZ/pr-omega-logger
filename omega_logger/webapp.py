@@ -146,38 +146,45 @@ def aliases():
 
 @app.server.route('/now')
 def now():
-    """Get the current temperature, humidity and dewpoint values.
+    """Get the current temperature, humidity and dewpoint.
 
     Endpoint
     --------
     /now[?[serial=][alias=][corrected=true]]
 
-    serial: the serial number of the OMEGA iServer to get the values from.
+    serial: the serial number(s) of the OMEGA iServer(s) to get the data from.
+      If requesting data from multiple iServers then the serial numbers must
+      be separated by a comma.
 
-    alias: the alias of the OMEGA iServer to get the values from.
-      If a serial number is also specified then it gets precedence over
-      the alias.
+    alias: the alias(es) of the OMEGA iServer(s) to get the data from.
+      If requesting data from multiple iServers then the aliases must be
+      separated by a comma. If a value for `serial` is also specified
+      then it gets precedence over the alias value.
 
     corrected: whether to apply the calibration equation. Default is true.
 
     Examples
     --------
     /now
-        Return the corrected values from all OMEGA devices.
+        Return the corrected data from all OMEGA iServers.
     /now?serial=12345
-        Return the corrected values from the OMEGA device that
+        Return the corrected data from the OMEGA iServer that
         has the serial number 12345.
     /now?alias=Mass2
-        Return the corrected values from the OMEGA device that
+        Return the corrected data from the OMEGA iServer that
         has the alias Mass2.
     /now?corrected=false
-        Return the uncorrected values from all OMEGA devices.
+        Return the uncorrected data from all OMEGA iServers.
     /now?serial=12345&corrected=false
-        Return the uncorrected values from the OMEGA device that
+        Return the uncorrected data from the OMEGA iServer that
         has the serial number 12345.
     /now?alias=Mass2&corrected=false
-        Return the uncorrected values from the OMEGA device that
+        Return the uncorrected data from the OMEGA iServer that
         has the alias Mass2.
+    /now?serial=12345,6789
+        Return the corrected data from the OMEGA iServer that
+        has the serial number 12345 and from the OMEGA iServer that
+        has the serial number 6789.
     """
     allowed_params = ('alias', 'corrected', 'serial')
     for k, v in request.args.items():
@@ -191,9 +198,12 @@ def now():
     if not requested:
         requested = request.args.get('alias')
 
+    if requested:
+        requested = set(requested.split(','))
+
     records = []
     for serial, omega in omegas.items():
-        if requested and requested not in [serial, omega.alias]:
+        if requested and not requested.intersection({serial, omega.alias}):
             continue
         records.append(omega)
 
