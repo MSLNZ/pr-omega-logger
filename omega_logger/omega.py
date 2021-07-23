@@ -72,7 +72,7 @@ try:
         nprobes=nprobes,
         nbytes=record.connection.properties.get('nbytes'),
         msg_format=msg_format,
-        validator=validator.validate,
+        validator=None if validator is None else validator.validate,
     )
 
 except KeyboardInterrupt:
