@@ -5,6 +5,19 @@ Release Notes
 Version 0.3.0.dev0
 ==================
 
+- Added
+
+  * support for using a ``Validator`` to check if the data from an OMEGA iServer
+    is valid and should be inserted into a database
+  * the ``SimpleRange`` and ``WithReset`` validators
+
+- Changed
+
+  * use a ``ThreadPoolExecutor`` to read the data from the OMEGA iServers
+  * the ``/now`` route allows for requesting data from multiple iServers
+    by including commas in the `serial` or `alias` parameters
+    (e.g., ``/now?serial=1234,56789``)
+
 
 Version 0.2.0 (2021.03.10)
 ==========================
