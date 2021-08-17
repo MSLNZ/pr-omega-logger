@@ -7,16 +7,22 @@ Version 0.3.0.dev0
 
 - Added
 
+  * the ``/help`` route
   * support for using a ``Validator`` to check if the data from an OMEGA iServer
     is valid and should be inserted into a database
   * the ``SimpleRange`` and ``WithReset`` validators
 
 - Changed
 
-  * use a ``ThreadPoolExecutor`` to read the data from the OMEGA iServers
-  * the ``/now`` route allows for requesting data from multiple iServers
-    by including commas in the `serial` or `alias` parameters
-    (e.g., ``/now?serial=1234,56789``)
+  * a ``report_number`` key is now included in the response of the ``/now`` and
+    ``/fetch`` routes
+  * use a ``ThreadPoolExecutor`` to read the current data from the OMEGA iServers
+  * the ``/now`` and ``/fetch`` routes allow for requesting data from multiple
+    iServers by using a semi-colon to separate the `serial` or `alias` values
+    (e.g., ``/now?serial=1234;56789``)
+  * can specify values for both the ``serial`` and ``alias`` parameters in a
+    single query for the ``/now`` and ``/fetch`` routes (previously, only the
+    ``serial`` value was used if it was specified)
 
 
 Version 0.2.0 (2021.03.10)
