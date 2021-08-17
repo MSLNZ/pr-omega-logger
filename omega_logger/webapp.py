@@ -16,14 +16,21 @@ import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 from gevent.pywsgi import WSGIServer
-from flask import request, jsonify, current_app
 from msl.equipment import Config
+from dash.dependencies import (
+    Input,
+    Output,
+    State,
+)
+from flask import (
+    request,
+    jsonify,
+    current_app,
+)
 
 from utils import (
-    human_file_size,
     fromisoformat,
     initialize_webapp,
     find_report,
