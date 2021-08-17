@@ -2,6 +2,7 @@
 Start the Dash app.
 """
 import os
+import re
 import sys
 import socket
 import tempfile
@@ -297,10 +298,10 @@ def fetch():
     types = []
 
     type_vals = request.args.get('type')
-    if type_vals is not None:           # parse types to check they're spelled correctly (or find close match)
-        type_vals = type_vals.split()
-
-        for t in type_vals:
+    if type_vals is not None:  # parse types to check they're spelled correctly (or find close match)
+        for t in re.split(r'[\s,;]', type_vals):
+            if not t:
+                continue
             match = get_close_matches(t, known_types, cutoff=0.5)
             if match:
                 types.append(match[0])
