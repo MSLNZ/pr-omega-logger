@@ -115,7 +115,8 @@ def read_raw(omega):
     data = {
         'error': error,
         'alias': omega.alias,
-        'timestamp': timestamp
+        'timestamp': timestamp,
+        'report_number': None,
     }
     if len(thd) == 3:
         data.update({
@@ -214,9 +215,11 @@ def now():
     if apply_corr:
         corrected = dict()
         for serial, values in data.items():
-            for report in find_reports(calibrations, serial):
+            reports = find_reports(calibrations, serial)
+            for report in reports:
                 values = apply_calibration(values, report)
             corrected[serial] = values
+            corrected[serial]['report_number'] = ';'.join(r.number for r in reports)
         return jsonify(corrected)
     return jsonify(data)
 
@@ -318,6 +321,7 @@ def fetch():
         if requested and requested not in [serial, omega.alias]:
             continue
 
+        reports = find_reports(calibrations, serial)
         nprobes = omega.connection.properties.get('nprobes', 1)
 
         fetched[serial] = {
@@ -325,11 +329,11 @@ def fetch():
             'start': timestamps['start'],
             'end': timestamps['end'],
             'error': error,
+            'report_number': None if not apply_corr else ';'.join(r.number for r in reports),
         }
-        for report in find_reports(calibrations, serial):
-            c = report.component
+        for report in reports:
             for typ in types:
-                data, message = read_database(report, typ, date1=timestamps['start'], date2=timestamps['end'], label=None)
+                data, message = read_database(report, typ, date1=timestamps['start'], date2=timestamps['end'])
                 if apply_corr:
                     data = apply_calibration(data, report)
                 if nprobes == 1:
