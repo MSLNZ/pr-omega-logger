@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html clss="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>OMEGA iServers</title>
+  <link rel="stylesheet" href="static/css/theme.css" type="text/css"/>
+  <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+</head>
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          <a href="#" class="icon icon-home"> OMEGA Logger</a>
+          <div class="version">{{ version }}</div>
+        </div>
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <ul>
+          {% for doc in docs %}
+            <li class="toctree-l1"><a class="reference internal" href="#{{ doc.name }}">/{{ doc.name }}</a></li>
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div itemprop="articleBody">
+            <div class="section">
+              The following Application Programming Interface (API) endpoints are available.
+              <hr>
+            </div>
+            {% for doc in docs %}
+            <div class="section" id="{{ doc.name }}">
+              <h1>/{{ doc.name }}</h1>
+              {{ doc.value | safe }}
+              <hr>
+            </div>
+            {% endfor %}
+         </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

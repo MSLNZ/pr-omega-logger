@@ -28,6 +28,7 @@ from flask import (
     request,
     jsonify,
     current_app,
+    render_template,
 )
 
 from utils import (
@@ -40,6 +41,7 @@ from utils import (
     HTMLTable,
     datetime_range_picker_kwargs,
 )
+from omega_logger import __version__
 from datetime_range_picker import DatetimeRangePicker
 
 
@@ -141,13 +143,18 @@ def read_raw(omega):
 
 @app.server.route('/aliases')
 def aliases():
-    """Get the aliases of the OMEGA iServer's.
+    """<p>Get the aliases of the OMEGA iServers.</p>
 
-    Examples
-    --------
-    /aliases
-        Return the aliases that are used. The keys are the serial numbers
-        of each OMEGA iServer and the values are the aliases.
+    <h4>Returns</h4>
+    <p>The keys are the serial numbers of each iServer and
+    the values are the aliases.</p>
+
+    <p><i>Example:</i></p>
+    <div class="highlight-console"><div class="highlight"><span class="go">
+<pre>{
+  "12345": "Photometric bench",
+  "6789": "Mass2"
+}</pre></span></div></div>
     """
     data = dict((value.serial, value.alias) for value in omegas.values())
     return jsonify(data)
@@ -155,45 +162,109 @@ def aliases():
 
 @app.server.route('/now')
 def now():
-    """Get the current temperature, humidity and dewpoint.
+    """<p>Get the current temperature, humidity and dewpoint of the
+    requested OMEGA iServer(s).</p>
 
-    Endpoint
-    --------
-    /now[?[serial=][alias=][corrected=true]]
+    <h3>Parameters</h3>
+    <ul>
+      <li>
+        <b>serial</b> : string (optional)
+        <p>The serial number(s) of the OMEGA iServer(s) to get the data from.
+        If requesting data from multiple iServers then the serial numbers must
+        be separated by a semi-colon.</p>
+      </li>
+      <li>
+        <b>alias</b> : string (optional)
+        <p>The alias(es) of the OMEGA iServer(s) to get the data from.
+        If requesting data from multiple iServers then the aliases must
+        be separated by a semi-colon.</p>
+      </li>
+      <li>
+        <b>corrected</b> : integer or boolean (optional)
+        <p>Whether to apply the calibration equation to the data.
+        Default is <i>true</i>.</p>
+      </li>
+    </ul>
 
-    serial: the serial number(s) of the OMEGA iServer(s) to get the data from.
-      If requesting data from multiple iServers then the serial numbers must
-      be separated by a comma.
+    <p><i>Examples:</i></p>
+    <ul>
+      <li>
+        <b>/now</b>
+        <p>Return the corrected data from all OMEGA iServers.</p>
+      </li>
+      <li>
+        <b>/now?corrected=false</b>
+        <p>Return the uncorrected data from all OMEGA iServers.</p>
+      </li>
+      <li>
+        <b>/now?serial=12345</b>
+        <p>Return the corrected data from the OMEGA iServer that
+        has the serial number <i>12345</i>.</p>
+      </li>
+      <li>
+        <b>/now?alias=Mass2</b>
+        <p>Return the corrected data from the OMEGA iServer that
+        has the alias <i>Mass2</i>.</p>
+      </li>
+      <li>
+        <b>/now?alias=Photometric+bench</b>
+        <p>Return the corrected data from the OMEGA iServer that
+        has the alias <i>Photometric bench</i>.</p>
+      </li>
+      <li>
+        <b>/now?serial=12345&corrected=0</b>
+        <p>Return the uncorrected data from the OMEGA iServer that
+        has the serial number <i>12345</i>.</p>
+      </li>
+      <li>
+        <b>/now?alias=Photometric+bench&corrected=false</b>
+        <p>Return the uncorrected data from the OMEGA iServer that
+        has the alias <i>Photometric bench</i>.</p>
+      </li>
+      <li>
+        <b>/now?serial=12345;6789</b>
+        <p>Return the corrected data from the OMEGA iServer that
+        has the serial number <i>12345</i> and from the OMEGA iServer
+        that has the serial number <i>6789</i>.</p>
+      </li>
+      <li>
+        <b>/now?serial=12345&alias=Mass2&corrected=0</b>
+        <p>Return the uncorrected data from the OMEGA iServer that
+        has the serial number <i>12345</i> and from the OMEGA iServer
+        that has the alias <i>Mass2</i>.</p>
+      </li>
+    </ul>
 
-    alias: the alias(es) of the OMEGA iServer(s) to get the data from.
-      If requesting data from multiple iServers then the aliases must be
-      separated by a comma. If a value for `serial` is also specified
-      then it gets precedence over the alias value.
-
-    corrected: whether to apply the calibration equation. Default is true.
-
-    Examples
-    --------
-    /now
-        Return the corrected data from all OMEGA iServers.
-    /now?serial=12345
-        Return the corrected data from the OMEGA iServer that
-        has the serial number 12345.
-    /now?alias=Mass2
-        Return the corrected data from the OMEGA iServer that
-        has the alias Mass2.
-    /now?corrected=false
-        Return the uncorrected data from all OMEGA iServers.
-    /now?serial=12345&corrected=false
-        Return the uncorrected data from the OMEGA iServer that
-        has the serial number 12345.
-    /now?alias=Mass2&corrected=false
-        Return the uncorrected data from the OMEGA iServer that
-        has the alias Mass2.
-    /now?serial=12345,6789
-        Return the corrected data from the OMEGA iServer that
-        has the serial number 12345 and from the OMEGA iServer that
-        has the serial number 6789.
+    <h4>Returns</h4>
+    <p>The keys are the serial numbers of the requested
+    iServers and the value depends on whether the iServer
+    has 1 or 2 probes and whether an error occurred requesting
+    the data.</p>
+    <p><i>Example:</i></p>
+    <div class="highlight-console"><div class="highlight"><span class="go">
+<pre>{
+  "12345": {
+    "alias": "Photometric bench",
+    "dewpoint": 9.6,
+    "error": null,
+    "humidity": 51.3,
+    "report_number": null,
+    "temperature": 20.0,
+    "timestamp": "2021-08-16T13:36:34"
+},
+  "6789": {
+    "alias": "Mass2",
+    "dewpoint1": null,
+    "dewpoint2": null,
+    "error": "Timeout occurred after 10.0 seconds",
+    "humidity1": null,
+    "humidity2": null,
+    "report_number": null,
+    "temperature1": null,
+    "temperature2": null,
+    "timestamp": "2021-08-16T13:36:44"
+  }
+}</pre></span></div></div>
     """
     allowed_params = ('alias', 'corrected', 'serial')
     for k, v in request.args.items():
@@ -236,44 +307,75 @@ def now():
 
 @app.server.route('/fetch')
 def fetch():
-    """Get temperature, humidity and/or dewpoint values between start and end datetimes for a specified OMEGA iServer.
+    """<p>Fetch the temperature, humidity and/or dewpoint values from the database
+    between start and end dates for the requested OMEGA iServer(s).</p>
 
-    Endpoint
-    --------
-    /fetch[?[start=][end=][serial=][alias=][corrected=true][type=]]
+    <h3>Parameters</h3>
+    <ul>
+      <li>
+        <b>start</b> : string (optional)
+        <p>Start date and time as an ISO 8601 string (e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).
+        Default is the earliest record in the database.</p>
+      </li>
+      <li>
+        <b>end</b> : string (optional)
+        <p>End date and time as an ISO 8601 string. Default is now.</p>
+      </li>
+      <li>
+        <b>type</b> : string (optional)
+        <p>The type of data to retrieve (e.g., temperature, humidity, dewpoint).
+        Default is all three. Include multiple types by using a <b>+</b> sign,
+        a comma or a semi-colon as the separator.</p>
+      </li>
+      <li>
+        <b>serial</b> : string (optional)
+        <p>The serial number(s) of the OMEGA iServer(s) to get the data from.
+        If requesting data from multiple iServers then the serial numbers must
+        be separated by a semi-colon.</p>
+      </li>
+      <li>
+        <b>alias</b> : string (optional)
+        <p>The alias(es) of the OMEGA iServer(s) to get the data from.
+        If requesting data from multiple iServers then the aliases must
+        be separated by a semi-colon.</p>
+      </li>
+      <li>
+        <b>corrected</b> : integer or boolean (optional)
+        <p>Whether to apply the calibration equation to the data.
+        Default is <i>true</i>.</p>
+      </li>
+    </ul>
 
-    start: start date and time as an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss). Default is earliest record in database.
-
-    end: end date and time as an ISO 8601 string. Default is now.
-
-    serial: the serial number of the OMEGA iServer to get the values from. Default is all available iServers.
-
-    alias: the alias of the OMEGA iServer to get the values from.
-      If a serial number is also specified then it gets precedence over
-      the alias.
-
-    corrected: whether to apply the calibration equation. Default is true.
-
-    type: the type of data to retrieve (e.g. temperature, humidity, dewpoint). Default is all three.
-      Include multiple using + as separator.
-
-    Examples
-    --------
-    /fetch?
-        Return all available corrected values for temperature, humidity, and dewpoint since logging began,
-        from all OMEGA devices.
-    /fetch?serial=12345&start=2021-02-16T19:20:30
-        Return the corrected temperature, humidity, and dewpoint values since 19:20:30 on the 16th Feb 2021
-        from the OMEGA device that has the serial number 12345.
-    /fetch?alias=Mass+2&start=2021-02-16T19:20:30
-        Return the corrected temperature, humidity, and dewpoint values since 19:20:30 on the 16th Feb 2021
-        from the OMEGA device that has the alias Mass 2.
-    /fetch?serial=12345&corrected=false&start=2021-02-16T19:20:30&type=temperature
-        Return the uncorrected temperature values since 19:20:30 on the 16th Feb 2021
-        from the OMEGA device that has the serial number 12345.
-    /fetch?alias=Mass+2&corrected=false&start=2021-02-16T12:00:00&end=2021-02-17T16:00:00&type=humidity
-        Return the uncorrected humidity values between 12:00:00 on the 16th Feb 2021 and 16:00:00 on the 17th Feb 2021
-        from the OMEGA device that has the alias Mass 2.
+    <p><i>Examples:</i></p>
+    <ul>
+      <li>
+        <b>/fetch</b>
+        <p>Return all available corrected values for temperature, humidity,
+        and dewpoint since logging began, from all OMEGA iServers.</p>
+      </li>
+      <li>
+        <b>/fetch?serial=12345&start=2021-02-16T19:20:30</b>
+        <p>Return the corrected temperature, humidity, and dewpoint values
+        since <i>19:20:30 on the 16th Feb 2021</i> from the OMEGA iServer
+        that has the serial number <i>12345</i>.</p>
+      </li>
+      <li>
+        <b>/fetch?alias=Mass2&start=2021-02-16T19:20:30</b>
+        <p>Return the corrected temperature, humidity, and dewpoint values
+        since <i>19:20:30 on the 16th Feb 2021</i> from the OMEGA iServer
+        that has the alias <i>Mass2</i>.</p>
+      </li>
+      <li>
+        <b>/fetch?serial=12345&corrected=0&start=2021-02-16T09:20:30&type=temperature</b>
+        <p>Return the uncorrected temperature values since <i>09:20:30 on the 16th Feb 2021</i>
+        from the OMEGA iServer that has the serial number <i>12345</i>.</p>
+      </li>
+      <li>
+        <b>/fetch?alias=Mass2&start=2021-02-16&end=2021-02-17&type=temperature+humidity</b>
+        <p>Return the corrected temperature and humidity values between <i>16th Feb 2021</i>
+        and <i>17th Feb 2021</i> from the OMEGA iServer that has the alias <i>Mass2</i>.</p>
+      </li>
+    </ui>
     """
     allowed_params = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
     for k, v in request.args.items():
@@ -355,6 +457,13 @@ def fetch():
                     fetched[serial].update({typ + report.probe: data.tolist()})
 
     return jsonify(fetched), 200
+
+
+@app.server.route('/help')
+def api_help():
+    """Display the help for each API endpoint."""
+    docs = [{'name': route.__name__, 'value': route.__doc__} for route in [aliases, now, fetch]]
+    return render_template('help.html', docs=docs, version=__version__)
 
 
 @app.server.route('/download')
