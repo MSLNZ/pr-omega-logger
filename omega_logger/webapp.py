@@ -198,7 +198,7 @@ def now():
     allowed_params = ('alias', 'corrected', 'serial')
     for k, v in request.args.items():
         if k not in allowed_params:
-            allowed = ', '.join(a for a in allowed_params)
+            allowed = ', '.join(allowed_params)
             return f'Invalid parameter: {k!r}<br/>' \
                    f'Valid parameters are: {allowed}', 400
 
@@ -275,15 +275,12 @@ def fetch():
         Return the uncorrected humidity values between 12:00:00 on the 16th Feb 2021 and 16:00:00 on the 17th Feb 2021
         from the OMEGA device that has the alias Mass 2.
     """
-    error = ''
-    allowed_kwargs = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
-    for kwg, val in request.args.items():
-        if kwg not in allowed_kwargs:
-            error += kwg+'; '
-    if error:
-        allowed = ', '.join(a for a in allowed_kwargs)
-        return f'Unknown arguments: {error}<br/>' \
-               f'Allowed kwargs are: {allowed}', 400
+    allowed_params = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
+    for k, v in request.args.items():
+        if k not in allowed_params:
+            allowed = ', '.join(allowed_params)
+            return f'Invalid parameter: {k!r}<br/>' \
+                   f'Valid parameters are: {allowed}', 400
 
     timestamps = {}
     for kwg in ['start', 'end']:
@@ -296,14 +293,16 @@ def fetch():
             else:
                 timestamps[kwg] = datetime.now().replace(microsecond=0).isoformat(sep=' ')
         except ValueError:
-            return f'The value for {kwg} must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>'\
-                   f'Received {time_arg}.', 400
+            return f'The value for {kwg!r} must be an ISO 8601 string ' \
+                   f'(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>'\
+                   f'Received {time_arg!r}', 400
 
     apply_corr = request.args.get('corrected', 'true').lower() in ['true', '1']
 
     known_types = ['temperature', 'humidity', 'dewpoint']
     types = []
 
+    error = ''
     type_vals = request.args.get('type')
     if type_vals is not None:  # parse types to check they're spelled correctly (or find close match)
         for t in re.split(r'[\s,;]', type_vals):

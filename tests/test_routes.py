@@ -110,17 +110,20 @@ def test_fetch():
 
 
 def test_fetch_invalid_params():
-    json = get('/fetch?woofwoof')
-    assert json.status_code == 400
-    assert 'Unknown arguments' in json.text
+    response = get('/fetch?woofwoof')
+    assert response.status_code == 400
+    assert response.text == "Invalid parameter: 'woofwoof'<br/>" \
+                            "Valid parameters are: start, end, serial, alias, corrected, type"
 
-    json = get('/fetch', params='woofwoof')
-    assert json.status_code == 400
-    assert 'Unknown arguments' in json.text
+    response = get('/fetch', params='woofwoof')
+    assert response.status_code == 400
+    assert response.text == "Invalid parameter: 'woofwoof'<br/>" \
+                            "Valid parameters are: start, end, serial, alias, corrected, type"
 
-    json = get('/fetch', params={'ball': 'yellow', 'stick': 'brown'})
-    assert json.status_code == 400
-    assert 'Unknown arguments' in json.text
+    response = get('/fetch', params={'ball': 'yellow'})
+    assert response.status_code == 400
+    assert response.text == "Invalid parameter: 'ball'<br/>" \
+                            "Valid parameters are: start, end, serial, alias, corrected, type"
 
 
 def test_fetch_uncorrected():
@@ -218,15 +221,17 @@ def test_fetch_serial_end_2():
 
 
 def test_fetch_invalid_timepoints():
-    json = get('/fetch', params={'start': 'yesterday', 'end': 'tomorrow'})
-    assert json.status_code == 400
-    assert b'The value for start must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>Received yesterday.'\
-        == json.content
+    response = get('/fetch', params={'start': 'yesterday', 'end': 'tomorrow'})
+    assert response.status_code == 400
+    assert response.text == "The value for 'start' must be an ISO 8601 string " \
+                            "(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>" \
+                            "Received 'yesterday'"
 
-    json = get('/fetch', params={'end': 'tomorrow'})
-    assert json.status_code == 400
-    assert b'The value for end must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>Received tomorrow.'\
-        == json.content
+    response = get('/fetch', params={'end': 'tomorrow'})
+    assert response.status_code == 400
+    assert response.text == "The value for 'end' must be an ISO 8601 string " \
+                            "(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>" \
+                            "Received 'tomorrow'"
 
 
 def test_fetch_serial_and_alias():
@@ -252,18 +257,20 @@ def test_fetch_serial_and_alias():
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
     # Incorrect spelling of serial
-    json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'seral': '01234'})
-    assert json.status_code == 400
-    assert 'Unknown arguments' in json.text
+    response = get('/fetch', params={'start': '2021-01-01T12:00:00', 'seral': '01234'})
+    assert response.status_code == 400
+    assert response.text == "Invalid parameter: 'seral'<br/>" \
+                            "Valid parameters are: start, end, serial, alias, corrected, type"
 
     # Unknown serial number
     json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'serial': '9876543210'}).json()
     assert json == {}
 
     # Incorrect spelling of alias
-    json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'alis': '01234'})
-    assert json.status_code == 400
-    assert 'Unknown arguments' in json.text
+    response = get('/fetch', params={'start': '2021-01-01T12:00:00', 'alis': '01234'})
+    assert response.status_code == 400
+    assert response.text == "Invalid parameter: 'alis'<br/>" \
+                            "Valid parameters are: start, end, serial, alias, corrected, type"
 
     # Unknown alias
     json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'alias': '007'}).json()
@@ -576,11 +583,11 @@ def test_now_serial_uncorrected():
 def test_now_invalid_param():
     response = get('/now', params={'seral': '56789'})
     assert response.status_code == 400
-    assert b"Invalid parameter: 'seral'<br/>Valid parameters are: alias, corrected, serial" == response.content
+    assert response.text == "Invalid parameter: 'seral'<br/>Valid parameters are: alias, corrected, serial"
 
     response = get('/now', params={'apple': 'red'})
     assert response.status_code == 400
-    assert b"Invalid parameter: 'apple'<br/>Valid parameters are: alias, corrected, serial" == response.content
+    assert response.text == "Invalid parameter: 'apple'<br/>Valid parameters are: alias, corrected, serial"
 
 
 def test_aliases():
