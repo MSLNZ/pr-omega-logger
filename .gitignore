@@ -37,6 +37,7 @@ docs/.doctrees/
 .cache/
 .pytest_cache/
 htmlcov/
+debug_testing/
 .coverage
 junit.xml
 coverage.xml
