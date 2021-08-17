@@ -49,7 +49,7 @@ def serve_layout():
             id='omega-dropdown',
             options=dropdown_options,
             multi=True,
-            placeholder='Select the OMEGA logger(s)...',
+            placeholder='Select the OMEGA iServer(s)...',
         ),
         DatetimeRangePicker(
             id='datetime-range',
