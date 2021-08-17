@@ -230,11 +230,18 @@ def test_fetch_invalid_timepoints():
 
 
 def test_fetch_serial_and_alias():
-    # the serial number gets precedence over the alias
     json = get('/fetch', params={'serial': 56789, 'alias': 'b'}).json()
-    assert len(json) == 1
-    assert '01234' not in json
+    assert len(json) == 2
+    assert '01234' in json
     assert '56789' in json
+
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['start'] is None
+    assert json['01234']['report_number'] == 'H502'
+    assert json['01234']['temperature'][0] == ['2015-01-01 20:29:27', 18.57]
+    assert json['01234']['humidity'][0] == ['2015-01-01 20:29:27', 67.26109836]
+    assert json['01234']['dewpoint'][0] == ['2015-01-01 20:29:27', 12.5]
 
     assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
@@ -262,9 +269,18 @@ def test_fetch_serial_and_alias():
     json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'alias': '007'}).json()
     assert json == {}
 
-    # Unknown serial number but known alias - note that this also returns an empty json object
+    # Unknown serial number but known alias
     json = get('/fetch', params={'serial': 'muesli', 'alias': 'b'}).json()
-    assert json == {}
+    assert len(json) == 1
+    assert '01234' in json
+    assert '56789' not in json
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['start'] is None
+    assert json['01234']['report_number'] == 'H502'
+    assert json['01234']['temperature'][0] == ['2015-01-01 20:29:27', 18.57]
+    assert json['01234']['humidity'][0] == ['2015-01-01 20:29:27', 67.26109836]
+    assert json['01234']['dewpoint'][0] == ['2015-01-01 20:29:27', 12.5]
 
 
 def test_fetch_type():
@@ -349,6 +365,7 @@ def test_now():
     assert json['01234']['temperature'] == temperature
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
     assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['temperature1'] == temperature1
@@ -357,10 +374,32 @@ def test_now():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
+
+
+def test_now_corrected():
+    for c in ['True', '1']:
+        json = get('/now', params={'corrected': '{}'.format(c)}).json()
+        assert len(json) == 2
+        assert json['01234']['error'] is None
+        assert json['01234']['alias'] == 'b'
+        assert json['01234']['temperature'] == temperature
+        assert json['01234']['humidity'] == humidity
+        assert json['01234']['dewpoint'] == 11.0
+        assert json['01234']['report_number'] == 'H502'
+        assert json['56789']['error'] is None
+        assert json['56789']['alias'] == 'f'
+        assert json['56789']['temperature1'] == temperature1
+        assert json['56789']['humidity1'] == humidity1
+        assert json['56789']['dewpoint1'] == 11.0
+        assert json['56789']['temperature2'] == temperature2
+        assert json['56789']['humidity2'] == humidity2
+        assert json['56789']['dewpoint2'] == 12.0
+        assert json['56789']['report_number'] == 'H842;H389'
 
 
 def test_now_uncorrected():
-    for c in ['false', 'False', 'not_equal_to_true']:
+    for c in ['0', 'false', 'not_true_or_1']:
         json = get('/now', params={'corrected': '{}'.format(c)}).json()
         assert len(json) == 2
         assert json['01234']['error'] is None
@@ -368,6 +407,7 @@ def test_now_uncorrected():
         assert json['01234']['temperature'] == 21.0
         assert json['01234']['humidity'] == 41.0
         assert json['01234']['dewpoint'] == 11.0
+        assert json['01234']['report_number'] is None
         assert json['56789']['error'] is None
         assert json['56789']['alias'] == 'f'
         assert json['56789']['temperature1'] == 21.0
@@ -376,6 +416,7 @@ def test_now_uncorrected():
         assert json['56789']['temperature2'] == 22.0
         assert json['56789']['humidity2'] == 42.0
         assert json['56789']['dewpoint2'] == 12.0
+        assert json['56789']['report_number'] is None
 
 
 def test_now_serial():
@@ -386,6 +427,7 @@ def test_now_serial():
     assert json['01234']['temperature'] == temperature
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
     assert '56789' not in json
 
     json = get('/now', params={'serial': '56789'}).json()
@@ -399,14 +441,16 @@ def test_now_serial():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
-    json = get('/now', params={'serial': '01234,56789'}).json()
+    json = get('/now', params={'serial': '01234;56789;'}).json()
     assert len(json) == 2
     assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['temperature'] == temperature
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
     assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['temperature1'] == temperature1
@@ -415,6 +459,7 @@ def test_now_serial():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
 
 def test_now_serial_unknown():
@@ -422,7 +467,7 @@ def test_now_serial_unknown():
     assert len(json) == 0
     assert isinstance(json, dict)
 
-    json = get('/now', params={'serial': 'unknown,56789'}).json()
+    json = get('/now', params={'serial': 'unknown;;56789'}).json()
     assert len(json) == 1
     assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
@@ -432,6 +477,7 @@ def test_now_serial_unknown():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
 
 def test_now_alias():
@@ -443,6 +489,7 @@ def test_now_alias():
     assert json['01234']['temperature'] == temperature
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
 
     json = get('/now', params={'alias': 'f'}).json()
     assert len(json) == 1
@@ -455,14 +502,16 @@ def test_now_alias():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
-    json = get('/now', params={'alias': 'b,f'}).json()
+    json = get('/now', params={'alias': 'b;f'}).json()
     assert len(json) == 2
     assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['temperature'] == temperature
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
     assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['temperature1'] == temperature1
@@ -471,6 +520,7 @@ def test_now_alias():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
 
 def test_now_alias_unknown():
@@ -478,20 +528,25 @@ def test_now_alias_unknown():
     assert len(json) == 0
     assert isinstance(json, dict)
 
-    json = get('/now', params={'alias': 'b,unknown'}).json()
+    json = get('/now', params={'alias': 'b;unknown'}).json()
     assert len(json) == 1
     assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
     assert json['01234']['temperature'] == temperature
     assert json['01234']['humidity'] == humidity
     assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
 
 
 def test_now_serial_and_alias():
-    # the serial number gets precedence over the alias
     json = get('/now', params={'serial': '56789', 'alias': 'b'}).json()
-    assert len(json) == 1
-    assert '01234' not in json
+    assert len(json) == 2
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['temperature'] == temperature
+    assert json['01234']['humidity'] == humidity
+    assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
     assert json['56789']['error'] is None
     assert json['56789']['alias'] == 'f'
     assert json['56789']['temperature1'] == temperature1
@@ -500,10 +555,11 @@ def test_now_serial_and_alias():
     assert json['56789']['temperature2'] == temperature2
     assert json['56789']['humidity2'] == humidity2
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
 
 def test_now_serial_uncorrected():
-    json = get('/now', params={'serial': 56789, 'corrected': 'false'}).json()
+    json = get('/now', params={'serial': 56789, 'corrected': False}).json()
     assert len(json) == 1
     assert '01234' not in json
     assert json['56789']['error'] is None
@@ -514,6 +570,7 @@ def test_now_serial_uncorrected():
     assert json['56789']['temperature2'] == 22.0
     assert json['56789']['humidity2'] == 42.0
     assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] is None
 
 
 def test_now_invalid_param():

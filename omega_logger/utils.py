@@ -153,6 +153,10 @@ def initialize_webapp(cfg, serials):
                 components = sorted(set(r.component for r in reports))
                 for component in components:
                     label = record.alias
+                    if ';' in label:
+                        # a semi-colon is reserved for requesting multiple
+                        # iServers in a URL query parameter
+                        raise ValueError(f'The alias {label!r} cannot contain a semi-colon')
                     if component:
                         label += f' - {component}'
                         calibrations[label] = [r for r in reports if r.component == component]

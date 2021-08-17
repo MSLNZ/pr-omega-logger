@@ -194,13 +194,15 @@ def now():
             return f'Invalid parameter: {k!r}<br/>' \
                    f'Valid parameters are: {allowed}', 400
 
-    apply_corr = request.args.get('corrected', 'true').lower() == 'true'
-    requested = request.args.get('serial')
-    if not requested:
-        requested = request.args.get('alias')
+    apply_corr = request.args.get('corrected', 'true').lower() in ['true', '1']
 
-    if requested:
-        requested = set(requested.split(','))
+    requested = set()
+    for name in ('serial', 'alias'):
+        value = request.args.get(name)
+        if value:
+            for element in value.split(';'):
+                if element:
+                    requested.add(element)
 
     records = []
     for serial, omega in omegas.items():
@@ -289,7 +291,7 @@ def fetch():
             return f'The value for {kwg} must be an ISO 8601 string (e.g. YYYY-MM-DDThh:mm:ss).<br/>'\
                    f'Received {time_arg}.', 400
 
-    apply_corr = request.args.get('corrected', 'true').lower() == 'true'
+    apply_corr = request.args.get('corrected', 'true').lower() in ['true', '1']
 
     known_types = ['temperature', 'humidity', 'dewpoint']
     types = []
@@ -312,13 +314,17 @@ def fetch():
     else:
         error = None  # maintain consistency with other methods
 
-    requested = request.args.get('serial')
-    if not requested:
-        requested = request.args.get('alias')
+    requested = set()
+    for name in ('serial', 'alias'):
+        value = request.args.get(name)
+        if value:
+            for element in value.split(';'):
+                if element:
+                    requested.add(element)
 
     fetched = dict()
     for serial, omega in omegas.items():
-        if requested and requested not in [serial, omega.alias]:
+        if requested and not requested.intersection({serial, omega.alias}):
             continue
 
         reports = find_reports(calibrations, serial)
