@@ -645,7 +645,7 @@ def current_readings_viewer(tab, n_intervals):
     children = []
     margin_right = cfg.value('current_readings/margin_right', '16px')
     for serial, data in now().json.items():
-        b = f'{serial} - {data["alias"]} @ {data["timestamp"][11:]}'
+        b = f'{serial} [{data["report_number"]}] - {data["alias"]} @ {data["timestamp"][11:]}'
         children.append(html.B(b))
         if data['error']:
             children.append(html.P(data['error']))
@@ -659,7 +659,7 @@ def current_readings_viewer(tab, n_intervals):
         else:
             p = []
             for key in sorted(data):
-                if key in ['error', 'alias', 'timestamp']:
+                if key in ['error', 'alias', 'timestamp', 'report_number']:
                     continue
                 p.append(html.I(key+':', style={'color': 'grey'}))
                 p.append(html.Span(f'{data[key]:.2f}', style={'margin-right': margin_right}))
