@@ -8,15 +8,24 @@ from dash.development.base_component import (
 from omega_logger import __version__
 
 
-_js_dist = [{
-    'relative_package_path': 'boilerplate/datetime_range_picker/datetime_range_picker.min.js',
-    'namespace': __name__,
-}]
+_js_dist = [
+    {
+        'relative_package_path': 'boilerplate/datetime_range_picker/datetime_range_picker.min.js',
+        'namespace': __name__,
+    },
+    {
+        'relative_package_path': 'boilerplate/datetime_range_picker/datetime_range_picker.min.js.map',
+        'namespace': __name__,
+        'dynamic': True
+    }
+]
 
-_css_dist = [{
-    'relative_package_path': 'boilerplate/datetime_range_picker/datetime_range_picker.css',
-    'namespace': __name__,
-}]
+_css_dist = [
+    {
+        'relative_package_path': 'boilerplate/datetime_range_picker/datetime_range_picker.css',
+        'namespace': __name__,
+    }
+]
 
 
 class DatetimeRangePicker(Component):
