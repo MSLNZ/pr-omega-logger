@@ -103,6 +103,9 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <!-- Optional: Use a validator to validate the data before inserting it into the database. -->
         <validator hmax="60" dmin="10">simple-range</validator>
 
+        <!-- Optional: Whether to disable logging on the WSGI Server. -->
+        <disable_request_logging>true</disable_request_logging>
+
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>
 

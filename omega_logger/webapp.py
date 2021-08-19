@@ -673,7 +673,8 @@ def current_readings_viewer(tab, n_intervals):
 try:
     host = cfg.value('host', default=socket.gethostname())
     port = cfg.value('port', default=1875)
-    with WSGIServer((host, port), application=app.server) as server:
+    log = None if cfg.value('disable_request_logging') else 'default'
+    with WSGIServer((host, port), application=app.server, log=log) as server:
         print(f'Serving at http://{host}:{port}')
         server.serve_forever()
 except KeyboardInterrupt:

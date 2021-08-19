@@ -55,7 +55,7 @@ def simulate_omega_iserver():
             clients.append(t)
 
 
-def setup_module(module):
+def setup_module():
     global proc
 
     # start the OMEGA simulator
@@ -75,7 +75,7 @@ def setup_module(module):
             break
 
 
-def teardown_module(module):
+def teardown_module():
     if proc is not None:
         proc.terminate()
 
@@ -385,7 +385,7 @@ def test_now():
 
 
 def test_now_corrected():
-    for c in ['True', '1']:
+    for c in ['true', 'True', '1']:
         json = get('/now', params={'corrected': '{}'.format(c)}).json()
         assert len(json) == 2
         assert json['01234']['error'] is None
@@ -406,7 +406,7 @@ def test_now_corrected():
 
 
 def test_now_uncorrected():
-    for c in ['0', 'false', 'not_true_or_1']:
+    for c in ['0', 'false', 'False', 'not_true_or_1']:
         json = get('/now', params={'corrected': '{}'.format(c)}).json()
         assert len(json) == 2
         assert json['01234']['error'] is None
