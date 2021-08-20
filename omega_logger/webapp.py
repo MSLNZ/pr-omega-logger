@@ -29,6 +29,7 @@ from flask import (
     jsonify,
     current_app,
     render_template,
+    make_response,
 )
 
 from utils import (
@@ -141,7 +142,17 @@ def read_raw(omega):
     return omega.serial, data
 
 
-@app.server.route('/aliases')
+@app.server.route('/<string:path1>/')
+@app.server.route('/<string:path1>/<path:path2>/')
+def page_not_found(**ignore):
+    """Return page not found for all undefined routes."""
+    return make_response(
+        render_template('page_not_found.html', url_root=request.url_root),
+        404
+    )
+
+
+@app.server.route('/aliases/')
 def aliases():
     """<p>Get the aliases of the OMEGA iServers.</p>
 
@@ -160,7 +171,7 @@ def aliases():
     return jsonify(data)
 
 
-@app.server.route('/now')
+@app.server.route('/now/')
 def now():
     """<p>Get the current temperature, humidity and dewpoint of the
     requested OMEGA iServer(s).</p>
@@ -305,7 +316,7 @@ def now():
     return jsonify(data)
 
 
-@app.server.route('/fetch')
+@app.server.route('/fetch/')
 def fetch():
     """<p>Fetch the temperature, humidity and/or dewpoint values from the database
     between start and end dates for the requested OMEGA iServer(s).</p>
@@ -459,14 +470,14 @@ def fetch():
     return jsonify(fetched), 200
 
 
-@app.server.route('/help')
+@app.server.route('/help/')
 def api_help():
     """Display the help for each API endpoint."""
     docs = [{'name': route.__name__, 'value': route.__doc__} for route in [aliases, now, fetch]]
     return render_template('help.html', docs=docs, version=__version__)
 
 
-@app.server.route('/download')
+@app.server.route('/download/')
 def download():
     """Download a CSV file of the data in the plot.
 
