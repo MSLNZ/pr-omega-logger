@@ -30,6 +30,7 @@ from flask import (
     current_app,
     render_template,
     make_response,
+    has_request_context,
 )
 
 from utils import (
@@ -48,6 +49,27 @@ from datetime_range_picker import DatetimeRangePicker
 
 def serve_layout():
     return html.Div([
+        html.A(
+            id='api-help-link',
+            children='?',
+            href=f'{request.url_root}help' if has_request_context() else '',
+            target='_blank',
+            title='View the API documentation',
+            style={
+                'color': '#fff',
+                'background-color': '#f15A29',
+                'width': 16,
+                'height': 16,
+                'display': 'inline-block',
+                'border-radius': '100%',
+                'font-size': 16,
+                'text-align': 'center',
+                'text-decoration': 'none',
+                'box-shadow': 'inset -2px -2px 1px 0px rgba(0,0,0,0.25)',
+                'margin-left': '98%',
+                'margin-bottom': 4,
+            }
+        ),
         dcc.Dropdown(
             id='omega-dropdown',
             options=dropdown_options,
