@@ -30,7 +30,20 @@
         <div class="rst-content">
           <div itemprop="articleBody">
             <div class="section">
-              The following Application Programming Interface (API) endpoints are available.
+              <p>
+                The Application Programming Interface (API)
+                <a href="https://apipheny.io/api-endpoint/" target="_blank">endpoints</a>
+                that are available are listed on the left panel. All endpoints are accessed via a
+                <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET">GET</a> request.
+              </p>
+              <p>
+                For example, to send a <code>GET</code> request to the <code>/aliases</code> endpoint
+                you must include the base URL, <code>{{ url_root }}</code>, such that the full URL is
+                <a href="{{ url_root }}aliases" target="_blank">{{ url_root }}aliases</a>
+              </p>
+              <p>
+                All responses are in the <a href="https://www.json.org/json-en.html" target="_blank">JSON</a> format.
+              </p>
               <hr>
             </div>
             {% for doc in docs %}
