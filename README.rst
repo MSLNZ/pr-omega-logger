@@ -16,6 +16,11 @@ Usage
 
    omega-logger /path/to/config.xml
 
+Documentation
+-------------
+The documentation for the endpoints that are available in the web application can be
+accessed at ``http://<host>:<port>/help`` once the web application is running.
+
 Example config.xml
 ------------------
 This package requires a configuration file that is compatible with `MSL-Equipment`_
@@ -209,9 +214,6 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
 
     </msl>
 
-API
----
-Coming soon.
 
 .. |github tests| image:: https://github.com/MSLNZ/pr-omega-logger/actions/workflows/run-tests.yml/badge.svg
    :target: https://github.com/MSLNZ/pr-omega-logger/actions/workflows/run-tests.yml
