@@ -4,6 +4,7 @@ import socket
 import threading
 from subprocess import Popen, PIPE, check_output
 
+import pytest
 import requests
 
 proc = None
@@ -84,8 +85,9 @@ def get(route, params=None):
     return requests.get('http://127.0.0.1:1875' + route, params=params, timeout=10)
 
 
-def test_fetch():
-    json = get('/fetch').json()
+@pytest.mark.parametrize('route', ['/fetch', '/fetch/'])
+def test_fetch(route):
+    json = get(route).json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -105,7 +107,7 @@ def test_fetch():
     assert json['56789']['report_number'] == 'H842;H389'
 
     assert json['56789']['temperature1'][0] == ['2015-01-01 23:56:47', 20.198]
-    assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076] # that's a funky corrected value!
+    assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076]
     assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
 
 
@@ -126,8 +128,38 @@ def test_fetch_invalid_params():
                             "Valid parameters are: start, end, serial, alias, corrected, type"
 
 
-def test_fetch_uncorrected():
-    json = get('/fetch', params={'corrected': 'False'}).json()
+@pytest.mark.parametrize('corrected', ['1', 'true', 'True', 1, True])
+def test_fetch_corrected(corrected):
+    json = get('/fetch', params={'corrected': corrected}).json()
+    assert len(json) == 2
+    assert '01234' in json
+    assert '56789' in json
+
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['start'] is None
+    assert json['01234']['report_number'] == 'H502'
+
+    assert json['01234']['temperature'][0] == ['2015-01-01 20:29:27', 18.57]
+    assert json['01234']['humidity'][0] == ['2015-01-01 20:29:27', 67.26109836]
+    assert json['01234']['dewpoint'][0] == ['2015-01-01 20:29:27', 12.5]
+
+    assert json['56789']['error'] is None
+    assert json['56789']['alias'] == 'f'
+    assert json['56789']['start'] is None
+    assert json['56789']['report_number'] == 'H842;H389'
+
+    assert json['56789']['temperature1'][0] == ['2015-01-01 23:56:47', 20.198]
+    assert json['56789']['humidity1'][0] == ['2015-01-01 23:56:47', 182.0197076]
+    assert json['56789']['dewpoint1'][0] == ['2015-01-01 23:56:47', 11.1]
+
+
+@pytest.mark.parametrize(
+    'corrected',
+    ['0', 'false', 'FALSE', 'not_true_or_1', 0, False]
+)
+def test_fetch_uncorrected(corrected):
+    json = get('/fetch', params={'corrected': corrected}).json()
     assert len(json) == 2
     assert '01234' in json
     assert '56789' in json
@@ -220,18 +252,14 @@ def test_fetch_serial_end_2():
     assert json['56789']['dewpoint2'][-1] == ['2015-12-27 00:45:37', 24.6]
 
 
-def test_fetch_invalid_timepoints():
-    response = get('/fetch', params={'start': 'yesterday', 'end': 'tomorrow'})
+@pytest.mark.parametrize('params', [{'start': 'yesterday'}, {'end': '2020.08.10'}])
+def test_fetch_invalid_timepoints(params):
+    response = get('/fetch', params=params)
+    key, value = next(iter(params.items()))
     assert response.status_code == 400
-    assert response.text == "The value for 'start' must be an ISO 8601 string " \
-                            "(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>" \
-                            "Received 'yesterday'"
-
-    response = get('/fetch', params={'end': 'tomorrow'})
-    assert response.status_code == 400
-    assert response.text == "The value for 'end' must be an ISO 8601 string " \
-                            "(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>" \
-                            "Received 'tomorrow'"
+    assert response.text == f'The value for {key!r} must be an ISO 8601 string ' \
+                            f'(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>' \
+                            f'Received {value!r}'
 
 
 def test_fetch_serial_and_alias():
@@ -363,9 +391,9 @@ def test_fetch_type():
     assert json['01234']['dewpoint'] is not None
 
 
-def test_now():
-
-    json = get('/now').json()
+@pytest.mark.parametrize('route', ['/now', '/now/'])
+def test_now(route):
+    json = get(route).json()
     assert len(json) == 2
     assert json['01234']['error'] is None
     assert json['01234']['alias'] == 'b'
@@ -384,46 +412,49 @@ def test_now():
     assert json['56789']['report_number'] == 'H842;H389'
 
 
-def test_now_corrected():
-    for c in ['true', 'True', '1']:
-        json = get('/now', params={'corrected': '{}'.format(c)}).json()
-        assert len(json) == 2
-        assert json['01234']['error'] is None
-        assert json['01234']['alias'] == 'b'
-        assert json['01234']['temperature'] == temperature
-        assert json['01234']['humidity'] == humidity
-        assert json['01234']['dewpoint'] == 11.0
-        assert json['01234']['report_number'] == 'H502'
-        assert json['56789']['error'] is None
-        assert json['56789']['alias'] == 'f'
-        assert json['56789']['temperature1'] == temperature1
-        assert json['56789']['humidity1'] == humidity1
-        assert json['56789']['dewpoint1'] == 11.0
-        assert json['56789']['temperature2'] == temperature2
-        assert json['56789']['humidity2'] == humidity2
-        assert json['56789']['dewpoint2'] == 12.0
-        assert json['56789']['report_number'] == 'H842;H389'
+@pytest.mark.parametrize('corrected', ['1', 'true', 'TRUE', 1, True])
+def test_now_corrected(corrected):
+    json = get('/now', params={'corrected': corrected}).json()
+    assert len(json) == 2
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['temperature'] == temperature
+    assert json['01234']['humidity'] == humidity
+    assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] == 'H502'
+    assert json['56789']['error'] is None
+    assert json['56789']['alias'] == 'f'
+    assert json['56789']['temperature1'] == temperature1
+    assert json['56789']['humidity1'] == humidity1
+    assert json['56789']['dewpoint1'] == 11.0
+    assert json['56789']['temperature2'] == temperature2
+    assert json['56789']['humidity2'] == humidity2
+    assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] == 'H842;H389'
 
 
-def test_now_uncorrected():
-    for c in ['0', 'false', 'False', 'not_true_or_1']:
-        json = get('/now', params={'corrected': '{}'.format(c)}).json()
-        assert len(json) == 2
-        assert json['01234']['error'] is None
-        assert json['01234']['alias'] == 'b'
-        assert json['01234']['temperature'] == 21.0
-        assert json['01234']['humidity'] == 41.0
-        assert json['01234']['dewpoint'] == 11.0
-        assert json['01234']['report_number'] is None
-        assert json['56789']['error'] is None
-        assert json['56789']['alias'] == 'f'
-        assert json['56789']['temperature1'] == 21.0
-        assert json['56789']['humidity1'] == 41.0
-        assert json['56789']['dewpoint1'] == 11.0
-        assert json['56789']['temperature2'] == 22.0
-        assert json['56789']['humidity2'] == 42.0
-        assert json['56789']['dewpoint2'] == 12.0
-        assert json['56789']['report_number'] is None
+@pytest.mark.parametrize(
+    'corrected',
+    ['0', 'false', 'FALSE', 'not_true_or_1', 0, False]
+)
+def test_now_uncorrected(corrected):
+    json = get('/now', params={'corrected': corrected}).json()
+    assert len(json) == 2
+    assert json['01234']['error'] is None
+    assert json['01234']['alias'] == 'b'
+    assert json['01234']['temperature'] == 21.0
+    assert json['01234']['humidity'] == 41.0
+    assert json['01234']['dewpoint'] == 11.0
+    assert json['01234']['report_number'] is None
+    assert json['56789']['error'] is None
+    assert json['56789']['alias'] == 'f'
+    assert json['56789']['temperature1'] == 21.0
+    assert json['56789']['humidity1'] == 41.0
+    assert json['56789']['dewpoint1'] == 11.0
+    assert json['56789']['temperature2'] == 22.0
+    assert json['56789']['humidity2'] == 42.0
+    assert json['56789']['dewpoint2'] == 12.0
+    assert json['56789']['report_number'] is None
 
 
 def test_now_serial():
@@ -580,18 +611,16 @@ def test_now_serial_uncorrected():
     assert json['56789']['report_number'] is None
 
 
-def test_now_invalid_param():
-    response = get('/now', params={'seral': '56789'})
+@pytest.mark.parametrize('key', ['aliases', 'serials', 'seral'])
+def test_now_invalid_param(key):
+    response = get('/now', params={key: '56789'})
     assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'seral'<br/>Valid parameters are: alias, corrected, serial"
-
-    response = get('/now', params={'apple': 'red'})
-    assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'apple'<br/>Valid parameters are: alias, corrected, serial"
+    assert response.text == f'Invalid parameter: {key!r}<br/>Valid parameters are: alias, corrected, serial'
 
 
-def test_aliases():
-    json = get('/aliases').json()
+@pytest.mark.parametrize('route', ['/aliases', '/aliases/'])
+def test_aliases(route):
+    json = get(route).json()
     assert len(json) == 2
     assert json['01234'] == 'b'
     assert json['56789'] == 'f'
