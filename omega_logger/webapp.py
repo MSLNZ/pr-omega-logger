@@ -488,8 +488,10 @@ def download():
     filename = f'{request.remote_addr}.csv'
     file_path = os.path.join(tempfile.gettempdir(), filename)
     if not os.path.isfile(file_path):
-        return 'You cannot download the data this way.<br/>' \
-               'Please use the download link that is provided', 400
+        return make_response(
+            render_template('direct_download.html', url_root=request.url_root),
+            400
+        )
 
     def stream_then_remove_file():
         yield from file_handle
