@@ -624,3 +624,31 @@ def test_aliases(route):
     assert len(json) == 2
     assert json['01234'] == 'b'
     assert json['56789'] == 'f'
+
+
+@pytest.mark.parametrize('route', ['/help', '/help/'])
+def test_help(route):
+    response = get(route)
+    assert '<title>API Help | OMEGA iServers</title>' in response.text
+
+
+@pytest.mark.parametrize('route', ['/download', '/download/'])
+def test_download(route):
+    response = get(route)
+    assert response.status_code == 400
+    assert '<p>You cannot directly access the <b>/download</b> route.</p>' in response.text
+
+
+@pytest.mark.parametrize(
+    'route',
+    ['/alias', '/new', '/fetc',
+     '/a', '/a/',
+     '/a/b', '/a/b/',
+     '/a/b/c', '/a/b/c/',
+     '/a/b/c/d', '/a/b/c/d/',
+     '/a/b/c/d/e', '/a/b/c/d/e/']
+)
+def test_page_not_found(route):
+    response = get(route)
+    assert response.status_code == 404
+    assert '<title>Page not found | OMEGA iServers</title>' in response.text
