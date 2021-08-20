@@ -474,7 +474,7 @@ def fetch():
 def api_help():
     """Display the help for each API endpoint."""
     docs = [{'name': route.__name__, 'value': route.__doc__} for route in [aliases, now, fetch]]
-    return render_template('help.html', docs=docs, version=__version__)
+    return render_template('help.html', docs=docs, version=__version__, url_root=request.url_root)
 
 
 @app.server.route('/download/')
