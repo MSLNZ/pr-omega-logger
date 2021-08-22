@@ -68,12 +68,18 @@ def start():
     register_path = register_path.text
     connection_path = connection_path.text
     options = ['|', '/', '-', '\\', '|', '/', '-', '\\']
-    while not (os.path.isfile(register_path) and os.path.isfile(connection_path)):
-        print('Waiting for the register files to be available ' + options[i], end='\r')
-        i += 1
-        if i == len(options):
-            i = 0
-        time.sleep(0.1)
+    try:
+        while not (os.path.isfile(register_path) and os.path.isfile(connection_path)):
+            print('Waiting for the register files to be available ' + options[i], end='\r')
+            i += 1
+            if i == len(options):
+                i = 0
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        files = '\n'.join(p for p in [register_path, connection_path] if not os.path.isfile(p))
+        print(f'KeyboardInterrupt! The following register file(s) are not available\n'
+              f'{files}', file=sys.stderr)
+        return 1
 
     if sys.platform == 'win32':
         prefix = 'start '
