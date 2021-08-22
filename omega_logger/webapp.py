@@ -195,7 +195,7 @@ def aliases():
 
 @app.server.route('/now/')
 def now():
-    """<p>Get the current temperature, humidity and dewpoint of the
+    """<p>Get the current temperature, humidity and dewpoint for the
     requested OMEGA iServer(s).</p>
 
     <h3>Parameters</h3>
@@ -271,8 +271,7 @@ def now():
     <h4>Returns</h4>
     <p>The keys are the serial numbers of the requested
     iServers and the value depends on whether the iServer
-    has 1 or 2 probes and whether an error occurred requesting
-    the data.</p>
+    has 1 or 2 probes.</p>
     <p><i>Example:</i></p>
     <div class="highlight-console"><div class="highlight"><span class="go">
 <pre>{
