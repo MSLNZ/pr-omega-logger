@@ -196,7 +196,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             </omega>
         </calibrations>
 
-        <!-- the location of the equipment records -->
+        <!-- The path to the Equipment Records (see MSL-Equipment). -->
         <registers>
             <register>
                 <path>D:\QUAL\EquipmentRegister.xls</path>
@@ -204,11 +204,15 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             </register>
         </registers>
 
-        <!-- the location of the connection records -->
+        <!--
+          The path to the Connection Records (see MSL-Equipment).
+          A relative path is specified, where "relative" refers to the
+          directory where the configuration file is located and not to the
+          working directory where the "omega-logger" executable was run.
+        -->
         <connections>
             <connection>
-                <path>D:\QUAL\EquipmentRegister.xls</path>
-                <sheet>OMEGA loggers</sheet>
+                <path>.\omega_connections.xml</path>
             </connection>
         </connections>
 

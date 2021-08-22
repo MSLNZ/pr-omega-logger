@@ -17,6 +17,8 @@ Version 0.3.0.dev0
 
 - Changed
 
+  * the paths to the register files in a configuration file can be relative paths
+    (relative to directory of the configuration file).
   * a ``report_number`` key is now included in the response of the ``/now`` and
     ``/fetch`` routes
   * use a ``ThreadPoolExecutor`` to read the current data from the OMEGA iServers

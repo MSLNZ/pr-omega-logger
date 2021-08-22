@@ -64,9 +64,15 @@ def start():
 
     # wait for the equipment and connection register files to be available
     # since Windows can take a while to map the Shared drive on startup
+    def get_absolute_path(p):
+        if not os.path.dirname(p) or p.startswith('.'):
+            # assume relative to the directory of the configuration file
+            return os.path.abspath(os.path.join(os.path.dirname(xml), p))
+        return os.path.abspath(p)
+
     i = 0
-    register_path = register_path.text
-    connection_path = connection_path.text
+    register_path = get_absolute_path(register_path.text)
+    connection_path = get_absolute_path(connection_path.text)
     options = ['|', '/', '-', '\\', '|', '/', '-', '\\']
     try:
         while not (os.path.isfile(register_path) and os.path.isfile(connection_path)):
