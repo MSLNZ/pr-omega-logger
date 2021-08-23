@@ -661,14 +661,16 @@ def test_databases(route):
     assert json['01234'] == {
         'alias': 'b',
         'fields': ['timestamp', 'temperature', 'humidity', 'dewpoint'],
+        'file_size': '8 kB',
         'max_date': '2021-06-28 21:16:48',
         'min_date': '2015-01-01 20:29:27',
-        'num_rows': 80,
+        'num_records': 80,
     }
     assert json['56789'] == {
         'alias': 'f',
         'fields': ['timestamp', 'temperature1', 'humidity1', 'dewpoint1', 'temperature2', 'humidity2', 'dewpoint2'],
+        'file_size': '16 kB',
         'max_date': '2021-06-28 18:53:48',
         'min_date': '2015-01-01 23:56:47',
-        'num_rows': 80,
+        'num_records': 80,
     }

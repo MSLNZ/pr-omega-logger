@@ -219,9 +219,10 @@ def databases():
       "humidity",
       "dewpoint"
     ],
-    "max_date": "2021-08-23 09:02:11.364498",
-    "min_date": "2015-07-11 10:08:52.388142",
-    "num_rows": 2284676
+    "file_size": "75 MB",
+    "max_date": "2021-08-23 09:02:11",
+    "min_date": "2017-07-18 10:08:52",
+    "num_records": 1284676
   },
   "6789": {
     "alias": "Mass2",
@@ -234,9 +235,10 @@ def databases():
       "humidity2",
       "dewpoint2"
     ],
-    "max_date": "2021-08-23 09:01:56.652186",
-    "min_date": "2018-07-05 14:42:11.831762",
-    "num_rows": 1284840
+    "file_size": "130 MB",
+    "max_date": "2021-08-23 09:01:56",
+    "min_date": "2019-07-05 14:42:11",
+    "num_records": 642338
   }
 }</pre></span></div></div>
     """

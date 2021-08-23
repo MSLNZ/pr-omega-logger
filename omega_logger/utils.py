@@ -438,22 +438,24 @@ def database_info(log_dir, omegas):
     """
     info = {}
     _regex = re.compile(r'_(?P<serial>\d+).sqlite3$')
-    for file in os.listdir(log_dir):
-        match = _regex.search(file)
+    for filename in os.listdir(log_dir):
+        match = _regex.search(filename)
         if not match:
             continue
-        with sqlite3.connect(os.path.join(log_dir, file)) as db:
+        file = os.path.join(log_dir, filename)
+        with sqlite3.connect(file) as db:
             cursor = db.cursor()
             cursor.execute("PRAGMA table_info('data');")
             fields = [f[1] for f in cursor.fetchall()]
             cursor.execute('SELECT MIN(timestamp),MAX(timestamp),COUNT(timestamp) FROM data;')
-            min_date, max_date, num_rows = cursor.fetchone()
+            min_date, max_date, count = cursor.fetchone()
             info[match['serial']] = {
                 'alias': omegas[match['serial']].alias,
                 'fields': fields,
-                'min_date': min_date,
+                'file_size': human_file_size(os.stat(file).st_size),
                 'max_date': max_date,
-                'num_rows': num_rows,
+                'min_date': min_date,
+                'num_records': count,
             }
 
     return info
