@@ -42,6 +42,7 @@ from utils import (
     apply_calibration,
     HTMLTable,
     datetime_range_picker_kwargs,
+    database_info,
 )
 from omega_logger import __version__
 from datetime_range_picker import DatetimeRangePicker
@@ -194,6 +195,52 @@ def aliases():
     """
     data = dict((value.serial, value.alias) for value in omegas.values())
     return jsonify(data)
+
+
+@app.server.route('/databases/')
+def databases():
+    """<p>Get the information about all databases.</p>
+
+    <h3>Parameters</h3>
+    <p>None, this endpoint does not require parameters.</p>
+
+    <h3>Returns</h3>
+    <p>The keys are the serial numbers of each iServer and
+    the values contain the information about each database.</p>
+
+    <p><i>Example:</i></p>
+    <div class="highlight-console"><div class="highlight"><span class="go">
+<pre>{
+  "12345": {
+    "alias": "Photometric bench",
+    "fields": [
+      "timestamp",
+      "temperature",
+      "humidity",
+      "dewpoint"
+    ],
+    "max_date": "2021-08-23 09:02:11.364498",
+    "min_date": "2015-07-11 10:08:52.388142",
+    "num_rows": 2284676
+  },
+  "6789": {
+    "alias": "Mass2",
+    "fields": [
+      "timestamp",
+      "temperature1",
+      "humidity1",
+      "dewpoint1",
+      "temperature2",
+      "humidity2",
+      "dewpoint2"
+    ],
+    "max_date": "2021-08-23 09:01:56.652186",
+    "min_date": "2018-07-05 14:42:11.831762",
+    "num_rows": 1284840
+  }
+}</pre></span></div></div>
+    """
+    return jsonify(database_info(cfg.value('log_dir'), omegas))
 
 
 @app.server.route('/now/')
@@ -555,7 +602,8 @@ def fetch():
 @app.server.route('/help/')
 def api_help():
     """Display the help for each API endpoint."""
-    docs = [{'name': route.__name__, 'value': route.__doc__} for route in [aliases, now, fetch]]
+    docs = [{'name': route.__name__, 'value': route.__doc__}
+            for route in [aliases, databases, now, fetch]]
     return render_template('help.html', docs=docs, version=__version__, url_root=request.url_root)
 
 

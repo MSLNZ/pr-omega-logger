@@ -10,7 +10,7 @@ Version 0.3.0.dev0
   * a ``Page not found`` template is used for all invalid routes
   * option to disable logging on the WSGI Server by adding a
     ``disable_request_logging`` XML element in the configuration file
-  * the ``/help`` route
+  * the ``/help`` and ``/databases`` routes
   * support for using a ``Validator`` to check if the data from an OMEGA
     iServer is valid and should be inserted into a database
   * the ``SimpleRange`` and ``WithReset`` validators

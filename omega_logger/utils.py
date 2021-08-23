@@ -1,5 +1,6 @@
 import os
 import re
+import sqlite3
 from math import log, floor
 from time import perf_counter
 from datetime import datetime, timedelta
@@ -416,3 +417,43 @@ def apply_calibration(data, report):
         data = apply(data, name)
 
     return data
+
+
+def database_info(log_dir, omegas):
+    """Get the information about all databases.
+
+    Parameters
+    ----------
+    log_dir : :class:`str`
+        The directory where the databases are located.
+    omegas : :class:`dict`
+        The keys are the serial numbers and the values are the
+        :class:`msl.equipment.record_types.EquipmentRecord`\\s
+        of the OMEGA iServer's.
+
+    Returns
+    -------
+    :class:`dict`
+        The information about all databases.
+    """
+    info = {}
+    _regex = re.compile(r'_(?P<serial>\d+).sqlite3$')
+    for file in os.listdir(log_dir):
+        match = _regex.search(file)
+        if not match:
+            continue
+        with sqlite3.connect(os.path.join(log_dir, file)) as db:
+            cursor = db.cursor()
+            cursor.execute("PRAGMA table_info('data');")
+            fields = [f[1] for f in cursor.fetchall()]
+            cursor.execute('SELECT MIN(timestamp),MAX(timestamp),COUNT(timestamp) FROM data;')
+            min_date, max_date, num_rows = cursor.fetchone()
+            info[match['serial']] = {
+                'alias': omegas[match['serial']].alias,
+                'fields': fields,
+                'min_date': min_date,
+                'max_date': max_date,
+                'num_rows': num_rows,
+            }
+
+    return info
