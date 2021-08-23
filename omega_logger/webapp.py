@@ -271,7 +271,7 @@ def now():
       </li>
     </ul>
 
-    <h4>Returns</h4>
+    <h3>Returns</h3>
     <p>The keys are the serial numbers of the requested
     iServers and the value depends on whether the iServer
     has 1 or 2 probes.</p>
