@@ -389,10 +389,10 @@ def fetch():
         and dewpoint since logging began, from all OMEGA iServers.</p>
       </li>
       <li>
-        <b>/fetch?serial=12345&start=2021-02-16T19:20:30</b>
+        <b>/fetch?serial=12345&start=2021-02-16</b>
         <p>Return the corrected temperature, humidity, and dewpoint values
-        since <i>19:20:30 on the 16th Feb 2021</i> from the OMEGA iServer
-        that has the serial number <i>12345</i>.</p>
+        since <i>16th Feb 2021</i> from the OMEGA iServer that has the
+        serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/fetch?alias=Mass2&start=2021-02-16T19:20:30</b>
