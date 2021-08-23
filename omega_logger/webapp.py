@@ -411,6 +411,64 @@ def fetch():
         and <i>17th Feb 2021</i> from the OMEGA iServer that has the alias <i>Mass2</i>.</p>
       </li>
     </ui>
+
+    <p><h3>Returns</h3></p>
+    <p>The keys are the serial numbers of the requested
+    iServers and the value depends on whether the iServer
+    has 1 or 2 probes and what <i>type</i> was specified.</p>
+    <p><i>Example:</i></p>
+    <div class="highlight-console"><div class="highlight"><span class="go">
+<pre>{
+  "12345": {
+    "alias": "Photometric bench",
+    "dewpoint": [
+      [
+        "2021-08-23 11:50:17",
+        7.6
+      ],
+      [
+        "2021-08-23 11:51:17",
+        7.6
+      ],
+      [
+        "2021-08-23 11:52:17",
+        7.6
+      ]
+    ],
+    "end": "2021-08-23 11:53:00",
+    "error": null,
+    "humidity": [
+      [
+        "2021-08-23 11:50:17",
+        42.50628
+      ],
+      [
+        "2021-08-23 11:51:17",
+        42.50628
+      ],
+      [
+        "2021-08-23 11:52:17",
+        42.50628
+      ]
+    ],
+    "report_number": "H503",
+    "start": "2021-08-23 11:50:00",
+    "temperature": [
+      [
+        "2021-08-23 11:50:17",
+        20.05
+      ],
+      [
+        "2021-08-23 11:51:17",
+        20.05
+      ],
+      [
+        "2021-08-23 11:52:17",
+        20.05
+      ]
+    ]
+  }
+}</pre></span></div></div>
     """
     allowed_params = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
     for k, v in request.args.items():
