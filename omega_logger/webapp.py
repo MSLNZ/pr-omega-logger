@@ -178,7 +178,10 @@ def page_not_found(**ignore):
 def aliases():
     """<p>Get the aliases of the OMEGA iServers.</p>
 
-    <h4>Returns</h4>
+    <h3>Parameters</h3>
+    <p>None, this endpoint does not require parameters.</p>
+
+    <h3>Returns</h3>
     <p>The keys are the serial numbers of each iServer and
     the values are the aliases.</p>
 
