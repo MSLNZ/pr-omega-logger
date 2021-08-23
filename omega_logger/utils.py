@@ -133,7 +133,7 @@ def initialize_webapp(cfg, serials):
     :class:`dict`
         The keys are the serial numbers and the values are the
         :class:`msl.equipment.record_types.EquipmentRecord`\\s
-        of the OMEGA iServer's.
+        of the OMEGA iServers.
     """
     dropdown_options = list()
     calibrations = dict()
@@ -429,7 +429,7 @@ def database_info(log_dir, omegas):
     omegas : :class:`dict`
         The keys are the serial numbers and the values are the
         :class:`msl.equipment.record_types.EquipmentRecord`\\s
-        of the OMEGA iServer's.
+        of the OMEGA iServers.
 
     Returns
     -------
@@ -444,7 +444,10 @@ def database_info(log_dir, omegas):
             continue
         serial = match['serial']
         record = omegas.get(serial)
-        alias = record.alias if record else None
+        if not record:
+            # then the iServer is no longer listed in the
+            # <serials> element of the configuration file
+            continue
         file = os.path.join(log_dir, filename)
         with sqlite3.connect(file) as db:
             cursor = db.cursor()
@@ -453,7 +456,7 @@ def database_info(log_dir, omegas):
             cursor.execute('SELECT MIN(timestamp),MAX(timestamp),COUNT(timestamp) FROM data;')
             min_date, max_date, count = cursor.fetchone()
             info[serial] = {
-                'alias': alias,
+                'alias': record.alias,
                 'fields': fields,
                 'file_size': human_file_size(os.stat(file).st_size),
                 'max_date': max_date,
