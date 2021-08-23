@@ -442,6 +442,9 @@ def database_info(log_dir, omegas):
         match = _regex.search(filename)
         if not match:
             continue
+        serial = match['serial']
+        record = omegas.get(serial)
+        alias = record.alias if record else None
         file = os.path.join(log_dir, filename)
         with sqlite3.connect(file) as db:
             cursor = db.cursor()
@@ -449,8 +452,8 @@ def database_info(log_dir, omegas):
             fields = [f[1] for f in cursor.fetchall()]
             cursor.execute('SELECT MIN(timestamp),MAX(timestamp),COUNT(timestamp) FROM data;')
             min_date, max_date, count = cursor.fetchone()
-            info[match['serial']] = {
-                'alias': omegas[match['serial']].alias,
+            info[serial] = {
+                'alias': alias,
                 'fields': fields,
                 'file_size': human_file_size(os.stat(file).st_size),
                 'max_date': max_date,
