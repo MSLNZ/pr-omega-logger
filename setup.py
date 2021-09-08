@@ -152,9 +152,6 @@ install_requires = [
     'flask',
     'plotly',
     'dash',
-    'dash-core-components',
-    'dash-html-components',
-    'dash-renderer',
 ]
 
 tests_require = ['pytest', 'pytest-cov', 'requests']
