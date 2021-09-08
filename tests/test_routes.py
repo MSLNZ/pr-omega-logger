@@ -114,18 +114,18 @@ def test_fetch(route):
 def test_fetch_invalid_params():
     response = get('/fetch?woofwoof')
     assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'woofwoof'<br/>" \
-                            "Valid parameters are: start, end, serial, alias, corrected, type"
+    assert response.text == "Invalid parameter(s): woofwoof<br/>" \
+                            "Valid parameters are: alias, corrected, end, serial, start, type"
 
     response = get('/fetch', params='woofwoof')
     assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'woofwoof'<br/>" \
-                            "Valid parameters are: start, end, serial, alias, corrected, type"
+    assert response.text == "Invalid parameter(s): woofwoof<br/>" \
+                            "Valid parameters are: alias, corrected, end, serial, start, type"
 
-    response = get('/fetch', params={'ball': 'yellow'})
+    response = get('/fetch', params={'ball': 'yellow', 'play': 'fetch'})
     assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'ball'<br/>" \
-                            "Valid parameters are: start, end, serial, alias, corrected, type"
+    assert response.text == "Invalid parameter(s): ball, play<br/>" \
+                            "Valid parameters are: alias, corrected, end, serial, start, type"
 
 
 @pytest.mark.parametrize('corrected', ['1', 'true', 'True', 1, True])
@@ -287,8 +287,8 @@ def test_fetch_serial_and_alias():
     # Incorrect spelling of serial
     response = get('/fetch', params={'start': '2021-01-01T12:00:00', 'seral': '01234'})
     assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'seral'<br/>" \
-                            "Valid parameters are: start, end, serial, alias, corrected, type"
+    assert response.text == "Invalid parameter(s): seral<br/>" \
+                            "Valid parameters are: alias, corrected, end, serial, start, type"
 
     # Unknown serial number
     json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'serial': '9876543210'}).json()
@@ -297,8 +297,8 @@ def test_fetch_serial_and_alias():
     # Incorrect spelling of alias
     response = get('/fetch', params={'start': '2021-01-01T12:00:00', 'alis': '01234'})
     assert response.status_code == 400
-    assert response.text == "Invalid parameter: 'alis'<br/>" \
-                            "Valid parameters are: start, end, serial, alias, corrected, type"
+    assert response.text == "Invalid parameter(s): alis<br/>" \
+                            "Valid parameters are: alias, corrected, end, serial, start, type"
 
     # Unknown alias
     json = get('/fetch', params={'start': '2021-01-01T12:00:00', 'alias': '007'}).json()
@@ -615,7 +615,8 @@ def test_now_serial_uncorrected():
 def test_now_invalid_param(key):
     response = get('/now', params={key: '56789'})
     assert response.status_code == 400
-    assert response.text == f'Invalid parameter: {key!r}<br/>Valid parameters are: alias, corrected, serial'
+    assert response.text == f'Invalid parameter(s): {key}<br/>' \
+                            f'Valid parameters are: alias, corrected, serial'
 
 
 @pytest.mark.parametrize('route', ['/aliases', '/aliases/'])

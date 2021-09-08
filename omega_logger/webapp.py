@@ -170,6 +170,31 @@ def read_raw(omega):
     return omega.serial, data
 
 
+def requested_serial_alias():
+    """Parse the serial and alias values from the request."""
+    requested = set()
+    for name in ('serial', 'alias'):
+        value = request.args.get(name)
+        if value:
+            for element in value.split(';'):
+                if element:
+                    requested.add(element)
+    return requested
+
+
+def check_invalid_params(*allowed):
+    """Check the request for invalid parameters."""
+    bad = []
+    for k, v in request.args.items():
+        if k not in allowed:
+            bad.append(k)
+    if bad:
+        invalid = ', '.join(sorted(bad))
+        valid = ', '.join(sorted(allowed))
+        return f'Invalid parameter(s): {invalid}<br/>' \
+               f'Valid parameters are: {valid}', 400
+
+
 @app.server.route('/<string:path1>/')
 @app.server.route('/<string:path1>/<path:path2>/')
 def page_not_found(**ignore):
@@ -355,24 +380,14 @@ def now():
   }
 }</pre></span></div></div>
     """
-    allowed_params = ('alias', 'corrected', 'serial')
-    for k, v in request.args.items():
-        if k not in allowed_params:
-            allowed = ', '.join(allowed_params)
-            return f'Invalid parameter: {k!r}<br/>' \
-                   f'Valid parameters are: {allowed}', 400
+    error = check_invalid_params('alias', 'corrected', 'serial')
+    if error:
+        return error
 
     apply_corr = request.args.get('corrected', 'true').lower() in ['true', '1']
 
-    requested = set()
-    for name in ('serial', 'alias'):
-        value = request.args.get(name)
-        if value:
-            for element in value.split(';'):
-                if element:
-                    requested.add(element)
-
     records = []
+    requested = requested_serial_alias()
     for serial, omega in omegas.items():
         if requested and not requested.intersection({serial, omega.alias}):
             continue
@@ -524,12 +539,9 @@ def fetch():
   }
 }</pre></span></div></div>
     """
-    allowed_params = ['start', 'end', 'serial', 'alias', 'corrected', 'type']
-    for k, v in request.args.items():
-        if k not in allowed_params:
-            allowed = ', '.join(allowed_params)
-            return f'Invalid parameter: {k!r}<br/>' \
-                   f'Valid parameters are: {allowed}', 400
+    error = check_invalid_params('start', 'end', 'serial', 'alias', 'corrected', 'type')
+    if error:
+        return error
 
     timestamps = {}
     for kwg in ['start', 'end']:
@@ -570,15 +582,8 @@ def fetch():
     else:
         error = None  # maintain consistency with other methods
 
-    requested = set()
-    for name in ('serial', 'alias'):
-        value = request.args.get(name)
-        if value:
-            for element in value.split(';'):
-                if element:
-                    requested.add(element)
-
     fetched = dict()
+    requested = requested_serial_alias()
     for serial, omega in omegas.items():
         if requested and not requested.intersection({serial, omega.alias}):
             continue
