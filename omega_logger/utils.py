@@ -6,7 +6,12 @@ from time import perf_counter
 from datetime import datetime, timedelta
 
 import numpy as np
-import dash_html_components as html
+try:
+    from dash import html
+except ImportError:
+    # as of Dash v2.0, the development of dash-html-components
+    # has been moved to the main Dash repo
+    import dash_html_components as html
 from msl.equipment.resources.omega.ithx import iTHX
 
 
