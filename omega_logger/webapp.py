@@ -14,12 +14,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import dash
-import dash_core_components as dcc
 try:
+    from dash import dcc
     from dash import html
 except ImportError:
     # as of Dash v2.0, the development of dash-html-components
-    # has been moved to the main Dash repo
+    # and dash-core-components has been moved to the main Dash repo
+    import dash_core_components as dcc
     import dash_html_components as html
 import plotly.graph_objs as go
 from gevent.pywsgi import WSGIServer
