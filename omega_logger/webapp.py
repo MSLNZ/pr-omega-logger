@@ -366,17 +366,17 @@ def now():
     "report_number": null,
     "temperature": 20.0,
     "timestamp": "2021-08-16T13:36:34"
-},
+  },
   "6789": {
     "alias": "Mass2",
-    "dewpoint1": null,
-    "dewpoint2": null,
-    "error": "Timeout occurred after 10.0 seconds",
-    "humidity1": null,
-    "humidity2": null,
+    "dewpoint1": 10.51,
+    "dewpoint2": 11.02,
+    "error": null,
+    "humidity1": 53.72,
+    "humidity2": 59.16,
     "report_number": null,
-    "temperature1": null,
-    "temperature2": null,
+    "temperature1": 20.18,
+    "temperature2": 19.17,
     "timestamp": "2021-08-16T13:36:44"
   }
 }</pre></span></div></div>
