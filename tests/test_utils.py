@@ -334,6 +334,36 @@ def test_find_reports():
     assert len(reports) == 0
 
 
+def test_calibration_report_to_json():
+    _, calibrations, _ = utils.initialize_webapp(cfg, serials)
+    report = utils.find_reports(calibrations, '01234')[0]
+    assert report.to_json() == {
+        'alias': 'b',
+        'component': '',
+        'confidence': '95%',
+        'coverage_factor': 2.0,
+        'date': '2020-12-17',
+        'end_date': '2020-12-14',
+        'humidity': {
+            'coefficients': [-5.11, 2.44e-2, 5.39e-4],
+            'expanded_uncertainty': 1.1,
+            'max': 80.0,
+            'min': 30.0,
+            'unit': '%rh',
+        },
+        'number': 'H502',
+        'serial': '01234',
+        'start_date': '2020-12-11',
+        'temperature': {
+            'coefficients': [0.07],
+            'expanded_uncertainty': 0.12,
+            'max': 25.0,
+            'min': 15.0,
+            'unit': 'C'
+        }
+    }
+
+
 def test_read_database():
     _, calibrations, _ = utils.initialize_webapp(cfg, serials)
 
