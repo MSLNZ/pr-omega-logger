@@ -675,3 +675,273 @@ def test_databases(route):
         'min_date': '2015-01-01 23:56:47',
         'num_records': 80,
     }
+
+
+@pytest.mark.parametrize(
+    ('route', 'params'),
+    [('/reports', {}),
+     ('/reports', {'serial': '01234', 'alias': 'f'}),
+     ('/reports', {'serial': '56789', 'alias': 'b'}),
+     ('/reports', {'serial': '01234;56789', 'alias': 'ignored'}),
+     ('/reports', {'serial': 'ignored', 'alias': 'b;f'}),
+     ('/reports', {'date': 'all'}),
+     ('/reports/', {})]
+)
+def test_reports_all(route, params):
+    json = get(route, params=params).json()
+    assert len(json) == 2
+    assert len(json['01234']) == 3
+    assert len(json['56789']) == 3
+
+    report = json['01234'][0]
+    assert report['alias'] == 'b'
+    assert report['component'] == ''
+    assert report['confidence'] == '95%'
+    assert report['coverage_factor'] == 2.0
+    assert report['date'] == '2020-12-17'
+    assert report['end_date'] == '2020-12-14'
+    assert report['humidity'] == {
+        'coefficients': [-5.11, 2.44e-2, 5.39e-4],
+        'expanded_uncertainty': 1.1,
+        'max': 80.0,
+        'min': 30.0,
+        'units': '%rh'
+    }
+    assert report['number'] == 'H502'
+    assert report['serial'] == '01234'
+    assert report['start_date'] == '2020-12-11'
+    assert report['temperature'] == {
+        'coefficients': [0.07],
+        'expanded_uncertainty': 0.12,
+        'max': 25.0,
+        'min': 15.0,
+        'units': 'C'
+    }
+
+    report = json['01234'][1]
+    assert report['alias'] == 'b'
+    assert report['component'] == ''
+    assert report['confidence'] == '95%'
+    assert report['coverage_factor'] == 2.0
+    assert report['date'] == '2018-07-21'
+    assert report['end_date'] == '2018-06-11'
+    assert report['humidity'] == {
+        'coefficients': [-9.5, 0.326, -0.00505, 0.0000321],
+        'expanded_uncertainty': 0.9,
+        'max': 85.0,
+        'min': 30.0,
+        'units': '%rh'
+    }
+    assert report['number'] == 'H386'
+    assert report['serial'] == '01234'
+    assert report['start_date'] == '2018-06-08'
+    assert report['temperature'] == {
+        'coefficients': [0.01],
+        'expanded_uncertainty': 0.13,
+        'max': 24.0,
+        'min': 18.0,
+        'units': 'C'
+    }
+
+    report = json['01234'][2]
+    assert report['alias'] == 'b'
+    assert report['component'] == ''
+    assert report['confidence'] == '95%'
+    assert report['coverage_factor'] == 2.0
+    assert report['date'] == '2016-02-22'
+    assert report['end_date'] == '2016-01-22'
+    assert report['humidity'] == {
+        'coefficients': [-3.44, 0.0487],
+        'expanded_uncertainty': 0.8,
+        'max': 80.0,
+        'min': 30.0,
+        'units': '%rh'
+    }
+    assert report['number'] == 'H322'
+    assert report['serial'] == '01234'
+    assert report['start_date'] == '2016-01-20'
+    assert report['temperature'] == {
+        'coefficients': [0.05],
+        'expanded_uncertainty': 0.12,
+        'max': 23.0,
+        'min': 17.0,
+        'units': 'C'
+    }
+
+    report = json['56789'][0]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 1'
+    assert report['confidence'] == '95%'
+    assert report['coverage_factor'] == 2.0
+    assert report['date'] == '2020-06-12'
+    assert report['end_date'] == '2020-06-03'
+    assert report['humidity'] == {
+        'coefficients': [-8.3, 1.23, 3.56e-3],
+        'expanded_uncertainty': 0.8,
+        'max': 80.0,
+        'min': 30.0,
+        'units': '%rh'
+    }
+    assert report['number'] == 'H842'
+    assert report['serial'] == '56789'
+    assert report['start_date'] == '2020-06-01'
+    assert report['temperature'] == {
+        'coefficients': [0.002, 0.32],
+        'expanded_uncertainty': 0.12,
+        'max': 25.0,
+        'min': 15.0,
+        'units': 'C'
+    }
+
+    report = json['56789'][1]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 1'
+    assert report['confidence'] == '95%'
+    assert report['coverage_factor'] == 2.0
+    assert report['date'] == '2018-07-21'
+    assert report['end_date'] == '2018-06-11'
+    assert report['humidity'] == {
+        'coefficients': [-10.2, 0.393, -0.00637, 0.000039],
+        'expanded_uncertainty': 1.0,
+        'max': 85.0,
+        'min': 30.0,
+        'units': '%rh'
+    }
+    assert report['number'] == 'H388'
+    assert report['serial'] == '56789'
+    assert report['start_date'] == '2018-06-08'
+    assert report['temperature'] == {
+        'coefficients': [0.04, 0.13],
+        'expanded_uncertainty': 0.13,
+        'max': 24.0,
+        'min': 18.0,
+        'units': 'C'
+    }
+
+    report = json['56789'][2]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 2'
+    assert report['confidence'] == '95%'
+    assert report['coverage_factor'] == 2.0
+    assert report['date'] == '2018-07-21'
+    assert report['end_date'] == '2018-06-11'
+    assert report['humidity'] == {
+        'coefficients': [4.2, 0.931, 0.00482],
+        'expanded_uncertainty': 0.8,
+        'max': 85.0,
+        'min': 30.0,
+        'units': '%rh'
+    }
+    assert report['number'] == 'H389'
+    assert report['serial'] == '56789'
+    assert report['start_date'] == '2018-06-08'
+    assert report['temperature'] == {
+        'coefficients': [0.1, 0.06, 0.01, 2.3e-4],
+        'expanded_uncertainty': 0.14,
+        'max': 24.0,
+        'min': 18.0,
+        'units': 'C'
+    }
+
+
+@pytest.mark.parametrize(
+    ('route', 'params'),
+    [('/reports', {'serial': '01234'}),
+     ('/reports', {'serial': '01234;ignore'}),
+     ('/reports', {'alias': 'b'}),
+     ('/reports', {'alias': 'ignore;b;banana'}),
+     ('/reports/', {'serial': '01234'})]
+)
+def test_reports_all_one_iserver(route, params):
+    json = get(route, params=params).json()
+    assert len(json) == 1
+    assert len(json['01234']) == 3
+
+    assert [r['date'] for r in json['01234']] == ['2020-12-17', '2018-07-21', '2016-02-22']
+    assert [r['number'] for r in json['01234']] == ['H502', 'H386', 'H322']
+
+
+@pytest.mark.parametrize('route', ['/reports', '/reports/'])
+def test_reports_latest(route):
+    json = get(route, params={'date': 'latest'}).json()
+    assert len(json) == 2
+    assert len(json['01234']) == 1
+    assert len(json['56789']) == 2
+
+    report = json['01234'][0]
+    assert report['alias'] == 'b'
+    assert report['component'] == ''
+    assert report['date'] == '2020-12-17'
+    assert report['number'] == 'H502'
+
+    report = json['56789'][0]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 1'
+    assert report['date'] == '2020-06-12'
+    assert report['number'] == 'H842'
+
+    report = json['56789'][1]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 2'
+    assert report['date'] == '2018-07-21'
+    assert report['number'] == 'H389'
+
+
+@pytest.mark.parametrize('route', ['/reports', '/reports/'])
+def test_reports_date(route):
+    json = get(route, params={'date': '2017-01-23'}).json()
+    assert len(json) == 2
+    assert len(json['01234']) == 1
+    assert len(json['56789']) == 2
+
+    report = json['01234'][0]
+    assert report['alias'] == 'b'
+    assert report['component'] == ''
+    assert report['date'] == '2016-02-22'
+    assert report['number'] == 'H322'
+
+    report = json['56789'][0]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 1'
+    assert report['date'] == '2018-07-21'
+    assert report['number'] == 'H388'
+
+    report = json['56789'][1]
+    assert report['alias'] == 'f'
+    assert report['component'] == 'Probe 2'
+    assert report['date'] == '2018-07-21'
+    assert report['number'] == 'H389'
+
+
+@pytest.mark.parametrize('route', ['/reports', '/reports/'])
+def test_reports_one_latest(route):
+    json = get(route, params={'alias': 'b', 'date': 'latest'}).json()
+    assert len(json) == 1
+    assert len(json['01234']) == 1
+
+    report = json['01234'][0]
+    assert report['alias'] == 'b'
+    assert report['component'] == ''
+    assert report['date'] == '2020-12-17'
+    assert report['number'] == 'H502'
+
+
+@pytest.mark.parametrize(
+    ('route', 'date'),
+    [('/reports', '2020'),
+     ('/reports', '2020-08.23'),
+     ('/reports', '2020.08.23'),
+     ('/reports', '20200823'),
+     ('/reports', 'invalid'),
+     ('/reports/', '2020')]
+)
+def test_reports_invalid_date(route, date):
+    response = get(route, params={'date': date})
+    assert response.status_code == 400
+    assert response.text.startswith(f'Invalid ISO 8601 date format: {date!r}<br/>')
+
+
+@pytest.mark.parametrize('route', ['/reports', '/reports/'])
+def test_reports_no_results(route):
+    json = get(route, params={'alias': 'invalid'}).json()
+    assert json == {}

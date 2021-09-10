@@ -401,11 +401,11 @@ def now():
     if apply_corr:
         corrected = dict()
         for serial, values in data.items():
-            reports = find_reports(calibrations, serial)
-            for report in reports:
+            cal_reports = find_reports(calibrations, serial)
+            for report in cal_reports:
                 values = apply_calibration(values, report)
             corrected[serial] = values
-            corrected[serial]['report_number'] = ';'.join(r.number for r in reports)
+            corrected[serial]['report_number'] = ';'.join(r.number for r in cal_reports)
         return jsonify(corrected)
     return jsonify(data)
 
@@ -589,7 +589,7 @@ def fetch():
         if requested and not requested.intersection({serial, omega.alias}):
             continue
 
-        reports = find_reports(calibrations, serial)
+        cal_reports = find_reports(calibrations, serial)
         nprobes = omega.connection.properties.get('nprobes', 1)
 
         fetched[serial] = {
@@ -597,9 +597,9 @@ def fetch():
             'start': timestamps['start'],
             'end': timestamps['end'],
             'error': error,
-            'report_number': None if not apply_corr else ';'.join(r.number for r in reports),
+            'report_number': None if not apply_corr else ';'.join(r.number for r in cal_reports),
         }
-        for report in reports:
+        for report in cal_reports:
             for typ in types:
                 data, message = read_database(report, typ, date1=timestamps['start'], date2=timestamps['end'])
                 if apply_corr:
@@ -609,14 +609,14 @@ def fetch():
                 else:
                     fetched[serial].update({typ + report.probe: data.tolist()})
 
-    return jsonify(fetched), 200
+    return jsonify(fetched)
 
 
 @app.server.route('/help/')
 def api_help():
     """Display the help for each API endpoint."""
     docs = [{'name': route.__name__, 'value': route.__doc__}
-            for route in [aliases, databases, now, fetch]]
+            for route in [aliases, databases, fetch, now, reports]]
     return render_template('help.html', docs=docs, version=__version__, url_root=request.url_root)
 
 
@@ -649,6 +649,140 @@ def download():
             'Content-Disposition': 'attachment',
         }
     )
+
+
+@app.server.route('/reports/')
+def reports():
+    """<p>Get the information in the calibration reports.</p>
+
+    <h3>Parameters</h3>
+    <ul>
+      <li>
+        <b>serial</b> : string (optional)
+        <p>The serial number(s) of the OMEGA iServer(s) to get the reports of.
+        If requesting reports from multiple iServers then the serial
+        numbers must be separated by a semi-colon.</p>
+      </li>
+      <li>
+        <b>alias</b> : string (optional)
+        <p>The alias(es) of the OMEGA iServer(s) to get the reports of.
+        If requesting reports from multiple iServers then the aliases must
+        be separated by a semi-colon.</p>
+      </li>
+      <li>
+        <b>date</b> : string (optional)
+        <p>Find the report nearest to the specified date for the specified
+        iServers. The date must be an ISO 8601 string (e.g., YYYY-MM-DD).
+        Additional supported values are <i>all</i> (return all reports for
+        the specified iServers) and <i>latest</i> (return the latest report
+        for the specified iServers). Default is <i>all</i>.</p>
+      </li>
+    </ul>
+
+    <p><i>Examples:</i></p>
+    <ul>
+      <li>
+        <b>/report</b>
+        <p>Return all reports for all iServers.</p>
+      </li>
+      <li>
+        <b>/report?serial=12345</b>
+        <p>Return all reports for the iServer that has the serial number
+        <i>12345</i>.</p>
+      </li>
+      <li>
+        <b>/report?alias=Mass2&date=2020-05-16</b>
+        <p>Return the report nearest to <i>16 May 2020</i> for the iServer
+        that has the alias <i>Mass2</i>.</p>
+      </li>
+      <li>
+        <b>/report?date=latest</b>
+        <p>Return the latest report for all iServers.</p>
+      </li>
+      <li>
+        <b>/report?alias=Photometric+bench;Mass2&date=latest</b>
+        <p>Return the latest report for the iServer with the alias
+        <i>Photometric bench</i> and for the iServer with the alias
+        <i>Mass2</i>.</p>
+      </li>
+    </ui>
+
+    <p><h3>Returns</h3></p>
+    <p>The keys are the serial numbers of the requested
+    iServers and the value is a list of reports.</p>
+    <p><i>Example:</i></p>
+    <div class="highlight-console"><div class="highlight"><span class="go">
+<pre>{
+  "12345": [
+    {
+      "alias": "Photometric bench",
+      "component": "",
+      "confidence": "95%",
+      "coverage_factor": 2.0,
+      "date": "2020-12-17",
+      "end_date": "2020-12-14",
+      "humidity": {
+        "coefficients": [
+          -4.26,
+          0.0291,
+          0.000324
+        ],
+        "expanded_uncertainty": 1.4,
+        "max": 80.0,
+        "min": 30.0,
+        "unit": "%rh"
+      },
+      "number": "H503",
+      "serial": "12345",
+      "start_date": "2020-12-11",
+      "temperature": {
+        "coefficients": [
+          0.37,
+          -0.007
+        ],
+        "expanded_uncertainty": 0.11,
+        "max": 25.0,
+        "min": 15.0,
+        "unit": "C"
+      }
+    }
+  ]
+}</pre></span></div></div>
+    """
+    error = check_invalid_params('serial', 'alias', 'date')
+    if error:
+        return error
+
+    date = request.args.get('date', 'all')
+    if date != 'all':
+        try:
+            date = None if date == 'latest' else fromisoformat(date)
+        except ValueError:
+            return f"Invalid ISO 8601 date format: {date!r}<br/>" \
+                   f"Valid date format is YYYY-MM-DD or you can use " \
+                   f"the value 'all' or 'latest'", 400
+
+    cal_reports = dict()
+    requested = requested_serial_alias()
+    for serial, omega in omegas.items():
+        if requested and not requested.intersection({serial, omega.alias}):
+            continue
+
+        if date == 'all':
+            items = [report.to_json()
+                     for cals in calibrations.values()
+                     if cals and cals[0].serial == serial
+                     for report in cals]
+        else:
+            items = [report.to_json() for report in
+                     find_reports(calibrations, serial, nearest=date)]
+
+        if serial in cal_reports:
+            cal_reports[serial].extend(items)
+        else:
+            cal_reports[serial] = items
+
+    return jsonify(cal_reports)
 
 
 @app.callback(

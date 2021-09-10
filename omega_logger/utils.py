@@ -154,7 +154,7 @@ def initialize_webapp(cfg, serials):
         dbase_file = os.path.join(log_dir, record.model + '_' + record.serial + '.sqlite3')
         for element in cal_elements:
             if element.attrib.get('serial') == record.serial:
-                reports = [CalibrationReport(record.serial, dbase_file, report)
+                reports = [CalibrationReport(record.serial, dbase_file, report, record.alias)
                            for report in element.findall('report')]
                 components = sorted(set(r.component for r in reports))
                 for component in components:
@@ -179,8 +179,8 @@ def initialize_webapp(cfg, serials):
 
 class CalibrationReport(object):
 
-    def __init__(self, serial, dbase_file, report):
-        """Create a calibration record.
+    def __init__(self, serial, dbase_file, report, alias):
+        """Create a calibration report.
 
         Parameters
         ----------
@@ -190,9 +190,12 @@ class CalibrationReport(object):
             The path to the database file.
         report : :class:`xml.etree.Element`
             An element from the configuration file.
+        alias : :class:`str`
+            The alias associated with the OMEGA iServer.
         """
         self.serial = serial
         self.dbase_file = dbase_file
+        self.alias = alias
         self.component = report.attrib.get('component', '')
         if self.component:
             self.probe = re.search(r'(\d)', self.component).group(0)
@@ -216,6 +219,16 @@ class CalibrationReport(object):
                 'expanded_uncertainty': float(e.find('expanded_uncertainty').text),
             }
             setattr(self, name, d)
+
+    def to_json(self):
+        """Convert this object to be JSON serializable."""
+        json = self.__dict__.copy()
+        for item in ('dbase_file', 'probe'):
+            json.pop(item)
+        for key in json:
+            if 'date' in key:
+                json[key] = json[key].date().isoformat()
+        return json
 
 
 class HTMLTable(object):
@@ -296,7 +309,7 @@ class HTMLTable(object):
 
 def find_reports(calibrations, serial, nearest=None):
     """Find all calibration reports for the OMEGA devices
-    with a particular serial number that are closest to a
+    with a particular serial number that are nearest to a
     specified date.
 
     Parameters
@@ -307,8 +320,8 @@ def find_reports(calibrations, serial, nearest=None):
         The serial number of the OMEGA iServer to find.
     nearest : :class:`str` or :class:`datetime.datetime`, optional
         The date to compare each report to. If not specified then
-        uses the current time. If a string then in the ISO 8601
-        format.
+        uses the current date and time. If a string then in the
+        ISO 8601 format.
 
     Returns
     -------
