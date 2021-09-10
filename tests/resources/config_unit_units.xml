@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<msl>
+    <!--
+    the "report/temperature" and "report/humidity" elements support an
+    attrib name of "unit" or "units"
+    -->
+    <log_dir>tests/resources</log_dir>
+    <serials>01234</serials>
+    <calibrations>
+        <omega serial="01234">
+			<report date="2020-12-17" number="unit-units">
+				<start_date>2020-12-11</start_date>
+				<end_date>2020-12-14</end_date>
+				<coverage_factor>2.0</coverage_factor>
+				<confidence>95%</confidence>
+				<temperature units="degree Celsius" min="15" max="25">
+					<coefficients>0.0</coefficients>
+					<expanded_uncertainty>1.0</expanded_uncertainty>
+				</temperature>
+				<humidity unit="percent-relative-humidity" min="30" max="80">
+					<coefficients>0.0</coefficients>
+					<expanded_uncertainty>1.0</expanded_uncertainty>
+				</humidity>
+			</report>
+        </omega>
+    </calibrations>
+    <registers>
+        <register>
+            <path>register.csv</path>
+        </register>
+    </registers>
+    <connections>
+        <connection>
+            <path>register.csv</path>
+        </connection>
+    </connections>
+</msl>

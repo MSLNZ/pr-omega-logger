@@ -705,7 +705,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 1.1,
         'max': 80.0,
         'min': 30.0,
-        'units': '%rh'
+        'unit': '%rh'
     }
     assert report['number'] == 'H502'
     assert report['serial'] == '01234'
@@ -715,7 +715,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.12,
         'max': 25.0,
         'min': 15.0,
-        'units': 'C'
+        'unit': 'C'
     }
 
     report = json['01234'][1]
@@ -730,7 +730,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.9,
         'max': 85.0,
         'min': 30.0,
-        'units': '%rh'
+        'unit': '%rh'
     }
     assert report['number'] == 'H386'
     assert report['serial'] == '01234'
@@ -740,7 +740,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.13,
         'max': 24.0,
         'min': 18.0,
-        'units': 'C'
+        'unit': 'C'
     }
 
     report = json['01234'][2]
@@ -755,7 +755,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.8,
         'max': 80.0,
         'min': 30.0,
-        'units': '%rh'
+        'unit': '%rh'
     }
     assert report['number'] == 'H322'
     assert report['serial'] == '01234'
@@ -765,7 +765,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.12,
         'max': 23.0,
         'min': 17.0,
-        'units': 'C'
+        'unit': 'C'
     }
 
     report = json['56789'][0]
@@ -780,7 +780,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.8,
         'max': 80.0,
         'min': 30.0,
-        'units': '%rh'
+        'unit': '%rh'
     }
     assert report['number'] == 'H842'
     assert report['serial'] == '56789'
@@ -790,7 +790,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.12,
         'max': 25.0,
         'min': 15.0,
-        'units': 'C'
+        'unit': 'C'
     }
 
     report = json['56789'][1]
@@ -805,7 +805,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 1.0,
         'max': 85.0,
         'min': 30.0,
-        'units': '%rh'
+        'unit': '%rh'
     }
     assert report['number'] == 'H388'
     assert report['serial'] == '56789'
@@ -815,7 +815,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.13,
         'max': 24.0,
         'min': 18.0,
-        'units': 'C'
+        'unit': 'C'
     }
 
     report = json['56789'][2]
@@ -830,7 +830,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.8,
         'max': 85.0,
         'min': 30.0,
-        'units': '%rh'
+        'unit': '%rh'
     }
     assert report['number'] == 'H389'
     assert report['serial'] == '56789'
@@ -840,7 +840,7 @@ def test_reports_all(route, params):
         'expanded_uncertainty': 0.14,
         'max': 24.0,
         'min': 18.0,
-        'units': 'C'
+        'unit': 'C'
     }
 
 

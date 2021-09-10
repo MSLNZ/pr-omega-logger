@@ -127,7 +127,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                     <end_date>2018-06-11</end_date>
                     <coverage_factor>2.0</coverage_factor>
                     <confidence>95%</confidence>
-                    <temperature units="C" min="18" max="24">
+                    <temperature unit="C" min="18" max="24">
                         <!--
                           The 'coefficients' element represents the polynomial coefficients
                           c0, c1, c2, c3... to apply as the calibration equation. You can
@@ -140,7 +140,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                         <coefficients>0.01</coefficients>
                         <expanded_uncertainty>0.13</expanded_uncertainty>
                     </temperature>
-                    <humidity units="%rh" min="30" max="85">
+                    <humidity unit="%rh" min="30" max="85">
                         <coefficients>-9.5;0.326;-0.00505;0.0000321</coefficients>
                         <expanded_uncertainty>0.9</expanded_uncertainty>
                     </humidity>
@@ -150,11 +150,11 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                     <end_date>2016-01-22</end_date>
                     <coverage_factor>2.0</coverage_factor>
                     <confidence>95%</confidence>
-                    <temperature units="C" min="17" max="23">
+                    <temperature unit="C" min="17" max="23">
                         <coefficients>0.05</coefficients>
                         <expanded_uncertainty>0.12</expanded_uncertainty>
                     </temperature>
-                    <humidity units="%rh" min="30" max="80">
+                    <humidity unit="%rh" min="30" max="80">
                         <coefficients>-3.44;0.0487</coefficients>
                         <expanded_uncertainty>0.8</expanded_uncertainty>
                     </humidity>
@@ -170,11 +170,11 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                     <end_date>2018-06-11</end_date>
                     <coverage_factor>2.0</coverage_factor>
                     <confidence>95%</confidence>
-                    <temperature units="C" min="18" max="24">
+                    <temperature unit="C" min="18" max="24">
                         <coefficients>0.04;0.13</coefficients>
                         <expanded_uncertainty>0.13</expanded_uncertainty>
                     </temperature>
-                    <humidity units="%rh" min="30" max="85">
+                    <humidity unit="%rh" min="30" max="85">
                         <coefficients>-10.2;0.393;-0.00637;0.000039</coefficients>
                         <expanded_uncertainty>1.0</expanded_uncertainty>
                     </humidity>
@@ -184,11 +184,11 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                     <end_date>2018-06-11</end_date>
                     <coverage_factor>2.0</coverage_factor>
                     <confidence>95%</confidence>
-                    <temperature units="C" min="18" max="24">
+                    <temperature unit="C" min="18" max="24">
                         <coefficients>0.1;0.06;0.01</coefficients>
                         <expanded_uncertainty>0.14</expanded_uncertainty>
                     </temperature>
-                    <humidity units="%rh" min="30" max="85">
+                    <humidity unit="%rh" min="30" max="85">
                         <coefficients>4.2;0.931;0.00482</coefficients>
                         <expanded_uncertainty>0.8</expanded_uncertainty>
                     </humidity>

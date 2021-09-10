@@ -210,7 +210,7 @@ class CalibrationReport(object):
         for name in ['temperature', 'humidity']:
             e = report.find(name)
             d = {
-                'units': e.attrib['units'],
+                'unit': e.attrib.get('unit', e.attrib.get('units', 'C' if name == 'temperature' else '%rh')),
                 'min': float(e.attrib['min']),
                 'max': float(e.attrib['max']),
                 'coefficients': [

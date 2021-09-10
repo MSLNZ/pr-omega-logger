@@ -74,12 +74,12 @@ def test_initialize_webapp():
     assert cal.end_date == utils.fromisoformat('2020-12-14')
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
-    assert cal.temperature['units'] == 'C'
+    assert cal.temperature['unit'] == 'C'
     assert cal.temperature['min'] == 15.0
     assert cal.temperature['max'] == 25.0
     assert cal.temperature['coefficients'] == [0.07]
     assert cal.temperature['expanded_uncertainty'] == 0.12
-    assert cal.humidity['units'] == '%rh'
+    assert cal.humidity['unit'] == '%rh'
     assert cal.humidity['min'] == 30.0
     assert cal.humidity['max'] == 80.0
     assert cal.humidity['coefficients'] == [-5.11, 2.44e-2, 5.39e-4]
@@ -96,12 +96,12 @@ def test_initialize_webapp():
     assert cal.end_date == utils.fromisoformat('2018-06-11')
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
-    assert cal.temperature['units'] == 'C'
+    assert cal.temperature['unit'] == 'C'
     assert cal.temperature['min'] == 18.0
     assert cal.temperature['max'] == 24.0
     assert cal.temperature['coefficients'] == [0.01]
     assert cal.temperature['expanded_uncertainty'] == 0.13
-    assert cal.humidity['units'] == '%rh'
+    assert cal.humidity['unit'] == '%rh'
     assert cal.humidity['min'] == 30.0
     assert cal.humidity['max'] == 85.0
     assert cal.humidity['coefficients'] == [-9.5, 0.326, -5.05e-3, 3.21e-5]
@@ -118,12 +118,12 @@ def test_initialize_webapp():
     assert cal.end_date == utils.fromisoformat('2016-01-22')
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
-    assert cal.temperature['units'] == 'C'
+    assert cal.temperature['unit'] == 'C'
     assert cal.temperature['min'] == 17.0
     assert cal.temperature['max'] == 23.0
     assert cal.temperature['coefficients'] == [0.05]
     assert cal.temperature['expanded_uncertainty'] == 0.12
-    assert cal.humidity['units'] == '%rh'
+    assert cal.humidity['unit'] == '%rh'
     assert cal.humidity['min'] == 30.0
     assert cal.humidity['max'] == 80.0
     assert cal.humidity['coefficients'] == [-3.44, 4.87e-2]
@@ -140,12 +140,12 @@ def test_initialize_webapp():
     assert cal.end_date == utils.fromisoformat('2020-06-03')
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
-    assert cal.temperature['units'] == 'C'
+    assert cal.temperature['unit'] == 'C'
     assert cal.temperature['min'] == 15.0
     assert cal.temperature['max'] == 25.0
     assert cal.temperature['coefficients'] == [0.002, 0.32]
     assert cal.temperature['expanded_uncertainty'] == 0.12
-    assert cal.humidity['units'] == '%rh'
+    assert cal.humidity['unit'] == '%rh'
     assert cal.humidity['min'] == 30.0
     assert cal.humidity['max'] == 80.0
     assert cal.humidity['coefficients'] == [-8.3, 1.23, 3.56e-3]
@@ -162,12 +162,12 @@ def test_initialize_webapp():
     assert cal.end_date == utils.fromisoformat('2018-06-11')
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
-    assert cal.temperature['units'] == 'C'
+    assert cal.temperature['unit'] == 'C'
     assert cal.temperature['min'] == 18.0
     assert cal.temperature['max'] == 24.0
     assert cal.temperature['coefficients'] == [0.04, 0.13]
     assert cal.temperature['expanded_uncertainty'] == 0.13
-    assert cal.humidity['units'] == '%rh'
+    assert cal.humidity['unit'] == '%rh'
     assert cal.humidity['min'] == 30.0
     assert cal.humidity['max'] == 85.0
     assert cal.humidity['coefficients'] == [-10.2, 0.393, -6.37e-3, 3.9e-5]
@@ -184,12 +184,12 @@ def test_initialize_webapp():
     assert cal.end_date == utils.fromisoformat('2018-06-11')
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
-    assert cal.temperature['units'] == 'C'
+    assert cal.temperature['unit'] == 'C'
     assert cal.temperature['min'] == 18.0
     assert cal.temperature['max'] == 24.0
     assert cal.temperature['coefficients'] == [0.1, 0.06, 0.01, 2.3e-4]
     assert cal.temperature['expanded_uncertainty'] == 0.14
-    assert cal.humidity['units'] == '%rh'
+    assert cal.humidity['unit'] == '%rh'
     assert cal.humidity['min'] == 30.0
     assert cal.humidity['max'] == 85.0
     assert cal.humidity['coefficients'] == [4.2, 0.931, 0.00482]
@@ -232,6 +232,36 @@ def test_initialize_webapp_config_minimal():
     assert len(omegas) == 2
     assert '01234' in omegas
     assert '56789' in omegas
+
+
+def test_config_unit_units():
+    # the "temperature" and "humidity" XML elements support an
+    # attrib name "unit" or "units"
+    cfg_min = Config(os.path.join(resources, 'config_unit_units.xml'))
+    _, calibrations, _ = utils.initialize_webapp(cfg_min, '01234')
+    assert len(calibrations) == 1
+
+    cal = calibrations['b'][0]
+    assert cal.serial == '01234'
+    assert os.path.basename(cal.dbase_file) == 'iTHX-W3-5_01234.sqlite3'
+    assert cal.component == ''
+    assert cal.probe == ''
+    assert cal.date == utils.fromisoformat('2020-12-17')
+    assert cal.number == 'unit-units'
+    assert cal.start_date == utils.fromisoformat('2020-12-11')
+    assert cal.end_date == utils.fromisoformat('2020-12-14')
+    assert cal.coverage_factor == 2.0
+    assert cal.confidence == '95%'
+    assert cal.temperature['unit'] == 'degree Celsius'
+    assert cal.temperature['min'] == 15.0
+    assert cal.temperature['max'] == 25.0
+    assert cal.temperature['coefficients'] == [0.0]
+    assert cal.temperature['expanded_uncertainty'] == 1.0
+    assert cal.humidity['unit'] == 'percent-relative-humidity'
+    assert cal.humidity['min'] == 30.0
+    assert cal.humidity['max'] == 80.0
+    assert cal.humidity['coefficients'] == [0.0]
+    assert cal.humidity['expanded_uncertainty'] == 1.0
 
 
 def test_find_report():
