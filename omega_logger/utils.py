@@ -221,7 +221,10 @@ class CalibrationReport(object):
             setattr(self, name, d)
 
     def to_json(self):
-        """Convert this object to be JSON serializable."""
+        """Convert this object to be JSON serializable.
+
+        .. versionadded:: 0.3
+        """
         json = self.__dict__.copy()
         for item in ('dbase_file', 'probe'):
             json.pop(item)
