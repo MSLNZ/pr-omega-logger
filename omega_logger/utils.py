@@ -358,8 +358,11 @@ def find_report(reports, nearest=None):
     return reports[deltas.index(min(deltas))]
 
 
-def read_database(report, typ, date1=None, date2=None, label=''):
+def read_database(report, typ, start=None, end=None, label=''):
     """Read data from a database.
+
+    .. versionchanged:: 0.3
+       Rename `date1` to `start`. Rename `date2` to `end`.
 
     Parameters
     ----------
@@ -367,12 +370,12 @@ def read_database(report, typ, date1=None, date2=None, label=''):
         The calibration report.
     typ : :class:`str`
         The type of data to retrieve (one of temperature, humidity, dewpoint).
-    date1 : :class:`datetime.datetime` or :class:`str`, optional
-        Include all records that have a timestamp > `date1`. If :class:`str` then in
-        ``yyyy-mm-dd`` or ``yyyy-mm-dd HH:MM:SS`` format.
-    date2 : :class:`datetime.datetime` or :class:`str`, optional
-        Include all records that have a timestamp < `date2`. If :class:`str` then in
-        ``yyyy-mm-dd`` or ``yyyy-mm-dd HH:MM:SS`` format.
+    start : :class:`~datetime.datetime` or :class:`str`, optional
+        Include all records that have a timestamp >= `start`. If a :class:`str`
+        then in the ISO 8601 ``yyyy-mm-dd`` or ``yyyy-mm-ddTHH:MM:SS`` format.
+    end : :class:`~datetime.datetime` or :class:`str`, optional
+        Include all records that have a timestamp <= `end`. If a :class:`str`
+        then in the ISO 8601 ``yyyy-mm-dd`` or ``yyyy-mm-ddTHH:MM:SS`` format.
     label : :class:`str`, optional
         The value is used to construct the message that is returned. If you do not
         care about the returned message then you can ignore this argument.
@@ -385,11 +388,11 @@ def read_database(report, typ, date1=None, date2=None, label=''):
         A message that describes how many records were fetch, what field was selected
         from the database and how long the process took.
     """
-    select = ('timestamp', typ + report.probe)
+    select = ('datetime', typ + report.probe)
     t0 = perf_counter()
-    values = iTHX.data(report.dbase_file, date1=date1, date2=date2, as_datetime=False, select=select)
+    values = iTHX.data(report.dbase_file, start=start, end=end, as_datetime=False, select=select)
     dt = perf_counter() - t0
-    data = np.asarray(values, dtype=[('timestamp', 'U19'), (typ, float)])
+    data = np.asarray(values, dtype=[('datetime', 'U19'), (typ, float)])
     message = f'Fetched {data.size} {select[1]!r} records for {label!r} in {dt:.3f} seconds'
     return data, message
 
@@ -471,7 +474,7 @@ def database_info(log_dir, omegas):
             cursor = db.cursor()
             cursor.execute("PRAGMA table_info('data');")
             fields = [f[1] for f in cursor.fetchall()]
-            cursor.execute('SELECT MIN(timestamp),MAX(timestamp),COUNT(timestamp) FROM data;')
+            cursor.execute('SELECT MIN(datetime),MAX(datetime),COUNT(pid) FROM data;')
             min_date, max_date, count = cursor.fetchone()
             info[serial] = {
                 'alias': record.alias,

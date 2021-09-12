@@ -151,11 +151,11 @@ def read_raw(omega):
         error = str(e)
         thd = [None] * (nprobes * 3)
 
-    timestamp = datetime.now().replace(microsecond=0).isoformat()
+    now_iso = datetime.now().replace(microsecond=0).isoformat(sep='T')
     data = {
         'error': error,
         'alias': omega.alias,
-        'timestamp': timestamp,
+        'datetime': now_iso,
         'report_number': None,
     }
     if len(thd) == 3:
@@ -245,20 +245,22 @@ def databases():
   "12345": {
     "alias": "Photometric bench",
     "fields": [
-      "timestamp",
+      "pid",
+      "datetime",
       "temperature",
       "humidity",
       "dewpoint"
     ],
-    "file_size": "75 MB",
-    "max_date": "2021-08-23 09:02:11",
-    "min_date": "2017-07-18 10:08:52",
-    "num_records": 1284676
+    "file_size": "68 MB",
+    "max_date": "2021-08-23T09:02:11",
+    "min_date": "2017-07-18T10:08:52",
+    "num_records": 1284679
   },
   "6789": {
     "alias": "Mass2",
     "fields": [
-      "timestamp",
+      "pid",
+      "datetime",
       "temperature1",
       "humidity1",
       "dewpoint1",
@@ -266,9 +268,9 @@ def databases():
       "humidity2",
       "dewpoint2"
     ],
-    "file_size": "130 MB",
-    "max_date": "2021-08-23 09:01:56",
-    "min_date": "2019-07-05 14:42:11",
+    "file_size": "115 MB",
+    "max_date": "2021-08-23T09:01:56",
+    "min_date": "2019-07-05T14:42:11",
     "num_records": 642338
   }
 }</pre></span></div></div>
@@ -360,15 +362,16 @@ def now():
 <pre>{
   "12345": {
     "alias": "Photometric bench",
+    "datetime": "2021-08-16T13:36:34",
     "dewpoint": 9.6,
     "error": null,
     "humidity": 51.3,
     "report_number": null,
-    "temperature": 20.0,
-    "timestamp": "2021-08-16T13:36:34"
+    "temperature": 20.0
   },
   "6789": {
     "alias": "Mass2",
+    "datetime": "2021-08-16T13:36:44",
     "dewpoint1": 10.51,
     "dewpoint2": 11.02,
     "error": null,
@@ -376,8 +379,7 @@ def now():
     "humidity2": 59.16,
     "report_number": null,
     "temperature1": 20.18,
-    "temperature2": 19.17,
-    "timestamp": "2021-08-16T13:36:44"
+    "temperature2": 19.17
   }
 }</pre></span></div></div>
     """
@@ -419,7 +421,7 @@ def fetch():
     <ul>
       <li>
         <b>start</b> : string (optional)
-        <p>Start date and time as an ISO 8601 string (e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).
+        <p>Start date and time as an ISO 8601 string (e.g., yyyy-mm-dd or yyyy-mm-ddTHH:MM:SS).
         Default is the earliest record in the database.</p>
       </li>
       <li>
@@ -493,47 +495,47 @@ def fetch():
     "alias": "Photometric bench",
     "dewpoint": [
       [
-        "2021-08-23 11:50:17",
+        "2021-08-23T11:50:17",
         7.6
       ],
       [
-        "2021-08-23 11:51:17",
+        "2021-08-23T11:51:17",
         7.6
       ],
       [
-        "2021-08-23 11:52:17",
+        "2021-08-23T11:52:17",
         7.6
       ]
     ],
-    "end": "2021-08-23 11:53:00",
+    "end": "2021-08-23T11:53:00",
     "error": null,
     "humidity": [
       [
-        "2021-08-23 11:50:17",
+        "2021-08-23T11:50:17",
         42.50628
       ],
       [
-        "2021-08-23 11:51:17",
+        "2021-08-23T11:51:17",
         42.50628
       ],
       [
-        "2021-08-23 11:52:17",
+        "2021-08-23T11:52:17",
         42.50628
       ]
     ],
     "report_number": "H503",
-    "start": "2021-08-23 11:50:00",
+    "start": "2021-08-23T11:50:00",
     "temperature": [
       [
-        "2021-08-23 11:50:17",
+        "2021-08-23T11:50:17",
         20.05
       ],
       [
-        "2021-08-23 11:51:17",
+        "2021-08-23T11:51:17",
         20.05
       ],
       [
-        "2021-08-23 11:52:17",
+        "2021-08-23T11:52:17",
         20.05
       ]
     ]
@@ -548,15 +550,15 @@ def fetch():
     for kwg in ['start', 'end']:
         time_arg = request.args.get(kwg)
         try:
-            timestamps[kwg] = fromisoformat(time_arg).isoformat(sep=' ')
+            timestamps[kwg] = fromisoformat(time_arg).isoformat(sep='T')
         except TypeError:
             if kwg == 'start':
                 timestamps[kwg] = None
             else:
-                timestamps[kwg] = datetime.now().replace(microsecond=0).isoformat(sep=' ')
+                timestamps[kwg] = datetime.now().replace(microsecond=0).isoformat(sep='T')
         except ValueError:
             return f'The value for {kwg!r} must be an ISO 8601 string ' \
-                   f'(e.g., YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).<br/>'\
+                   f'(e.g., yyyy-mm-dd or yyyy-mm-ddTHH:MM:SS).<br/>'\
                    f'Received {time_arg!r}', 400
 
     apply_corr = request.args.get('corrected', 'true').lower() in ['true', '1']
@@ -601,7 +603,7 @@ def fetch():
         }
         for report in cal_reports:
             for typ in types:
-                data, message = read_database(report, typ, date1=timestamps['start'], date2=timestamps['end'])
+                data, message = read_database(report, typ, start=timestamps['start'], end=timestamps['end'])
                 if apply_corr:
                     data = apply_calibration(data, report)
                 if nprobes == 1:
@@ -672,7 +674,7 @@ def reports():
       <li>
         <b>date</b> : string (optional)
         <p>Find the report nearest to the specified date for the specified
-        iServers. The date must be an ISO 8601 string (e.g., YYYY-MM-DD).
+        iServers. The date must be an ISO 8601 string (e.g., yyyy-mm-dd).
         Additional supported values are <i>all</i> (return all reports for
         the specified iServers) and <i>latest</i> (return the latest report
         for the specified iServers). Default is <i>all</i>.</p>
@@ -759,7 +761,7 @@ def reports():
             date = None if date == 'latest' else fromisoformat(date)
         except ValueError:
             return f"Invalid ISO 8601 date format: {date!r}<br/>" \
-                   f"Valid date format is YYYY-MM-DD or you can use " \
+                   f"Valid date format is yyyy-mm-dd or you can use " \
                    f"the value 'all' or 'latest'", 400
 
     cal_reports = dict()
@@ -813,7 +815,7 @@ def update_plot_viewer(tab, dropdown, start, end):
         report = find_report(calibrations[label])
 
         # fetch the data
-        data, message = read_database(report, tab, date1=start_date, date2=end_date, label=label)
+        data, message = read_database(report, tab, start=start_date, end=end_date, label=label)
 
         # apply the calibration equation
         if tab != 'dewpoint':
@@ -833,7 +835,7 @@ def update_plot_viewer(tab, dropdown, start, end):
 
         plots.append(
             go.Scatter(
-                x=data['timestamp'],
+                x=data['datetime'],
                 y=data[tab],
                 name=label,  # the name displayed in the legend
             )
@@ -935,7 +937,7 @@ def current_readings_viewer(tab, n_intervals):
     children = []
     margin_right = cfg.value('current_readings/margin_right', '16px')
     for serial, data in now().json.items():
-        b = f'{serial} [{data["report_number"]}] - {data["alias"]} @ {data["timestamp"][11:]}'
+        b = f'{serial} [{data["report_number"]}] - {data["alias"]} @ {data["datetime"][11:]}'
         children.append(html.B(b))
         if data['error']:
             children.append(html.P(data['error']))
@@ -949,7 +951,7 @@ def current_readings_viewer(tab, n_intervals):
         else:
             p = []
             for key in sorted(data):
-                if key in ['error', 'alias', 'timestamp', 'report_number']:
+                if key in ['error', 'alias', 'datetime', 'report_number']:
                     continue
                 p.append(html.I(key+':', style={'color': 'grey'}))
                 p.append(html.Span(f'{data[key]:.2f}', style={'margin-right': margin_right}))
