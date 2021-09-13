@@ -14,7 +14,8 @@ also::
 
 2) Update the databases
 
-   a) copy the ``convert_databases.py`` script to your computer
+   a) copy the ``convert_databases.py`` script (located in the root
+      directory of the repository) to your computer
    b) update the value of ``log_dir`` in the script
    c) run the script
 
