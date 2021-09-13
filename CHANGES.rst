@@ -34,11 +34,13 @@ The following features have been made:
 
 - Changed
 
-  * the structure of the database table
-    - add a Primary ID field
-    - rename the `timestamp` field to be `datetime`
-    - the date and time separator is now a **T**
-    - remove the microsecond part from the time
+  * the structure of the database table:
+
+    + add a `pid` field (Primary ID with is an )
+    + rename the `timestamp` field to be `datetime`
+    + the date and time separator is now a **T**
+    + remove the microsecond part from the time
+
   * the separator between a date and time is now always a **T**
   * the `report/temperature` and `report/humidity` XML elements in a configuration
     file support an attribute name of either `unit` or `units`
