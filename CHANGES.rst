@@ -36,7 +36,7 @@ The following features have been made:
 
   * the structure of the database table:
 
-    + add a `pid` field (Primary ID with is an )
+    + add a `pid` field (INTEGER PRIMARY KEY)
     + rename the `timestamp` field to be `datetime`
     + the date and time separator is now a **T**
     + remove the microsecond part from the time
