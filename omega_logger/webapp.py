@@ -208,7 +208,7 @@ def page_not_found(**ignore):
 
 @app.server.route('/aliases/')
 def aliases():
-    """<p>Get the aliases of the OMEGA iServers.</p>
+    """<p>Get the aliases of all OMEGA iServers.</p>
 
     <h3>Parameters</h3>
     <p>None, this endpoint does not require parameters.</p>
@@ -618,7 +618,7 @@ def fetch():
 def api_help():
     """Display the help for each API endpoint."""
     docs = [{'name': route.__name__, 'value': route.__doc__}
-            for route in [aliases, databases, fetch, now, reports]]
+            for route in [aliases, connections, databases, fetch, now, reports]]
     return render_template('help.html', docs=docs, version=__version__, url_root=request.url_root)
 
 
@@ -785,6 +785,52 @@ def reports():
             cal_reports[serial] = items
 
     return jsonify(cal_reports)
+
+
+@app.server.route('/connections/')
+def connections():
+    """<p>Get the Connection Records of all OMEGA iServers.</p>
+
+    <h3>Parameters</h3>
+    <p>None, this endpoint does not require parameters.</p>
+
+    <h3>Returns</h3>
+    <p>The keys are the aliases of each iServer and the values
+    are the Connection Records.</p>
+
+    <p><i>Example:</i></p>
+    <div class="highlight-console"><div class="highlight"><span class="go">
+<pre>{
+  "Mass2": {
+    "address": "TCP::192.168.1.200::1875",
+    "backend": "MSL",
+    "interface": "SOCKET",
+    "manufacturer": "OMEGA",
+    "model": "iTHX-W",
+    "properties": {
+      "mac_address": "00:03:34:00:40:71",
+      "nprobes": 2,
+      "termination": "b'\\r'",
+      "timeout": 10
+    },
+    "serial": "6789"
+  },
+  "Photometric bench": {
+    "address": "TCP::192.168.1.201::1875",
+    "backend": "MSL",
+    "interface": "SOCKET",
+    "manufacturer": "OMEGA",
+    "model": "iTHX-W3-5",
+    "properties": {
+      "mac_address": "00:03:34:01:94:EC",
+      "termination": "b'\\r'",
+      "timeout": 10
+    },
+    "serial": "12345"
+  }
+}</pre></span></div></div>
+    """
+    return jsonify({v.alias: v.connection.to_json() for v in omegas.values()})
 
 
 @app.callback(

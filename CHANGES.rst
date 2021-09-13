@@ -4,19 +4,41 @@ Release Notes
 
 Version 0.3.0.dev0
 ==================
+This release is not backward compatible. The structure of the
+database table has changed. To upgrade to this version you must
+also::
+
+1) Update MSL-Equipment
+
+   ``pip install -U https://github.com/MSLNZ/msl-equipment/archive/main.zip``
+
+2) Update the databases
+
+   a) copy the ``convert_databases.py`` script to your computer
+   b) update the value of ``log_dir`` in the script
+   c) run the script
 
 - Added
 
   * a ``Page not found`` template is used for all invalid routes
   * option to disable logging on the WSGI Server by adding a
     ``disable_request_logging`` XML element in the configuration file
-  * the ``/help`` and ``/databases`` routes
+  * the ``/connections``, ``/databases``, ``/help`` and ``/reports`` routes
   * support for using a ``Validator`` to check if the data from an OMEGA
     iServer is valid and should be inserted into a database
   * the ``SimpleRange`` and ``WithReset`` validators
+  * the ``CalibrationReport.to_json`` method
 
 - Changed
 
+  * the structure of the database table
+    - add a Primary ID field
+    - rename the `timestamp` field to be `datetime`
+    - the date and time separator is now a **T**
+    - remove the microsecond part from the time
+  * the separator between a date and time is now always a **T**
+  * the `report/temperature` and `report/humidity` XML elements in a configuration
+    file support an attribute name of either `unit` or `units`
   * the paths to the register files in a configuration file can be relative paths
     (relative to directory of the configuration file).
   * a ``report_number`` key is now included in the response of the ``/now`` and

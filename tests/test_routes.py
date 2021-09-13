@@ -947,3 +947,35 @@ def test_reports_invalid_date(route, date):
 def test_reports_no_results(route):
     json = get(route, params={'alias': 'invalid'}).json()
     assert json == {}
+
+
+@pytest.mark.parametrize('route', ['/connections', '/connections/'])
+def test_connections(route):
+    json = get(route).json()
+    assert json == {
+        'b': {
+            'address': 'TCP::127.0.0.1::1876',
+            'backend': 'MSL',
+            'interface': 'SOCKET',
+            'manufacturer': 'OMEGA',
+            'model': 'iTHX-W3-5',
+            'properties': {
+                'termination': "b'\\r'",
+                'timeout': 5
+            },
+            'serial': '01234'
+        },
+        'f': {
+            'address': 'TCP::127.0.0.1::1876',
+            'backend': 'MSL',
+            'interface': 'SOCKET',
+            'manufacturer': 'OMEGA',
+            'model': 'iTHX-W',
+            'properties': {
+                'termination': "b'\\r'",
+                'timeout': 5,
+                'nprobes': 2
+            },
+            'serial': '56789'
+        }
+    }
