@@ -6,7 +6,7 @@ Version 0.3.0.dev0
 ==================
 This release is not backward compatible. The structure of the
 database table has changed. To upgrade to this version you must
-also::
+also:
 
 1) Update MSL-Equipment
 
@@ -14,10 +14,12 @@ also::
 
 2) Update the databases
 
-   a) copy the ``convert_databases.py`` script (located in the root
+   i) copy the ``convert_databases.py`` script (located in the root
       directory of the repository) to your computer
-   b) update the value of ``log_dir`` in the script
-   c) run the script
+   ii) update the value of ``log_dir`` in the script
+   iii) run the script
+
+The following features have been made:
 
 - Added
 
