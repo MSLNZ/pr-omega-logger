@@ -12,9 +12,17 @@ Install
 
 Usage
 -----
+To start the web application and to log the data from the iServers, run
+
 .. code-block:: console
 
    omega-logger /path/to/config.xml
+
+To backup all databases (requires Python 3.7+), run
+
+.. code-block:: console
+
+   omega-logger /path/to/config.xml --backup
 
 Documentation
 -------------
@@ -110,6 +118,12 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
 
         <!-- Optional: Whether to disable logging on the WSGI Server. -->
         <disable_request_logging>true</disable_request_logging>
+
+        <!--
+          Optional: The directory to save the database backup to.
+          If not specified then uses the "<log_dir>/backup" directory.
+        -->
+        <backup_dir>D:\OMEGA\backup</backup_dir>
 
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>

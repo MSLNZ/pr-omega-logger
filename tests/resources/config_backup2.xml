@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<msl>
+    <log_dir>tests/resources</log_dir>
+    <backup_dir>tests/resources/temp/xxx</backup_dir>
+</msl>

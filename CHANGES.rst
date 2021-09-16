@@ -23,6 +23,7 @@ The following features have been made:
 
 - Added
 
+  * ``--backup`` command-line flag, which can be used to run a database backup
   * a ``Page not found`` template is used for all invalid routes
   * option to disable logging on the WSGI Server by adding a
     ``disable_request_logging`` XML element in the configuration file
