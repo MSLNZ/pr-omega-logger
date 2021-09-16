@@ -125,10 +125,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         -->
         <backup_dir>D:\OMEGA\backup</backup_dir>
 
-        <!--
-          Optional: Settings for sending an email.
-          See MSL-IO for more details.
-        -->
+        <!-- Optional: Settings for sending an email. See MSL-IO for more details. -->
         <smtp>
           <settings>path/to/smtp_settings</settings>
           <from>me</from>
@@ -146,6 +143,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             12481415
         </serials>
 
+        <!-- The calibration reports. -->
         <calibrations>
             <omega serial="4370757">
                 <report date="2018-07-21" number="Humidity/2018/386">
