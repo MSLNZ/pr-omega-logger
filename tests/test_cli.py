@@ -8,9 +8,14 @@ import pytest
 
 def test_no_args():
     process = run(['omega-logger'], stderr=PIPE, stdout=PIPE)
-    assert process.returncode == 1
+    assert process.returncode == 0
+    assert process.stdout.startswith(b'usage: omega-logger')
+    assert not process.stderr
+
+    process = run(['omega-logger', '--backup'], stderr=PIPE, stdout=PIPE)
+    assert process.returncode == 2
     assert not process.stdout
-    assert process.stderr.startswith(b'You must pass in the path to the XML configuration file')
+    assert b'the following arguments are required: config' in process.stderr
 
 
 def test_invalid_config_path():

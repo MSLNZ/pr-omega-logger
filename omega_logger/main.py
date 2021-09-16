@@ -12,9 +12,12 @@ import sys
 import time
 import logging
 import sqlite3
+import argparse
 
 from msl.io import search
 from msl.equipment import Config
+
+from . import __version__
 
 
 def run_webapp(cfg, xml):
@@ -159,12 +162,34 @@ def run_backup(log_dir, backup_dir=None):
     logger.info('----- FINISH BACKUP -----')
 
 
-def start():
-    if len(sys.argv) == 1:
-        print('You must pass in the path to the XML configuration file.', file=sys.stderr)
-        return 1
+def start(*args):
+    if not args:
+        args = sys.argv[1:]
+        if not args:
+            args = ['--help']
 
-    xml = os.path.abspath(sys.argv[1])
+    parser = argparse.ArgumentParser(
+        description='Start all OMEGA loggers and the web server or perform a database backup.'
+    )
+    parser.add_argument(
+        '-V', '--version',
+        action='version',
+        version='{}'.format(__version__),
+        help='show the version number and exit'
+    )
+    parser.add_argument(
+        'config',
+        help='the path to a configuration file'
+    )
+    parser.add_argument(
+        '-b', '--backup',
+        action='store_true',
+        default=False,
+        help='perform a database backup'
+    )
+    args = parser.parse_args(args)
+
+    xml = os.path.abspath(args.config)
     try:
         cfg = Config(xml)
     except OSError as e:
@@ -181,7 +206,7 @@ def start():
         print(f'The log_dir value of {log_dir!r} is not a valid directory.', file=sys.stderr)
         return 1
 
-    if '--backup' in sys.argv:
+    if args.backup:
         return run_backup(log_dir, cfg.value('backup_dir'))
 
     return run_webapp(cfg, xml)
