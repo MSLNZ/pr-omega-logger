@@ -114,7 +114,10 @@ def run_backup(cfg):
 
     def send_email(body):
         if smtp is not None:
-            email(smtp, body, subject='[omega-logger] Database backup issue')
+            try:
+                email(smtp, body, subject='[omega-logger] Database backup issue')
+            except Exception as err:
+                logger.error(f'cannot send email: {err}')
 
     smtp = cfg.find('smtp')
     log_dir = cfg.value('log_dir')
