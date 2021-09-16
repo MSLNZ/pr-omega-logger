@@ -18,6 +18,7 @@ from msl.io import search
 from msl.equipment import Config
 
 from . import __version__
+from .utils import email
 
 
 def run_webapp(cfg):
@@ -111,7 +112,15 @@ def run_backup(cfg):
         print('Can only perform a database backup with Python 3.7 or later', file=sys.stderr)
         return 1
 
-    if not backup_dir:
+    def send_email(body):
+        if smtp is not None:
+            email(smtp, body, subject='[omega-logger] Database backup issue')
+
+    smtp = cfg.find('smtp')
+    log_dir = cfg.value('log_dir')
+    if cfg.find('backup_dir') is not None:
+        backup_dir = cfg.value('backup_dir')
+    else:
         backup_dir = os.path.join(log_dir, 'backup')
 
     os.makedirs(backup_dir, exist_ok=True)
@@ -130,45 +139,58 @@ def run_backup(cfg):
 
     logger.info('----- START  BACKUP -----')
     for file in search(log_dir, pattern=r'\.sqlite3$'):
-        original = sqlite3.connect(file)
-        logger.info(f'processing {os.path.basename(file)}')
+        basename = os.path.basename(file)
+        logger.info(f'processing {basename}')
 
         # make sure that the database is not corrupt
+        original = sqlite3.connect(file)
         check = original.execute('PRAGMA integrity_check;').fetchall()
         if check != [('ok',)]:
-            corrupt = '\n  '.join(item for row in check for item in row)
-            logger.error(f'integrity check failed, database is corrupt:\n  {corrupt}')
             original.close()
+            corrupt = '\n  '.join(item for row in check for item in row)
+            msg = f'integrity check failed for {basename}\nThe database is corrupt:\n  {corrupt}'
+            logger.error(msg)
+            send_email(msg)
             continue
         logger.info('integrity check passed')
 
         # create the backup
-        backup = sqlite3.connect(os.path.join(backup_dir, os.path.basename(file)))
+        backup = sqlite3.connect(os.path.join(backup_dir, basename))
         try:
             original.backup(backup)
         except sqlite3.Error as e:
-            logger.exception(e)
+            msg = f'backup error for {basename}\n{e.__class__.__name__}: {e}'
+            logger.exception(msg)
+            send_email(msg)
             continue
         logger.info('created backup')
 
         # verify backup
+        mismatch = False
         cursor = backup.execute('SELECT * FROM data;')
         for record in original.execute('SELECT * FROM data;'):
             fetched = cursor.fetchone()
             if record != fetched:
-                logger.error(
-                    f'verifying backup failed, record mismatch:'
-                    f'\n  original={record}'
-                    f'\n    backup={fetched}'
-                )
-                backup.close()
-                original.close()
+                msg = f'verifying backup failed for {basename}\n' \
+                      f'record mismatch:' \
+                      f'\n  original={record}' \
+                      f'\n    backup={fetched}'
+                logger.error(msg)
+                send_email(msg)
+                mismatch = True
                 break
+
+        if mismatch:
+            backup.close()
+            original.close()
+            continue
 
         if cursor.fetchone() is None:
             logger.info('verified backup')
         else:
-            logger.error('verifying backup failed, database size mismatch')
+            msg = f'verifying backup failed for {basename}, database size mismatch'
+            logger.error(msg)
+            send_email(msg)
 
         backup.close()
         original.close()

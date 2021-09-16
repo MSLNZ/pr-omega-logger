@@ -13,6 +13,7 @@ except ImportError:
     # has been moved to the main Dash repo
     import dash_html_components as html
 from msl.equipment.resources.omega.ithx import iTHX
+from msl.io import send_email
 
 
 def datetime_range_picker_kwargs(cfg):
@@ -489,3 +490,27 @@ def database_info(log_dir, omegas):
             }
 
     return info
+
+
+def email(smtp, body, subject='[omega-logger] Issue'):
+    """Send an email.
+
+    Parameters
+    ----------
+    smtp : :class:`~xml.etree.ElementTree.Element`
+        The <smtp> element from the configuration file.
+    body : :class:`str`
+        The text to include in the body of the email.
+    subject : :class:`str`, optional
+        The text to include in the subject field.
+    """
+    settings = smtp.findtext('settings')
+    frm = smtp.findtext('from')
+    for name in smtp.findall('to'):
+        send_email(
+            name.text,
+            settings,
+            subject=subject,
+            body=body,
+            frm=frm
+        )

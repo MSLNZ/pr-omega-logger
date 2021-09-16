@@ -19,10 +19,11 @@ also:
    ii) update the value of ``log_dir`` in the script
    iii) run the script
 
-The following features have been made:
+The following additions/changes have been made:
 
 - Added
 
+  * ability to send an email
   * ``--backup`` command-line flag, which can be used to run a database backup
   * a ``Page not found`` template is used for all invalid routes
   * option to disable logging on the WSGI Server by adding a
