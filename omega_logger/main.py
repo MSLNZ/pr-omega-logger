@@ -147,11 +147,15 @@ def run_backup(cfg):
 
         # make sure that the database is not corrupt
         original = sqlite3.connect(file)
-        check = original.execute('PRAGMA integrity_check;').fetchall()
+        try:
+            check = original.execute('PRAGMA integrity_check;').fetchall()
+        except sqlite3.DatabaseError as err:
+            check = [(str(err),)]
+
         if check != [('ok',)]:
             original.close()
-            corrupt = '\n  '.join(item for row in check for item in row)
-            msg = f'integrity check failed for {basename}\nThe database is corrupt:\n  {corrupt}'
+            issues = '\n  '.join(item for row in check for item in row)
+            msg = f'integrity check failed for {basename}\nThe database is corrupt:\n  {issues}'
             logger.error(msg)
             send_email(msg)
             continue

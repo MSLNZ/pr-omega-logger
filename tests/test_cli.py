@@ -74,6 +74,10 @@ def test_backup_default_dir():
     lines = [line[24:] for line in process.stdout.decode().splitlines()]  # ignore the datetime
     assert lines == [
         '[INFO ] ----- START  BACKUP -----',
+        '[INFO ] processing corrupt.sqlite3',
+        '[ERROR] integrity check failed for corrupt.sqlite3',
+        '',  # skipped the first 24 characters
+        ' malformed',  # skipped the first 24 characters
         '[INFO ] processing iTHX-W3-5_01234.sqlite3',
         '[INFO ] integrity check passed',
         '[INFO ] created backup',
@@ -84,6 +88,7 @@ def test_backup_default_dir():
         '[INFO ] verified backup',
         '[INFO ] ----- FINISH BACKUP -----'
     ]
+    assert not os.path.isfile(os.path.join(backup_dir, 'corrupt.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'iTHX-W3-5_01234.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'iTHX-W_56789.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'log.txt'))
@@ -103,6 +108,10 @@ def test_backup_dir():
     lines = [line[24:] for line in process.stdout.decode().splitlines()]  # ignore the datetime
     assert lines == [
         '[INFO ] ----- START  BACKUP -----',
+        '[INFO ] processing corrupt.sqlite3',
+        '[ERROR] integrity check failed for corrupt.sqlite3',
+        '',  # skipped the first 24 characters
+        ' malformed',  # skipped the first 24 characters
         '[INFO ] processing iTHX-W3-5_01234.sqlite3',
         '[INFO ] integrity check passed',
         '[INFO ] created backup',
@@ -113,6 +122,7 @@ def test_backup_dir():
         '[INFO ] verified backup',
         '[INFO ] ----- FINISH BACKUP -----'
     ]
+    assert not os.path.isfile(os.path.join(backup_dir, 'xxx', 'corrupt.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W3-5_01234.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W_56789.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'log.txt'))
