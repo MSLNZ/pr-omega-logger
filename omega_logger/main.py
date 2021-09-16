@@ -1,5 +1,5 @@
 """
-Start all OMEGA loggers and the web server or perform a database backup.
+Start all OMEGA loggers and the web application or perform a database backup.
 
 Usage:
 
@@ -20,7 +20,14 @@ from msl.equipment import Config
 from . import __version__
 
 
-def run_webapp(cfg, xml):
+def run_webapp(cfg):
+    """Run the web application and log the data from the iServers.
+
+    Parameters
+    ----------
+    cfg : :class:`~msl.equipment.config.Config`
+        The configuration instance.
+    """
     serials = cfg.value('serials')
     if not serials:
         print('You have not specified a serial number of an OMEGA iServer.\n'
@@ -53,7 +60,7 @@ def run_webapp(cfg, xml):
     def get_absolute_path(p):
         if not os.path.dirname(p) or p.startswith('.'):
             # assume relative to the directory of the configuration file
-            return os.path.abspath(os.path.join(os.path.dirname(xml), p))
+            return os.path.abspath(os.path.join(os.path.dirname(cfg.path), p))
         return os.path.abspath(p)
 
     i = 0
@@ -81,17 +88,24 @@ def run_webapp(cfg, xml):
         print('OS is not Windows or Linux', file=sys.stderr)
         return 1
 
-    # start all OMEGA loggers
+    # start logging all OMEGA iServers
     for serial in serials:
-        cmd = prefix + ' '.join([sys.executable, '-m', 'omega', f'"{xml}"', serial])
+        cmd = prefix + ' '.join([sys.executable, '-m', 'omega', f'"{cfg.path}"', serial])
         os.system(cmd)
 
     # start the Dash web application
-    cmd = prefix + ' '.join([sys.executable, '-m', 'webapp', f'"{xml}"', ','.join(serials)])
+    cmd = prefix + ' '.join([sys.executable, '-m', 'webapp', f'"{cfg.path}"', ','.join(serials)])
     os.system(cmd)
 
 
-def run_backup(log_dir, backup_dir=None):
+def run_backup(cfg):
+    """Run the database backup.
+
+    Parameters
+    ----------
+    cfg : :class:`~msl.equipment.config.Config`
+        The configuration instance.
+    """
     if sys.version_info[:2] < (3, 7):
         # the sqlite3.Connection.backup() method was added in Python 3.7
         print('Can only perform a database backup with Python 3.7 or later', file=sys.stderr)
@@ -163,13 +177,14 @@ def run_backup(log_dir, backup_dir=None):
 
 
 def start(*args):
+    """Entry point for the console script."""
     if not args:
         args = sys.argv[1:]
         if not args:
             args = ['--help']
 
     parser = argparse.ArgumentParser(
-        description='Start all OMEGA loggers and the web server or perform a database backup.'
+        description='Start all OMEGA loggers and the web application or perform a database backup.'
     )
     parser.add_argument(
         '-V', '--version',
@@ -189,9 +204,8 @@ def start(*args):
     )
     args = parser.parse_args(args)
 
-    xml = os.path.abspath(args.config)
     try:
-        cfg = Config(xml)
+        cfg = Config(os.path.abspath(args.config))
     except OSError as e:
         print(f'{e.__class__.__name__}: {e}', file=sys.stderr)
         return 1
@@ -207,6 +221,5 @@ def start(*args):
         return 1
 
     if args.backup:
-        return run_backup(log_dir, cfg.value('backup_dir'))
-
-    return run_webapp(cfg, xml)
+        return run_backup(cfg)
+    return run_webapp(cfg)
