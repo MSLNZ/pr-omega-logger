@@ -84,7 +84,7 @@ for filename in db_files:
             cursor.execute('SELECT * from data;')
             for i, row in enumerate(cursor.fetchall()):
                 date_time = row[0][:10]+'T'+row[0][11:19]
-                assert len(date_time) == 19
+                assert len(date_time) == 19, 'invalid datetime length'
                 values = (date_time, *row[1:])
                 if len(values) == 4:
                     new.execute('INSERT INTO data VALUES (NULL, ?, ?, ?, ?);', values)
@@ -96,21 +96,19 @@ for filename in db_files:
 
     # verify the data was inserted correctly
     print('  loading databases to verify...')
-    with closing(sqlite3.connect(original_database)) as orig:
-        cursor_orig = orig.cursor()
-        cursor_orig.execute('SELECT * from data;')
-        data_orig = cursor_orig.fetchall()
     with closing(sqlite3.connect(new_database)) as new:
-        cursor_new = new.cursor()
-        cursor_new.execute('SELECT * from data;')
-        data_new = cursor_new.fetchall()
-    assert len(data_orig) == len(data_new)
-    for i, (row_orig, row_new) in enumerate(zip(data_orig, data_new)):
-        assert row_new[0] == i+1, f'{row_new[0]} != {i+1}'
-        assert row_orig[0].replace(' ', 'T')[:19] == row_new[1], f'{row_orig[0]} != {row_new[1]}'
-        assert row_orig[1:] == row_new[2:], f'{row_orig[1:]} != {row_new[2:]}'
-        if i % 10000 == 0:
-            print(f'  at row {i} -- VERIFIED!')
+        cursor_new = new.execute('SELECT * from data;')
+        with closing(sqlite3.connect(original_database)) as orig:
+            i = 1
+            for row_orig in orig.execute('SELECT * from data;'):
+                row_new = cursor_new.fetchone()
+                assert row_new[0] == i, f'{row_new[0]} != {i}'
+                assert row_orig[0].replace(' ', 'T')[:19] == row_new[1], f'{row_orig[0]} != {row_new[1]}'
+                assert row_orig[1:] == row_new[2:], f'{row_orig[1:]} != {row_new[2:]}'
+                if i % 10000 == 0:
+                    print(f'  at row {i} -- VERIFIED!')
+                i += 1
+            assert cursor_new.fetchone() is None, 'database size mismatch'
 
     # conversion successful, replace original database
     os.remove(original_database)
