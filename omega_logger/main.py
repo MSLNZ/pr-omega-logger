@@ -160,7 +160,7 @@ def run_backup(cfg):
     logger.setLevel(logging.INFO)
 
     logger.info('----- START  BACKUP -----')
-    for file in search(log_dir, pattern=r'\.sqlite3$'):
+    for file in sorted(search(log_dir, pattern=r'\.sqlite3$')):
         basename = os.path.basename(file)
         logger.info(f'processing {basename}')
 
