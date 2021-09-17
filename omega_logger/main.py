@@ -19,6 +19,7 @@ from msl.equipment import Config
 
 from . import __version__
 from .utils import email
+from .omega import DEFAULT_WAIT
 
 
 def run_webapp(cfg):
@@ -116,9 +117,27 @@ def run_backup(cfg):
         if smtp is not None:
             try:
                 email(smtp, body, subject='[omega-logger] Database backup issue')
-            except Exception as err:
-                logger.error(f'cannot send email: {err}')
+            except Exception as exc:
+                logger.error(f'cannot send email: {exc}')
 
+    def safe(minimum=1, maximum=10):
+        # Return whether it is safe to continue with the backup.
+        # There are 2 cases to consider:
+        # 1) the OMEGA iServer is available on the network and values
+        #    are being inserted into the database every <wait> seconds
+        # 2) it has been a while since the database was modified. This
+        #    could be a result of an iServer that is not currently being
+        #    used (not plugged in) but a database file exists or the
+        #    iServer is not available on the network and reading the
+        #    values from it keeps raising a TimeoutError
+        dt = time.time() - os.stat(file).st_mtime
+        if dt < wait:  # case 1
+            return minimum < dt < maximum
+
+        # TODO case 2, not really sure what condition to check
+        return dt > 5 * wait
+
+    wait = cfg.value('wait', DEFAULT_WAIT)
     smtp = cfg.find('smtp')
     log_dir = cfg.value('log_dir')
     if cfg.find('backup_dir') is not None:
@@ -144,6 +163,19 @@ def run_backup(cfg):
     for file in search(log_dir, pattern=r'\.sqlite3$'):
         basename = os.path.basename(file)
         logger.info(f'processing {basename}')
+
+        # Only start the backup process if it is safe to do so.
+        # Don't want to start a backup when there is a chance
+        # that a new record will be inserted into the original
+        # database during the backup process.
+        #
+        # Ignore this check when running the tests.
+        min_dt, max_dt = 1, 10
+        if log_dir != 'tests/resources' and not safe(minimum=min_dt, maximum=max_dt):
+            logger.info(f'waiting for the last INSERT event to be '
+                        f'>{min_dt} and <{max_dt} seconds ago')
+            while not safe(minimum=min_dt, maximum=max_dt):
+                time.sleep(1)
 
         # make sure that the database is not corrupt
         original = sqlite3.connect(file)

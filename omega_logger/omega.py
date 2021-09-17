@@ -10,6 +10,8 @@ from msl.equipment import Config
 
 from validators import validator_map
 
+DEFAULT_WAIT = 60
+
 
 class AliasFormatter(logging.Formatter):
 
@@ -68,7 +70,7 @@ try:
 
     iserver.start_logging(
         cfg.value('log_dir'),
-        wait=cfg.value('wait', 60),
+        wait=cfg.value('wait', DEFAULT_WAIT),
         nprobes=nprobes,
         nbytes=record.connection.properties.get('nbytes'),
         msg_format=msg_format,
