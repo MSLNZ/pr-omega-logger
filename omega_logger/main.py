@@ -172,7 +172,7 @@ def run_backup(cfg):
         # Ignore this check when running the tests.
         min_dt, max_dt = 1, 10
         if log_dir != 'tests/resources' and not safe(minimum=min_dt, maximum=max_dt):
-            logger.info(f'waiting for the last INSERT event to be '
+            logger.info(f'waiting for the last database modification to be '
                         f'>{min_dt} and <{max_dt} seconds ago')
             while not safe(minimum=min_dt, maximum=max_dt):
                 time.sleep(1)
