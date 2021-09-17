@@ -227,7 +227,8 @@ def run_backup(cfg):
         if cursor.fetchone() is None:
             logger.info('verified backup')
         else:
-            msg = f'verifying backup failed for {basename}, database size mismatch'
+            msg = f'verifying backup failed for {basename}, ' \
+                  f'the backed up database contains more records than the original database'
             logger.error(msg)
             send_email(msg)
 
