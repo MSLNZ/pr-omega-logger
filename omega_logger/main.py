@@ -147,6 +147,10 @@ def run_backup(cfg):
 
     os.makedirs(backup_dir, exist_ok=True)
 
+    # where to move a backed-up and corrupt database to
+    corrupt_dir = os.path.join(backup_dir, 'corrupt')
+    os.makedirs(corrupt_dir, exist_ok=True)
+
     # set up logging
     formatter = logging.Formatter('%(asctime)s [%(levelname)-5s] %(message)s')
     formatter.default_msec_format = '%s.%03d'
@@ -194,10 +198,14 @@ def run_backup(cfg):
         logger.info('integrity check passed')
 
         # create the backup
-        backup = sqlite3.connect(os.path.join(backup_dir, basename))
+        backup_filename = os.path.join(backup_dir, basename)
+        backup = sqlite3.connect(backup_filename)
         try:
             original.backup(backup)
-        except sqlite3.Error as e:
+        except Exception as e:
+            original.close()
+            backup.close()
+            os.replace(backup_filename, os.path.join(corrupt_dir, basename))
             msg = f'backup error for {basename}\n{e.__class__.__name__}: {e}'
             logger.exception(msg)
             send_email(msg)
@@ -222,18 +230,20 @@ def run_backup(cfg):
         if mismatch:
             backup.close()
             original.close()
+            os.replace(backup_filename, os.path.join(corrupt_dir, basename))
             continue
 
+        original.close()
         if cursor.fetchone() is None:
+            backup.close()
             logger.info('verified backup')
         else:
+            backup.close()
+            os.replace(backup_filename, os.path.join(corrupt_dir, basename))
             msg = f'verifying backup failed for {basename}, ' \
                   f'the backed up database contains more records than the original database'
             logger.error(msg)
             send_email(msg)
-
-        backup.close()
-        original.close()
 
     logger.info('----- FINISH BACKUP -----')
 
