@@ -9,6 +9,8 @@ def test_no_args():
     assert process.stdout.startswith(b'usage: omega-logger')
     assert not process.stderr
 
+
+def test_no_config():
     process = run(['omega-logger', '--backup'], stderr=PIPE, stdout=PIPE)
     assert process.returncode == 2
     assert not process.stdout
