@@ -18,7 +18,7 @@ To start the web application and to log the data from the iServers, run
 
    omega-logger /path/to/config.xml
 
-To backup all databases (requires Python 3.7+), run
+To backup all databases, run
 
 .. code-block:: console
 

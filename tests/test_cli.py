@@ -1,9 +1,6 @@
 import os
-import sys
 import shutil
 from subprocess import run, PIPE
-
-import pytest
 
 
 def test_no_args():
@@ -60,7 +57,6 @@ def test_no_connections():
     assert process.stderr.startswith(b'You have not specified a "connections/connection/path" element')
 
 
-@pytest.mark.skipif(sys.version_info[:2] < (3, 7), reason='requires Python 3.7+')
 def test_backup_default_dir():
     # the <backup_dir> XML element is not specified in config_backup.xml
     # so the default backup_dir is used
@@ -95,7 +91,6 @@ def test_backup_default_dir():
     shutil.rmtree(backup_dir)
 
 
-@pytest.mark.skipif(sys.version_info[:2] < (3, 7), reason='requires Python 3.7+')
 def test_backup_dir():
     # the <backup_dir> XML element is specified in config_backup2.xml
     backup_dir = os.path.join('tests', 'resources', 'temp')
@@ -127,11 +122,3 @@ def test_backup_dir():
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W_56789.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'log.txt'))
     shutil.rmtree(backup_dir)
-
-
-@pytest.mark.skipif(sys.version_info[:2] > (3, 6), reason='not Python 3.6')
-def test_backup_py36():
-    process = run(['omega-logger', 'tests/resources/config_backup.xml', '--backup'], stderr=PIPE, stdout=PIPE)
-    assert process.returncode == 1
-    assert not process.stdout
-    assert process.stderr.rstrip() == b'Can only perform a database backup with Python 3.7 or later'

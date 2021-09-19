@@ -14,7 +14,11 @@ import logging
 import sqlite3
 import argparse
 
-from msl.io import search
+from msl.io import (
+    search,
+    copy,
+    checksum,
+)
 from msl.equipment import Config
 
 from . import (
@@ -110,15 +114,15 @@ def run_backup(cfg):
     cfg : :class:`~msl.equipment.config.Config`
         The configuration instance.
     """
-    if sys.version_info[:2] < (3, 7):
-        # the sqlite3.Connection.backup() method was added in Python 3.7
-        print('Can only perform a database backup with Python 3.7 or later', file=sys.stderr)
-        return 1
-
-    def send_email(body):
+    def handle_error(message):
+        original.close()
+        if backup is not None:
+            backup.close()
+            os.replace(backup_file, corrupt_file)
+        logger.error(message)
         if smtp is not None:
             try:
-                email(smtp, body, subject='[omega-logger] Database backup issue')
+                email(smtp, message, subject='[omega-logger] Database backup issue')
             except Exception as exc:
                 logger.error(f'cannot send email: {exc}')
 
@@ -168,6 +172,10 @@ def run_backup(cfg):
     logger.info('----- START  BACKUP -----')
     for file in sorted(search(log_dir, pattern=r'\.sqlite3$')):
         basename = os.path.basename(file)
+        backup_file = os.path.join(backup_dir, basename)
+        corrupt_file = os.path.join(corrupt_dir, basename)
+        error_msg = ''
+        backup = None
         logger.info(f'processing {basename}')
 
         # Only start the backup process if it is safe to do so.
@@ -191,61 +199,56 @@ def run_backup(cfg):
             check = [(str(err),)]
 
         if check != [('ok',)]:
-            original.close()
             issues = '\n  '.join(item for row in check for item in row)
-            msg = f'integrity check failed for {basename}\nThe database is corrupt:\n  {issues}'
-            logger.error(msg)
-            send_email(msg)
+            handle_error(f'integrity check failed for {basename}\n'
+                         f'The database is corrupt:\n  {issues}')
             continue
         logger.info('integrity check passed')
 
         # create the backup
-        backup_filename = os.path.join(backup_dir, basename)
-        backup = sqlite3.connect(backup_filename)
+        backup = sqlite3.connect(backup_file)
         try:
             original.backup(backup)
-        except Exception as e:
-            original.close()
-            backup.close()
-            os.replace(backup_filename, os.path.join(corrupt_dir, basename))
-            msg = f'backup error for {basename}\n{e.__class__.__name__}: {e}'
-            logger.exception(msg)
-            send_email(msg)
+        except AttributeError:
+            # the sqlite3.Connection.backup() method was added in Python 3.7
+            copy(file, backup_file, overwrite=True)
+            if checksum(file) != checksum(backup_file):
+                error_msg = f'backup error for {basename}, checksum mismatch'
+        except sqlite3.Error as e:
+            error_msg = f'backup error for {basename}\n{e.__class__.__name__}: {e}'
+
+        if error_msg:
+            handle_error(error_msg)
             continue
         logger.info('created backup')
 
         # verify backup
-        mismatch = False
         cursor = backup.execute('SELECT * FROM data;')
         for record in original.execute('SELECT * FROM data;'):
             fetched = cursor.fetchone()
             if record != fetched:
-                msg = f'verifying backup failed for {basename}\n' \
-                      f'record mismatch:' \
-                      f'\n  original={record}' \
-                      f'\n    backup={fetched}'
-                logger.error(msg)
-                send_email(msg)
-                mismatch = True
+                error_msg = f'verifying backup failed for {basename}\n' \
+                            f'record mismatch:' \
+                            f'\n  original={record}' \
+                            f'\n    backup={fetched}'
                 break
 
-        if mismatch:
-            backup.close()
-            original.close()
-            os.replace(backup_filename, os.path.join(corrupt_dir, basename))
+        if error_msg:
+            handle_error(error_msg)
             continue
 
+        if cursor.fetchone() is not None:
+            handle_error(f'verifying backup failed for {basename}, '
+                         f'the backed up database contains more records than the original database')
+            continue
+
+        backup.close()
         original.close()
-        if cursor.fetchone() is None:
-            backup.close()
-            logger.info('verified backup')
-        else:
-            backup.close()
-            os.replace(backup_filename, os.path.join(corrupt_dir, basename))
-            msg = f'verifying backup failed for {basename}, ' \
-                  f'the backed up database contains more records than the original database'
-            logger.error(msg)
-            send_email(msg)
+        logger.info('verified backup')
+        try:
+            os.remove(corrupt_file)
+        except OSError:
+            pass
 
     logger.info('----- FINISH BACKUP -----')
 
