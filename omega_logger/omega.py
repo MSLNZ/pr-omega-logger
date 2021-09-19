@@ -16,6 +16,8 @@ from omega_logger import (
 
 class AliasFormatter(logging.Formatter):
 
+    default_msec_format = '%s.%03d'
+
     def __init__(self, fmt, alias):
         """Inserts the alias of the equipment record into a logging message."""
         super(AliasFormatter, self).__init__(fmt=fmt)
