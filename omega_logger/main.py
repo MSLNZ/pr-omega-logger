@@ -17,9 +17,11 @@ import argparse
 from msl.io import search
 from msl.equipment import Config
 
-from . import __version__
+from . import (
+    __version__,
+    DEFAULT_WAIT,
+)
 from .utils import email
-from .omega import DEFAULT_WAIT
 
 
 def run_webapp(cfg):
