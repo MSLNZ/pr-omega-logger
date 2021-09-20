@@ -474,20 +474,21 @@ def database_info(log_dir, omegas):
             # <serials> element of the configuration file
             continue
         file = os.path.join(log_dir, filename)
-        with sqlite3.connect(file) as db:
-            cursor = db.cursor()
-            cursor.execute("PRAGMA table_info('data');")
-            fields = [f[1] for f in cursor.fetchall()]
-            cursor.execute('SELECT MIN(datetime),MAX(datetime),COUNT(pid) FROM data;')
-            min_date, max_date, count = cursor.fetchone()
-            info[serial] = {
-                'alias': record.alias,
-                'fields': fields,
-                'file_size': human_file_size(os.stat(file).st_size),
-                'max_date': max_date,
-                'min_date': min_date,
-                'num_records': count,
-            }
+        db = sqlite3.connect(file)
+        cursor = db.cursor()
+        cursor.execute("PRAGMA table_info('data');")
+        fields = [f[1] for f in cursor.fetchall()]
+        cursor.execute('SELECT MIN(datetime),MAX(datetime),COUNT(pid) FROM data;')
+        min_date, max_date, count = cursor.fetchone()
+        info[serial] = {
+            'alias': record.alias,
+            'fields': fields,
+            'file_size': human_file_size(os.stat(file).st_size),
+            'max_date': max_date,
+            'min_date': min_date,
+            'num_records': count,
+        }
+        db.close()
 
     return info
 
