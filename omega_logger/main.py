@@ -244,14 +244,15 @@ def run_backup(cfg):
             handle_error(error_msg)
             continue
 
-        if num_missing > 1:
+        if num_missing > 0:
+            # lets see how often this error occurs before we start deciding what should happen
             handle_error(f'verifying backup failed for {basename}, '
-                         f'the backed up database is missing {num_missing} records')
+                         f'the backed-up database is missing {num_missing} record(s)')
             continue
 
         if cursor.fetchone() is not None:
             handle_error(f'verifying backup failed for {basename}, '
-                         f'the backed up database contains more records than the original database')
+                         f'the backed-up database contains more records than the original database')
             continue
 
         backup.close()
