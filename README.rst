@@ -125,7 +125,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         -->
         <backup_dir>D:\OMEGA\backup</backup_dir>
 
-        <!-- Optional: Settings for sending an email. See MSL-IO for more details. -->
+        <!-- Optional: Settings for sending an email (see MSL-IO). -->
         <smtp>
           <settings>path/to/smtp_settings</settings>
           <from>me</from>
