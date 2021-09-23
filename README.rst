@@ -18,11 +18,11 @@ To start the web application and to log the data from the iServers, run
 
    omega-logger /path/to/config.xml
 
-To backup all databases, run
+To see the help for the ``omega-logger`` command, run
 
 .. code-block:: console
 
-   omega-logger /path/to/config.xml --backup
+   omega-logger --help
 
 Documentation
 -------------
