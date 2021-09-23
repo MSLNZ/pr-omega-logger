@@ -292,6 +292,12 @@ def start(*args):
         default=False,
         help='perform a database backup'
     )
+    parser.add_argument(
+        '-t', '--test-email',
+        action='store_true',
+        default=False,
+        help='send a test email'
+    )
     args = parser.parse_args(args)
 
     try:
@@ -299,6 +305,13 @@ def start(*args):
     except OSError as e:
         print(f'{e.__class__.__name__}: {e}', file=sys.stderr)
         return 1
+
+    if args.test_email:
+        smtp = cfg.find('smtp')
+        if smtp is None:
+            print('There is no "smtp" element in the config file. Cannot send email.', file=sys.stderr)
+            return 1
+        return email(smtp, 'Test', subject='[omega-logger] Test')
 
     log_dir = cfg.value('log_dir')
     if not log_dir:

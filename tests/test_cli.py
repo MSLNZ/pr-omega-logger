@@ -124,3 +124,10 @@ def test_backup_dir():
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W_56789.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'log.txt'))
     shutil.rmtree(backup_dir)
+
+
+def test_email():
+    process = run(['omega-logger', 'tests/resources/config.xml', '--test-email'], stderr=PIPE, stdout=PIPE)
+    assert process.returncode == 1
+    assert not process.stdout
+    assert process.stderr.startswith(b'There is no "smtp" element in the config file. Cannot send email.')

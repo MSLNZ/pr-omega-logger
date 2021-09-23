@@ -24,6 +24,7 @@ The following additions/changes have been made:
 - Added
 
   * ability to send an email
+  * ``--test-email`` command-line flag, which can be used to send a test email
   * ``--backup`` command-line flag, which can be used to run a database backup
   * a ``Page not found`` template is used for all invalid routes
   * option to disable logging on the WSGI Server by adding a
