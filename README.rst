@@ -1,8 +1,8 @@
 |github tests|
 
-Logs the temperature, humidity and dew point from OMEGA iServers to a database
-and creates a Dash_ application. The application is accessed through a web
-browser at ``http://<host>:<port>``.
+Records the temperature, humidity and dew point from OMEGA iServers to a database
+and creates a web application to interact with the data. The application is
+accessed through a web browser at ``http://<host>:<port>``.
 
 Install
 -------
@@ -247,4 +247,3 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
    :target: https://github.com/MSLNZ/pr-omega-logger/actions/workflows/run-tests.yml
 
 .. _MSL-Equipment: https://msl-equipment.readthedocs.io/en/latest/
-.. _Dash: https://plot.ly/products/dash/
