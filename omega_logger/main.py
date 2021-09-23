@@ -1,10 +1,5 @@
 """
 Start all OMEGA loggers and the web application or perform a database backup.
-
-Usage:
-
-omega-logger /path/to/config.xml
-omega-logger /path/to/config.xml --backup
 """
 import os
 import re
@@ -313,7 +308,14 @@ def start(*args):
         if smtp is None:
             print('There is no "smtp" element in the config file. Cannot send email.', file=sys.stderr)
             return 1
-        return email(smtp, 'Test', subject='[omega-logger] Test')
+        try:
+            email(smtp, 'Test', subject='[omega-logger] Test')
+        except Exception as e:
+            print(f'{e.__class__.__name__}: {e}\nCannot send email', file=sys.stderr)
+            return 1
+        else:
+            print('Success')
+            return
 
     log_dir = cfg.value('log_dir')
     if not log_dir:
