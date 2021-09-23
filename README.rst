@@ -130,7 +130,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
           <settings>path/to/smtp_settings</settings>
           <from>me</from>
           <to>person1</to>
-          <!-- Can include multiple people to send the email to. --->
+          <!-- Can include multiple people to send the email to. -->
           <to>person2</to>
         </smtp>
 
