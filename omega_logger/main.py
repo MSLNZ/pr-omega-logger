@@ -274,7 +274,9 @@ def start(*args):
             args = ['--help']
 
     parser = argparse.ArgumentParser(
-        description='Start all OMEGA loggers and the web application or perform a database backup.'
+        description='Records the temperature, humidity and dew point from OMEGA iServers\n'
+                    'to a database and creates a web application to interact with the data.',
+        formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
         '-V', '--version',
@@ -290,13 +292,13 @@ def start(*args):
         '-b', '--backup',
         action='store_true',
         default=False,
-        help='perform a database backup'
+        help='perform a database backup and exit'
     )
     parser.add_argument(
         '-t', '--test-email',
         action='store_true',
         default=False,
-        help='send a test email'
+        help='send a test email and exit'
     )
     args = parser.parse_args(args)
 
