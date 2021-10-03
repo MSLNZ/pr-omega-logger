@@ -2,6 +2,10 @@
 Release Notes
 =============
 
+Version 0.4.0.dev0
+==================
+
+
 Version 0.3.0 (2021-10-03)
 ==========================
 This release is not backward compatible. The structure of the
