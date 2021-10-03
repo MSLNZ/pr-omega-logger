@@ -2,8 +2,8 @@
 Release Notes
 =============
 
-Version 0.3.0.dev0
-==================
+Version 0.3.0 (2021-10-03)
+==========================
 This release is not backward compatible. The structure of the
 database table has changed. To upgrade to this version you must
 also:
@@ -60,7 +60,7 @@ The following additions/changes have been made:
     ``serial`` value was used if it was specified)
 
 
-Version 0.2.0 (2021.03.10)
+Version 0.2.0 (2021-03-10)
 ==========================
 
 - Added
@@ -97,6 +97,6 @@ Version 0.2.0 (2021.03.10)
   * support for Python 2.7, 3.4 and 3.5
   * support for macOS
 
-Version 0.1.0 (2018.09.21)
+Version 0.1.0 (2018-09-21)
 ==========================
 - Initial release

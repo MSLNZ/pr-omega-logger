@@ -174,8 +174,8 @@ setup(
     author=fetch_init('__author__'),
     author_email='info@measurement.govt.nz',
     url='https://github.com/MSLNZ/pr-omega-logger',
-    description='Logs the temperature, humidity and dew point from OMEGA iServer\'s'
-                'and creates a Dash webapp to view the data',
+    description='Log the temperature, humidity and dew point from OMEGA iServers '
+                'and create a web application to interact with the data',
     long_description=read('README.rst'),
     license='MIT',
     classifiers=[
