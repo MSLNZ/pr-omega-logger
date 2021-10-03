@@ -1,6 +1,6 @@
 |github tests|
 
-Records the temperature, humidity and dew point from OMEGA iServers to a database
+Log the temperature, humidity and dew point from OMEGA iServers to a database
 and creates a web application to interact with the data. The application is
 accessed through a web browser at ``http://<host>:<port>``.
 
