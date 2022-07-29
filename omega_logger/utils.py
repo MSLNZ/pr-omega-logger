@@ -4,6 +4,7 @@ import sqlite3
 from math import log, floor
 from time import perf_counter
 from datetime import datetime, timedelta
+from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
 try:
@@ -157,6 +158,10 @@ def initialize_webapp(cfg, serials):
             if element.attrib.get('serial') == record.serial:
                 reports = [CalibrationReport(record.serial, dbase_file, report, record.alias)
                            for report in element.findall('report')]
+
+                if not reports:
+                    reports.append(DummyCalibrationReport(record, dbase_file))
+
                 components = sorted(set(r.component for r in reports))
                 for component in components:
                     label = record.alias
@@ -235,6 +240,40 @@ class CalibrationReport(object):
         return json
 
 
+class DummyCalibrationReport(CalibrationReport):
+
+    def __init__(self, record, dbase_file):
+        """Create a dummy calibration report
+
+        Parameters
+        ----------
+        record : :class:`msl.equipment.record_types.EquipmentRecord`
+            The equipment record of an OMEGA device.
+        dbase_file : :class:`str`
+            The path to the database file.
+        """
+        report = Element('report', date='1900-01-01', number='<uncalibrated>')
+        start_date = SubElement(report, 'start_date')
+        start_date.text = '1900-01-01'
+        end_date = SubElement(report, 'end_date')
+        end_date.text = '1900-01-01'
+        coverage_factor = SubElement(report, 'coverage_factor')
+        coverage_factor.text = 'NaN'
+        confidence = SubElement(report, 'confidence')
+        confidence.text = 'NaN'
+        temperature = SubElement(report, 'temperature', units="C", min="NaN", max="NaN")
+        coefficients = SubElement(temperature, 'coefficients')
+        coefficients.text = '0.0'
+        expanded_uncertainty = SubElement(temperature, 'expanded_uncertainty')
+        expanded_uncertainty.text = 'NaN'
+        humidity = SubElement(report, 'humidity', units="%rh", min="NaN", max="NaN")
+        coefficients = SubElement(humidity, 'coefficients')
+        coefficients.text = '0.0'
+        expanded_uncertainty = SubElement(humidity, 'expanded_uncertainty')
+        expanded_uncertainty.text = 'NaN'
+        super(DummyCalibrationReport, self).__init__(record.serial, dbase_file, report, record.alias)
+
+
 class HTMLTable(object):
 
     def __init__(self):
@@ -266,7 +305,7 @@ class HTMLTable(object):
         """
         tab = data.dtype.names[1]
         values = data[tab]
-        report_number = '<uncorrected>' if tab == 'dewpoint' else report.number
+        report_number = '<uncalibrated>' if tab == 'dewpoint' else report.number
         nrows = len(self._table)
         if values.size > 0:
 
