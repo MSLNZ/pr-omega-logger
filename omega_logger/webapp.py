@@ -197,6 +197,7 @@ def check_invalid_params(*allowed):
 
 
 @app.server.route('/<string:path1>/')
+@app.server.route('/<string:path1>/<path:path2>')
 @app.server.route('/<string:path1>/<path:path2>/')
 def page_not_found(**ignore):
     """Return page not found for all undefined routes."""
