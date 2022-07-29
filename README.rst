@@ -218,6 +218,11 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
                     </humidity>
                 </report>
             </omega>
+            <!--
+              If an OMEGA iServer does not have a calibration report then
+              just create an 'omega' tag and specify the 'serial' attribute.
+            -->
+            <omega serial="58741657"/>
         </calibrations>
 
         <!-- The path to the Equipment Records (see MSL-Equipment). -->

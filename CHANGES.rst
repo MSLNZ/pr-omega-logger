@@ -2,9 +2,13 @@
 Release Notes
 =============
 
-Version 0.4.0.dev0
-==================
+Version 0.4.0 (in development)
+==============================
+* Added
 
+  - Support for Python 3.10
+  - Can now add an OMEGA iServer to a configuration file even if the iServer
+    does not (yet) have a calibration report associated with it
 
 Version 0.3.0 (2021-10-03)
 ==========================
