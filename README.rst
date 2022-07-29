@@ -141,6 +141,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <serials>
             4370757
             12481415
+            58741657
         </serials>
 
         <!-- The calibration reports. -->
