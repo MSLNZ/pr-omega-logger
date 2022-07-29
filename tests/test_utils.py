@@ -1,4 +1,5 @@
 import os
+from math import isnan
 from datetime import datetime, timedelta
 
 import pytest
@@ -11,7 +12,7 @@ resources = os.path.join(os.path.dirname(__file__), 'resources')
 cfg = Config(os.path.join(resources, 'config.xml'))
 cfg.find('log_dir').text = resources
 
-serials = '01234,56789'
+serials = '01234,56789,abcde'
 
 
 def test_fromisoformat():
@@ -49,19 +50,26 @@ def test_fromisoformat():
 def test_initialize_webapp():
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, serials)
 
-    assert len(dropdown_options) == 3
+    assert len(dropdown_options) == 4
     assert dropdown_options[0] == {'label': 'b', 'value': 'b'}
     assert dropdown_options[1] == {'label': 'f - Probe 1', 'value': 'f - Probe 1'}
     assert dropdown_options[2] == {'label': 'f - Probe 2', 'value': 'f - Probe 2'}
+    assert dropdown_options[3] == {'label': 'g', 'value': 'g'}
 
-    assert len(calibrations) == 3
+    assert len(calibrations) == 4
     assert len(calibrations['b']) == 3
+    assert isinstance(calibrations['b'][0], utils.CalibrationReport)
     assert len(calibrations['f - Probe 1']) == 2
+    assert isinstance(calibrations['f - Probe 1'][0], utils.CalibrationReport)
     assert len(calibrations['f - Probe 2']) == 1
+    assert isinstance(calibrations['f - Probe 2'][0], utils.CalibrationReport)
+    assert len(calibrations['g']) == 1
+    assert isinstance(calibrations['g'][0], utils.DummyCalibrationReport)
 
-    assert len(omegas) == 2
+    assert len(omegas) == 3
     assert '01234' in omegas
     assert '56789' in omegas
+    assert 'abcde' in omegas
 
     cal = calibrations['b'][0]
     assert cal.serial == '01234'
@@ -195,6 +203,28 @@ def test_initialize_webapp():
     assert cal.humidity['coefficients'] == [4.2, 0.931, 0.00482]
     assert cal.humidity['expanded_uncertainty'] == 0.8
 
+    cal = calibrations['g'][0]
+    assert cal.serial == 'abcde'
+    assert os.path.basename(cal.dbase_file) == 'iTHX-W3_abcde.sqlite3'
+    assert cal.component == ''
+    assert cal.probe == ''
+    assert cal.date == utils.fromisoformat('1900-01-01')
+    assert cal.number == '<uncalibrated>'
+    assert cal.start_date == utils.fromisoformat('1900-01-01')
+    assert cal.end_date == utils.fromisoformat('1900-01-01')
+    assert isnan(cal.coverage_factor)
+    assert cal.confidence == 'NaN'
+    assert cal.temperature['unit'] == 'C'
+    assert isnan(cal.temperature['min'])
+    assert isnan(cal.temperature['max'])
+    assert cal.temperature['coefficients'] == [0.0]
+    assert isnan(cal.temperature['expanded_uncertainty'])
+    assert cal.humidity['unit'] == '%rh'
+    assert isnan(cal.humidity['min'])
+    assert isnan(cal.humidity['max'])
+    assert cal.humidity['coefficients'] == [0.0]
+    assert isnan(cal.humidity['expanded_uncertainty'])
+
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, '01234')
     assert len(dropdown_options) == 1
     assert dropdown_options[0] == {'label': 'b', 'value': 'b'}
@@ -212,6 +242,14 @@ def test_initialize_webapp():
     assert len(calibrations['f - Probe 2']) == 1
     assert len(omegas) == 1
     assert '56789' in omegas
+
+    dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, 'abcde')
+    assert len(dropdown_options) == 1
+    assert dropdown_options[0] == {'label': 'g', 'value': 'g'}
+    assert len(calibrations) == 1
+    assert len(calibrations['g']) == 1
+    assert len(omegas) == 1
+    assert 'abcde' in omegas
 
 
 def test_initialize_webapp_config_minimal():

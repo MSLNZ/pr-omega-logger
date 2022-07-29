@@ -3,7 +3,7 @@
     <host>127.0.0.1</host>
     <port>1875</port>
     <log_dir>../tests/resources</log_dir>
-    <serials>01234, 56789</serials>
+    <serials>01234, 56789, abcde</serials>
     <disable_request_logging>true</disable_request_logging>
     <datetime_range_picker>
         <start>
@@ -131,6 +131,7 @@
                 </humidity>
             </report>
         </omega>
+        <omega serial="abcde"/>
     </calibrations>
     <registers>
         <register>

@@ -5,3 +5,4 @@ aaa,bbb,ccc,a,COM1,MSL,
 OMEGA,iTHX-W,56789,f,TCP::127.0.0.1::1876,MSL,termination=\r;nprobes=2;timeout=5
 111,222,333,e,COM2,MSL,
 OMEGA,iTHX-W3-5,78612,c,TCP::notused::0,MSL,
+OMEGA,iTHX-W3,abcde,g,TCP::127.0.0.1::1876,MSL,termination=\r;timeout=5
