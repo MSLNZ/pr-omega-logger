@@ -235,12 +235,14 @@ def test_initialize_webapp():
     assert cal.temperature['unit'] == 'C'
     assert isnan(cal.temperature['min'])
     assert isnan(cal.temperature['max'])
-    assert cal.temperature['coefficients'] == [0.0]
+    assert len(cal.temperature['coefficients']) == 1
+    assert isnan(cal.temperature['coefficients'][0])
     assert isnan(cal.temperature['expanded_uncertainty'])
     assert cal.humidity['unit'] == '%rh'
     assert isnan(cal.humidity['min'])
     assert isnan(cal.humidity['max'])
-    assert cal.humidity['coefficients'] == [0.0]
+    assert len(cal.humidity['coefficients']) == 1
+    assert isnan(cal.humidity['coefficients'][0])
     assert isnan(cal.humidity['expanded_uncertainty'])
 
     cal = calibrations['h - Probe 1'][0]
@@ -257,12 +259,14 @@ def test_initialize_webapp():
     assert cal.temperature['unit'] == 'C'
     assert isnan(cal.temperature['min'])
     assert isnan(cal.temperature['max'])
-    assert cal.temperature['coefficients'] == [0.0]
+    assert len(cal.temperature['coefficients']) == 1
+    assert isnan(cal.temperature['coefficients'][0])
     assert isnan(cal.temperature['expanded_uncertainty'])
     assert cal.humidity['unit'] == '%rh'
     assert isnan(cal.humidity['min'])
     assert isnan(cal.humidity['max'])
-    assert cal.humidity['coefficients'] == [0.0]
+    assert len(cal.humidity['coefficients']) == 1
+    assert isnan(cal.humidity['coefficients'][0])
     assert isnan(cal.humidity['expanded_uncertainty'])
 
     cal = calibrations['h - Probe 2'][0]
@@ -279,12 +283,14 @@ def test_initialize_webapp():
     assert cal.temperature['unit'] == 'C'
     assert isnan(cal.temperature['min'])
     assert isnan(cal.temperature['max'])
-    assert cal.temperature['coefficients'] == [0.0]
+    assert len(cal.temperature['coefficients']) == 1
+    assert isnan(cal.temperature['coefficients'][0])
     assert isnan(cal.temperature['expanded_uncertainty'])
     assert cal.humidity['unit'] == '%rh'
     assert isnan(cal.humidity['min'])
     assert isnan(cal.humidity['max'])
-    assert cal.humidity['coefficients'] == [0.0]
+    assert len(cal.humidity['coefficients']) == 1
+    assert isnan(cal.humidity['coefficients'][0])
     assert isnan(cal.humidity['expanded_uncertainty'])
 
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, '01234')
@@ -987,6 +993,218 @@ def test_apply_calibration_8():
     assert data4['temperature'] is None
     assert data4['humidity'] is None
     assert data4['dewpoint'] is None
+
+
+@pytest.mark.parametrize('typ', ('temperature', 'humidity'))
+def test_apply_calibration_uncal_dbase_1(typ):
+    # Test an uncalibrated iServer with 1 probe
+    _, calibrations, _ = utils.initialize_webapp(cfg, serials)
+
+    raw = [
+        ['2022-07-31T08:12:00', 20.0, 48.1, 8.6],
+        ['2022-07-31T08:13:00', 19.9, 48.0, 8.5],
+        ['2022-07-31T08:14:00', 19.9, 47.9, 8.5],
+        ['2022-07-31T08:15:00', 20.0, 47.8, 8.6]
+    ]
+    index = {'temperature': 1, 'humidity': 2, 'dewpoint': 3}
+
+    report = utils.find_report(calibrations['g'])
+    assert isinstance(report, utils.DummyCalibrationReport)
+    assert report.number == '<uncalibrated>'
+
+    data, _ = utils.read_database(report, typ)
+    for i in range(len(raw)):
+        assert data[i][0] == raw[i][0]
+        assert data[i][1] == raw[i][index[typ]]
+
+    data2 = utils.apply_calibration(data, report)
+    assert data2 is data  # calculation is done in-place
+    for i in range(len(raw)):
+        assert data[i][0] == raw[i][0]
+        assert isnan(data[i][1])
+
+
+@pytest.mark.parametrize('typ', ('temperature', 'humidity'))
+def test_apply_calibration_uncal_dbase_2(typ):
+    # Test an uncalibrated iServer with 2 probes
+    _, calibrations, _ = utils.initialize_webapp(cfg, serials)
+
+    raw = [
+        ['2022-07-31T08:12:00', 20.0, 48.1, 8.6, 19.9, 47.9, 8.5],
+        ['2022-07-31T08:13:00', 19.9, 48.0, 8.5, 20.0, 48.1, 8.6],
+        ['2022-07-31T08:14:00', 19.9, 47.9, 8.5, 20.0, 47.8, 8.6],
+        ['2022-07-31T08:15:00', 20.0, 47.8, 8.6, 19.9, 47.9, 8.5]
+    ]
+
+    index = {'temperature': 1, 'humidity': 2, 'dewpoint': 3}
+
+    reports = utils.find_reports(calibrations, 'fghij')
+    for report in reports:
+        assert isinstance(report, utils.DummyCalibrationReport)
+
+    data1, _ = utils.read_database(reports[0], typ)
+    for i in range(len(raw)):
+        assert data1[i][0] == raw[i][0]
+        assert data1[i][1] == raw[i][index[typ]]
+
+    data2, _ = utils.read_database(reports[1], typ)
+    for i in range(len(raw)):
+        assert data2[i][0] == raw[i][0]
+        assert data2[i][1] == raw[i][index[typ]+3]
+
+    data3 = utils.apply_calibration(data1, reports[0])
+    assert data3 is data1  # calculation is done in-place
+    for i in range(len(raw)):
+        assert data3[i][0] == raw[i][0]
+        assert isnan(data3[i][1])
+
+    data4 = utils.apply_calibration(data2, reports[1])
+    assert data4 is data2  # calculation is done in-place
+    for i in range(len(raw)):
+        assert data4[i][0] == raw[i][0]
+        assert isnan(data4[i][1])
+
+
+def test_apply_calibration_uncal_dict_1():
+    # Test an uncalibrated iServer with 1 probe
+    _, calibrations, _ = utils.initialize_webapp(cfg, serials)
+
+    data = {
+        'error': None,
+        'alias': 'whatever',
+        'datetime': 'today',
+        'temperature': 26.2,
+        'humidity': 59.4,
+        'dewpoint': 17.6,
+    }
+
+    report = utils.find_report(calibrations['g'])
+    data1 = utils.apply_calibration(data, report)
+    assert data1['error'] is None
+    assert data1['alias'] == 'whatever'
+    assert data1['datetime'] == 'today'
+    assert isnan(data1['temperature'])
+    assert isnan(data1['humidity'])
+    assert data1['dewpoint'] == 17.6
+
+    data2 = {
+        'error': 'yep',
+        'alias': 'whatever',
+        'datetime': 'today',
+        'temperature': None,
+        'humidity': None,
+        'dewpoint': None,
+    }
+    data3 = utils.apply_calibration(data2, report)
+    assert data3['error'] == 'yep'
+    assert data3['alias'] == 'whatever'
+    assert data3['datetime'] == 'today'
+    assert data3['temperature'] is None
+    assert data3['humidity'] is None
+    assert data3['dewpoint'] is None
+
+
+def test_apply_calibration_uncal_dict_2():
+    # Test an uncalibrated iServer with 2 probes
+    _, calibrations, _ = utils.initialize_webapp(cfg, serials)
+
+    data = {
+        'error': None,
+        'alias': 'whatever',
+        'datetime': 'today',
+        'temperature1': 26.2,
+        'humidity1': 59.4,
+        'dewpoint1': 17.6,
+        'temperature2': 20.5,
+        'humidity2': 50.2,
+        'dewpoint2': 9.7,
+    }
+
+    report = utils.find_report(calibrations['h - Probe 1'])
+    data1 = utils.apply_calibration(data, report)
+    assert data1['error'] is None
+    assert data1['alias'] == 'whatever'
+    assert data1['datetime'] == 'today'
+    assert isnan(data1['temperature1'])
+    assert isnan(data1['humidity1'])
+    assert data1['dewpoint1'] == 17.6
+    assert data1['temperature2'] == 20.5
+    assert data1['humidity2'] == 50.2
+    assert data1['dewpoint2'] == 9.7
+
+    report = utils.find_report(calibrations['h - Probe 2'])
+    data2 = utils.apply_calibration(data1, report)
+    assert data2['error'] is None
+    assert data2['alias'] == 'whatever'
+    assert data2['datetime'] == 'today'
+    assert isnan(data2['temperature1'])
+    assert isnan(data2['humidity1'])
+    assert data2['dewpoint1'] == 17.6
+    assert isnan(data2['temperature2'])
+    assert isnan(data2['humidity2'])
+    assert data2['dewpoint2'] == 9.7
+
+    data_copy = data.copy()
+    for report in utils.find_reports(calibrations, 'fghij'):
+        data_copy = utils.apply_calibration(data_copy, report)
+    assert data_copy['error'] is None
+    assert data_copy['alias'] == 'whatever'
+    assert data_copy['datetime'] == 'today'
+    assert isnan(data_copy['temperature1'])
+    assert isnan(data_copy['humidity1'])
+    assert data_copy['dewpoint1'] == 17.6
+    assert isnan(data_copy['temperature2'])
+    assert isnan(data_copy['humidity2'])
+    assert data_copy['dewpoint2'] == 9.7
+
+    data = {
+        'error': 'yep',
+        'alias': 'whatever',
+        'datetime': 'today',
+        'temperature1': None,
+        'humidity1': None,
+        'dewpoint1': None,
+        'temperature2': None,
+        'humidity2': None,
+        'dewpoint2': None,
+    }
+
+    report = utils.find_report(calibrations['h - Probe 1'])
+    data1 = utils.apply_calibration(data, report)
+    assert data1['error'] == 'yep'
+    assert data1['alias'] == 'whatever'
+    assert data1['datetime'] == 'today'
+    assert data1['temperature1'] is None
+    assert data1['humidity1'] is None
+    assert data1['dewpoint1'] is None
+    assert data1['temperature2'] is None
+    assert data1['humidity2'] is None
+    assert data1['dewpoint2'] is None
+
+    report = utils.find_report(calibrations['h - Probe 2'])
+    data2 = utils.apply_calibration(data1, report)
+    assert data2['error'] == 'yep'
+    assert data2['alias'] == 'whatever'
+    assert data2['datetime'] == 'today'
+    assert data2['temperature1'] is None
+    assert data2['humidity1'] is None
+    assert data2['dewpoint1'] is None
+    assert data2['temperature2'] is None
+    assert data2['humidity2'] is None
+    assert data2['dewpoint2'] is None
+
+    data_copy = data.copy()
+    for report in utils.find_reports(calibrations, 'fghij'):
+        data_copy = utils.apply_calibration(data_copy, report)
+    assert data_copy['error'] == 'yep'
+    assert data_copy['alias'] == 'whatever'
+    assert data_copy['datetime'] == 'today'
+    assert data_copy['temperature1'] is None
+    assert data_copy['humidity1'] is None
+    assert data_copy['dewpoint1'] is None
+    assert data_copy['temperature2'] is None
+    assert data_copy['humidity2'] is None
+    assert data_copy['dewpoint2'] is None
 
 
 def test_human_file_size():

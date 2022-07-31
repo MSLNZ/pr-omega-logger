@@ -274,12 +274,12 @@ class DummyCalibrationReport(CalibrationReport):
         confidence.text = 'NaN'
         temperature = SubElement(report, 'temperature', units="C", min="NaN", max="NaN")
         coefficients = SubElement(temperature, 'coefficients')
-        coefficients.text = '0.0'
+        coefficients.text = 'NaN'
         expanded_uncertainty = SubElement(temperature, 'expanded_uncertainty')
         expanded_uncertainty.text = 'NaN'
         humidity = SubElement(report, 'humidity', units="%rh", min="NaN", max="NaN")
         coefficients = SubElement(humidity, 'coefficients')
-        coefficients.text = '0.0'
+        coefficients.text = 'NaN'
         expanded_uncertainty = SubElement(humidity, 'expanded_uncertainty')
         expanded_uncertainty.text = 'NaN'
         super(DummyCalibrationReport, self).__init__(record.serial, dbase_file, report, record.alias)
