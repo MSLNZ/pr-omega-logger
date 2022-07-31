@@ -409,6 +409,18 @@ def test_find_report():
     assert utils.find_report(cal, datetime(2019, 12, 30)).number == 'H389'
     assert utils.find_report(cal, datetime(2017, 1, 1)).number == 'H389'
 
+    cal = calibrations['g']
+    assert isinstance(utils.find_report(cal), utils.DummyCalibrationReport)
+    assert isinstance(utils.find_report(cal, '2018-08-22'), utils.DummyCalibrationReport)
+
+    cal = calibrations['h - Probe 1']
+    assert isinstance(utils.find_report(cal), utils.DummyCalibrationReport)
+    assert isinstance(utils.find_report(cal, '2030-07-31'), utils.DummyCalibrationReport)
+
+    cal = calibrations['h - Probe 2']
+    assert isinstance(utils.find_report(cal), utils.DummyCalibrationReport)
+    assert isinstance(utils.find_report(cal, '1955-11-12'), utils.DummyCalibrationReport)
+
 
 def test_find_reports():
     _, calibrations, _ = utils.initialize_webapp(cfg, serials)
@@ -444,6 +456,19 @@ def test_find_reports():
 
     reports = utils.find_reports(calibrations, 'abcdefg')
     assert len(reports) == 0
+
+    reports = utils.find_reports(calibrations, 'abcde')
+    assert len(reports) == 1
+    assert reports[0] is utils.find_report(calibrations['g'])
+    for report in reports:
+        assert isinstance(report, utils.DummyCalibrationReport)
+
+    reports = utils.find_reports(calibrations, 'fghij')
+    assert len(reports) == 2
+    assert reports[0] is utils.find_report(calibrations['h - Probe 1'])
+    assert reports[1] is utils.find_report(calibrations['h - Probe 2'])
+    for report in reports:
+        assert isinstance(report, utils.DummyCalibrationReport)
 
 
 def test_calibration_report_to_json():
