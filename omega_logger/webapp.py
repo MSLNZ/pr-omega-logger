@@ -407,7 +407,8 @@ def now():
         for serial, values in data.items():
             cal_reports = find_reports(calibrations, serial)
             for report in cal_reports:
-                values = apply_calibration(values, report)
+                if not isinstance(report, DummyCalibrationReport):
+                    values = apply_calibration(values, report)
             corrected[serial] = values
             corrected[serial]['report_number'] = ';'.join(r.number for r in cal_reports)
         return jsonify(corrected)

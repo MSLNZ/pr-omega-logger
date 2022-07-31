@@ -522,7 +522,7 @@ def database_info(log_dir, omegas):
         The information about all databases.
     """
     info = {}
-    _regex = re.compile(r'_(?P<serial>\d+).sqlite3$')
+    _regex = re.compile(r'_(?P<serial>[a-zA-Z0-9]+).sqlite3$')
     for filename in os.listdir(log_dir):
         match = _regex.search(filename)
         if not match:
