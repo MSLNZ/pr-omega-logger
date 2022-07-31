@@ -583,6 +583,30 @@ def test_read_database():
     assert data[1][0] == '2021-06-28T18:53:48'
     assert data[1][1] == 10.6
 
+    report = calibrations['g'][0]
+    data, _ = utils.read_database(report, 'temperature')
+    assert data.dtype.names == ('datetime', 'temperature')
+    assert data[0][0] == '2022-07-31T08:12:00'
+    assert data[0][1] == 20.0
+    assert data[1][0] == '2022-07-31T08:13:00'
+    assert data[1][1] == 19.9
+    assert data[2][0] == '2022-07-31T08:14:00'
+    assert data[2][1] == 19.9
+    assert data[3][0] == '2022-07-31T08:15:00'
+    assert data[3][1] == 20.0
+
+    report = calibrations['h - Probe 2'][0]
+    data, _ = utils.read_database(report, 'humidity')
+    assert data.dtype.names == ('datetime', 'humidity')
+    assert data[0][0] == '2022-07-31T08:12:00'
+    assert data[0][1] == 47.9
+    assert data[1][0] == '2022-07-31T08:13:00'
+    assert data[1][1] == 48.1
+    assert data[2][0] == '2022-07-31T08:14:00'
+    assert data[2][1] == 47.8
+    assert data[3][0] == '2022-07-31T08:15:00'
+    assert data[3][1] == 47.9
+
 
 def test_apply_calibration_1():
     _, calibrations, _ = utils.initialize_webapp(cfg, serials)

@@ -80,7 +80,15 @@ def test_backup_default_dir():
         '[INFO ] integrity check passed',
         '[INFO ] created backup',
         '[INFO ] verified backup',
+        '[INFO ] processing iTHX-W3_abcde.sqlite3',
+        '[INFO ] integrity check passed',
+        '[INFO ] created backup',
+        '[INFO ] verified backup',
         '[INFO ] processing iTHX-W_56789.sqlite3',
+        '[INFO ] integrity check passed',
+        '[INFO ] created backup',
+        '[INFO ] verified backup',
+        '[INFO ] processing iTHX-W_fghij.sqlite3',
         '[INFO ] integrity check passed',
         '[INFO ] created backup',
         '[INFO ] verified backup',
@@ -89,6 +97,8 @@ def test_backup_default_dir():
     assert not os.path.isfile(os.path.join(backup_dir, 'corrupt.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'iTHX-W3-5_01234.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'iTHX-W_56789.sqlite3'))
+    assert os.path.isfile(os.path.join(backup_dir, 'iTHX-W3_abcde.sqlite3'))
+    assert os.path.isfile(os.path.join(backup_dir, 'iTHX-W_fghij.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'log.txt'))
     shutil.rmtree(backup_dir)
 
@@ -113,7 +123,15 @@ def test_backup_dir():
         '[INFO ] integrity check passed',
         '[INFO ] created backup',
         '[INFO ] verified backup',
+        '[INFO ] processing iTHX-W3_abcde.sqlite3',
+        '[INFO ] integrity check passed',
+        '[INFO ] created backup',
+        '[INFO ] verified backup',
         '[INFO ] processing iTHX-W_56789.sqlite3',
+        '[INFO ] integrity check passed',
+        '[INFO ] created backup',
+        '[INFO ] verified backup',
+        '[INFO ] processing iTHX-W_fghij.sqlite3',
         '[INFO ] integrity check passed',
         '[INFO ] created backup',
         '[INFO ] verified backup',
@@ -122,6 +140,8 @@ def test_backup_dir():
     assert not os.path.isfile(os.path.join(backup_dir, 'xxx', 'corrupt.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W3-5_01234.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W_56789.sqlite3'))
+    assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W3_abcde.sqlite3'))
+    assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'iTHX-W_fghij.sqlite3'))
     assert os.path.isfile(os.path.join(backup_dir, 'xxx', 'log.txt'))
     shutil.rmtree(backup_dir)
 
