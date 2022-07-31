@@ -49,6 +49,7 @@ from utils import (
     HTMLTable,
     datetime_range_picker_kwargs,
     database_info,
+    DummyCalibrationReport,
 )
 from omega_logger import __version__
 from datetime_range_picker import DatetimeRangePicker
@@ -865,7 +866,7 @@ def update_plot_viewer(tab, dropdown, start, end):
         data, message = read_database(report, tab, start=start_date, end=end_date, label=label)
 
         # apply the calibration equation
-        if tab != 'dewpoint':
+        if tab != 'dewpoint' and not isinstance(report, DummyCalibrationReport):
             data = apply_calibration(data, report)
 
         # add the data to the HTML table
