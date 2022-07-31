@@ -76,10 +76,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W3-5_01234.sqlite3'
     assert cal.component == ''
     assert cal.probe == ''
-    assert cal.date == utils.fromisoformat('2020-12-17')
+    assert cal.date == datetime(year=2020, month=12, day=17)
     assert cal.number == 'H502'
-    assert cal.start_date == utils.fromisoformat('2020-12-11')
-    assert cal.end_date == utils.fromisoformat('2020-12-14')
+    assert cal.start_date == datetime(year=2020, month=12, day=11)
+    assert cal.end_date == datetime(year=2020, month=12, day=14)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'C'
@@ -98,10 +98,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W3-5_01234.sqlite3'
     assert cal.component == ''
     assert cal.probe == ''
-    assert cal.date == utils.fromisoformat('2018-07-21')
+    assert cal.date == datetime(year=2018, month=7, day=21)
     assert cal.number == 'H386'
-    assert cal.start_date == utils.fromisoformat('2018-06-08')
-    assert cal.end_date == utils.fromisoformat('2018-06-11')
+    assert cal.start_date == datetime(year=2018, month=6, day=8)
+    assert cal.end_date == datetime(year=2018, month=6, day=11)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'C'
@@ -120,10 +120,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W3-5_01234.sqlite3'
     assert cal.component == ''
     assert cal.probe == ''
-    assert cal.date == utils.fromisoformat('2016-02-22')
+    assert cal.date == datetime(year=2016, month=2, day=22)
     assert cal.number == 'H322'
-    assert cal.start_date == utils.fromisoformat('2016-01-20')
-    assert cal.end_date == utils.fromisoformat('2016-01-22')
+    assert cal.start_date == datetime(year=2016, month=1, day=20)
+    assert cal.end_date == datetime(year=2016, month=1, day=22)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'C'
@@ -142,10 +142,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W_56789.sqlite3'
     assert cal.component == 'Probe 1'
     assert cal.probe == '1'
-    assert cal.date == utils.fromisoformat('2020-06-12')
+    assert cal.date == datetime(year=2020, month=6, day=12)
     assert cal.number == 'H842'
-    assert cal.start_date == utils.fromisoformat('2020-06-01')
-    assert cal.end_date == utils.fromisoformat('2020-06-03')
+    assert cal.start_date == datetime(year=2020, month=6, day=1)
+    assert cal.end_date == datetime(year=2020, month=6, day=3)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'C'
@@ -164,10 +164,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W_56789.sqlite3'
     assert cal.component == 'Probe 1'
     assert cal.probe == '1'
-    assert cal.date == utils.fromisoformat('2018-07-21')
+    assert cal.date == datetime(year=2018, month=7, day=21)
     assert cal.number == 'H388'
-    assert cal.start_date == utils.fromisoformat('2018-06-08')
-    assert cal.end_date == utils.fromisoformat('2018-06-11')
+    assert cal.start_date == datetime(year=2018, month=6, day=8)
+    assert cal.end_date == datetime(year=2018, month=6, day=11)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'C'
@@ -186,10 +186,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W_56789.sqlite3'
     assert cal.component == 'Probe 2'
     assert cal.probe == '2'
-    assert cal.date == utils.fromisoformat('2018-07-21')
+    assert cal.date == datetime(year=2018, month=7, day=21)
     assert cal.number == 'H389'
-    assert cal.start_date == utils.fromisoformat('2018-06-08')
-    assert cal.end_date == utils.fromisoformat('2018-06-11')
+    assert cal.start_date == datetime(year=2018, month=6, day=8)
+    assert cal.end_date == datetime(year=2018, month=6, day=11)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'C'
@@ -208,10 +208,10 @@ def test_initialize_webapp():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W3_abcde.sqlite3'
     assert cal.component == ''
     assert cal.probe == ''
-    assert cal.date == utils.fromisoformat('1900-01-01')
+    assert cal.date == datetime(year=1900, month=1, day=1)
     assert cal.number == '<uncalibrated>'
-    assert cal.start_date == utils.fromisoformat('1900-01-01')
-    assert cal.end_date == utils.fromisoformat('1900-01-01')
+    assert cal.start_date == datetime(year=1900, month=1, day=1)
+    assert cal.end_date == datetime(year=1900, month=1, day=1)
     assert isnan(cal.coverage_factor)
     assert cal.confidence == 'NaN'
     assert cal.temperature['unit'] == 'C'
