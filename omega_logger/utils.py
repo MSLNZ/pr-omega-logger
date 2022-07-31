@@ -323,13 +323,20 @@ class HTMLTable(object):
         nrows = len(self._table)
         if values.size > 0:
 
-            # if the max or min values are outside of the range that was used
-            # in the calibration report then change the colour of the row
+            # If the report is a DummyCalibrationReport or if the max or min
+            # values are not within the range that was used in the calibration
+            # report then change the background colour of the row.
             style, mx, mn = None, np.max(values), np.min(values)
-            if tab != 'dewpoint':
+            if tab == 'dewpoint' or isinstance(report, DummyCalibrationReport):
+                # use "yellow" to symbolise a warning
+                c = '#FFFF00' if nrows % 2 else '#FFEB3B'
+                style = dict(backgroundColor=c)
+            else:
                 r = getattr(report, tab)
                 if mx > r['max'] or mn < r['min']:
-                    style = dict(backgroundColor='#FF0000')
+                    # use "red" to symbolise an error
+                    c = '#FF0000' if nrows % 2 else '#FF8383'
+                    style = dict(backgroundColor=c)
 
             self._table.append(
                 html.Tr([
