@@ -358,10 +358,10 @@ def test_config_unit_units():
     assert os.path.basename(cal.dbase_file) == 'iTHX-W3-5_01234.sqlite3'
     assert cal.component == ''
     assert cal.probe == ''
-    assert cal.date == utils.fromisoformat('2020-12-17')
+    assert cal.date == datetime(year=2020, month=12, day=17)
     assert cal.number == 'unit-units'
-    assert cal.start_date == utils.fromisoformat('2020-12-11')
-    assert cal.end_date == utils.fromisoformat('2020-12-14')
+    assert cal.start_date == datetime(year=2020, month=12, day=11)
+    assert cal.end_date == datetime(year=2020, month=12, day=14)
     assert cal.coverage_factor == 2.0
     assert cal.confidence == '95%'
     assert cal.temperature['unit'] == 'degree Celsius'
