@@ -12,7 +12,7 @@ resources = os.path.join(os.path.dirname(__file__), 'resources')
 cfg = Config(os.path.join(resources, 'config.xml'))
 cfg.find('log_dir').text = resources
 
-serials = '01234,56789,abcde'
+serials = '01234,56789,abcde,fghij'
 
 
 def test_fromisoformat():
@@ -50,26 +50,44 @@ def test_fromisoformat():
 def test_initialize_webapp():
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, serials)
 
-    assert len(dropdown_options) == 4
+    assert len(dropdown_options) == 6
     assert dropdown_options[0] == {'label': 'b', 'value': 'b'}
     assert dropdown_options[1] == {'label': 'f - Probe 1', 'value': 'f - Probe 1'}
     assert dropdown_options[2] == {'label': 'f - Probe 2', 'value': 'f - Probe 2'}
     assert dropdown_options[3] == {'label': 'g', 'value': 'g'}
+    assert dropdown_options[4] == {'label': 'h - Probe 1', 'value': 'h - Probe 1'}
+    assert dropdown_options[5] == {'label': 'h - Probe 2', 'value': 'h - Probe 2'}
 
-    assert len(calibrations) == 4
+    assert len(calibrations) == 6
     assert len(calibrations['b']) == 3
-    assert isinstance(calibrations['b'][0], utils.CalibrationReport)
+    for cal in calibrations['b']:
+        assert isinstance(cal, utils.CalibrationReport)
+        assert not isinstance(cal, utils.DummyCalibrationReport)
     assert len(calibrations['f - Probe 1']) == 2
-    assert isinstance(calibrations['f - Probe 1'][0], utils.CalibrationReport)
+    for cal in calibrations['f - Probe 1']:
+        assert isinstance(cal, utils.CalibrationReport)
+        assert not isinstance(cal, utils.DummyCalibrationReport)
     assert len(calibrations['f - Probe 2']) == 1
-    assert isinstance(calibrations['f - Probe 2'][0], utils.CalibrationReport)
+    for cal in calibrations['f - Probe 2']:
+        assert isinstance(cal, utils.CalibrationReport)
+        assert not isinstance(cal, utils.DummyCalibrationReport)
     assert len(calibrations['g']) == 1
-    assert isinstance(calibrations['g'][0], utils.DummyCalibrationReport)
+    for cal in calibrations['g']:
+        assert isinstance(cal, utils.DummyCalibrationReport)
+    assert len(calibrations['h - Probe 1']) == 1
+    for cal in calibrations['h - Probe 1']:
+        assert isinstance(cal, utils.CalibrationReport)
+        assert isinstance(cal, utils.DummyCalibrationReport)
+    assert len(calibrations['h - Probe 2']) == 1
+    for cal in calibrations['h - Probe 2']:
+        assert isinstance(cal, utils.CalibrationReport)
+        assert isinstance(cal, utils.DummyCalibrationReport)
 
-    assert len(omegas) == 3
+    assert len(omegas) == 4
     assert '01234' in omegas
     assert '56789' in omegas
     assert 'abcde' in omegas
+    assert 'fghij' in omegas
 
     cal = calibrations['b'][0]
     assert cal.serial == '01234'
@@ -225,6 +243,50 @@ def test_initialize_webapp():
     assert cal.humidity['coefficients'] == [0.0]
     assert isnan(cal.humidity['expanded_uncertainty'])
 
+    cal = calibrations['h - Probe 1'][0]
+    assert cal.serial == 'fghij'
+    assert os.path.basename(cal.dbase_file) == 'iTHX-W_fghij.sqlite3'
+    assert cal.component == 'Probe 1'
+    assert cal.probe == '1'
+    assert cal.date == datetime(year=1900, month=1, day=1)
+    assert cal.number == '<uncalibrated>'
+    assert cal.start_date == datetime(year=1900, month=1, day=1)
+    assert cal.end_date == datetime(year=1900, month=1, day=1)
+    assert isnan(cal.coverage_factor)
+    assert cal.confidence == 'NaN'
+    assert cal.temperature['unit'] == 'C'
+    assert isnan(cal.temperature['min'])
+    assert isnan(cal.temperature['max'])
+    assert cal.temperature['coefficients'] == [0.0]
+    assert isnan(cal.temperature['expanded_uncertainty'])
+    assert cal.humidity['unit'] == '%rh'
+    assert isnan(cal.humidity['min'])
+    assert isnan(cal.humidity['max'])
+    assert cal.humidity['coefficients'] == [0.0]
+    assert isnan(cal.humidity['expanded_uncertainty'])
+
+    cal = calibrations['h - Probe 2'][0]
+    assert cal.serial == 'fghij'
+    assert os.path.basename(cal.dbase_file) == 'iTHX-W_fghij.sqlite3'
+    assert cal.component == 'Probe 2'
+    assert cal.probe == '2'
+    assert cal.date == datetime(year=1900, month=1, day=1)
+    assert cal.number == '<uncalibrated>'
+    assert cal.start_date == datetime(year=1900, month=1, day=1)
+    assert cal.end_date == datetime(year=1900, month=1, day=1)
+    assert isnan(cal.coverage_factor)
+    assert cal.confidence == 'NaN'
+    assert cal.temperature['unit'] == 'C'
+    assert isnan(cal.temperature['min'])
+    assert isnan(cal.temperature['max'])
+    assert cal.temperature['coefficients'] == [0.0]
+    assert isnan(cal.temperature['expanded_uncertainty'])
+    assert cal.humidity['unit'] == '%rh'
+    assert isnan(cal.humidity['min'])
+    assert isnan(cal.humidity['max'])
+    assert cal.humidity['coefficients'] == [0.0]
+    assert isnan(cal.humidity['expanded_uncertainty'])
+
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, '01234')
     assert len(dropdown_options) == 1
     assert dropdown_options[0] == {'label': 'b', 'value': 'b'}
@@ -249,6 +311,17 @@ def test_initialize_webapp():
     assert len(calibrations) == 1
     assert len(calibrations['g']) == 1
     assert len(omegas) == 1
+    assert 'abcde' in omegas
+
+    dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg, '01234,abcde')
+    assert len(dropdown_options) == 2
+    assert dropdown_options[0] == {'label': 'b', 'value': 'b'}
+    assert dropdown_options[1] == {'label': 'g', 'value': 'g'}
+    assert len(calibrations) == 2
+    assert len(calibrations['b']) == 3
+    assert len(calibrations['g']) == 1
+    assert len(omegas) == 2
+    assert '01234' in omegas
     assert 'abcde' in omegas
 
 

@@ -132,6 +132,7 @@
             </report>
         </omega>
         <omega serial="abcde"/>
+        <omega serial="fghij"/>
     </calibrations>
     <registers>
         <register>

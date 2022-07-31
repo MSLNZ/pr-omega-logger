@@ -160,7 +160,14 @@ def initialize_webapp(cfg, serials):
                            for report in element.findall('report')]
 
                 if not reports:
-                    reports.append(DummyCalibrationReport(record, dbase_file))
+                    nprobes = record.connection.properties.get('nprobes', 1)
+                    if nprobes == 1:
+                        reports.append(DummyCalibrationReport(record, dbase_file, ''))
+                    elif nprobes == 2:
+                        reports.append(DummyCalibrationReport(record, dbase_file, 'Probe 1'))
+                        reports.append(DummyCalibrationReport(record, dbase_file, 'Probe 2'))
+                    else:
+                        raise ValueError(f'nprobes must be 1 or 2, got {nprobes}')
 
                 components = sorted(set(r.component for r in reports))
                 for component in components:
@@ -242,7 +249,7 @@ class CalibrationReport(object):
 
 class DummyCalibrationReport(CalibrationReport):
 
-    def __init__(self, record, dbase_file):
+    def __init__(self, record, dbase_file, component):
         """Create a dummy calibration report
 
         Parameters
@@ -251,8 +258,10 @@ class DummyCalibrationReport(CalibrationReport):
             The equipment record of an OMEGA device.
         dbase_file : :class:`str`
             The path to the database file.
+        component : :class:`str`
+            Used for iServers with two probes.
         """
-        report = Element('report', date='1900-01-01', number='<uncalibrated>')
+        report = Element('report', date='1900-01-01', number='<uncalibrated>', component=component)
         start_date = SubElement(report, 'start_date')
         start_date.text = '1900-01-01'
         end_date = SubElement(report, 'end_date')
