@@ -252,6 +252,8 @@ class DummyCalibrationReport(CalibrationReport):
     def __init__(self, record, dbase_file, component):
         """Create a dummy calibration report
 
+        .. versionadded:: 0.4
+
         Parameters
         ----------
         record : :class:`msl.equipment.record_types.EquipmentRecord`
@@ -281,6 +283,9 @@ class DummyCalibrationReport(CalibrationReport):
         expanded_uncertainty = SubElement(humidity, 'expanded_uncertainty')
         expanded_uncertainty.text = 'NaN'
         super(DummyCalibrationReport, self).__init__(record.serial, dbase_file, report, record.alias)
+
+    def to_json(self):
+        return {}
 
 
 class HTMLTable(object):

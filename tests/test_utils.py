@@ -327,6 +327,7 @@ def test_initialize_webapp():
 
 def test_initialize_webapp_config_minimal():
     # the 'config_minimal.xml' file does not contain any of the Optional XML elements
+    # nor the iServers without a calibration report
     cfg_min = Config(os.path.join(resources, 'config_minimal.xml'))
     dropdown_options, calibrations, omegas = utils.initialize_webapp(cfg_min, serials)
 
@@ -473,6 +474,9 @@ def test_calibration_report_to_json():
             'unit': 'C'
         }
     }
+
+    report = utils.find_reports(calibrations, 'abcde')[0]
+    assert report.to_json() == {}
 
 
 def test_read_database():
