@@ -39,7 +39,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
     <msl>
 
         <!-- Optional: Change how the logging information is printed to stdout. -->
-        <msg_format>Lab={alias!r} Sn={serial} T={0}&#176;C H={1}% D={2}&#176;C</msg_format>
+        <msg_format>Lab={alias!r} Sn={serial} T={0}&#176;C H={1}%rh D={2}&#176;C</msg_format>
         <msg_format nprobes="2">{model} T1={0} T2={3} H1={1} H2={4} D1={2} D2={5}</msg_format>
 
         <!-- Optional: The number of seconds to wait between logging events. -->
