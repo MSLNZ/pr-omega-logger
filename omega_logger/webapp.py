@@ -914,7 +914,7 @@ def update_plot_viewer(tab, dropdown, start, end):
                     title=tab.title(),
                     xaxis={'title': 'Timestamp', 'type': 'date'},
                     yaxis={
-                        'title': tab.title() + (' [%]' if tab == 'humidity' else ' [&#176;C]'),
+                        'title': tab.title() + (' [%rh]' if tab == 'humidity' else ' [&#176;C]'),
                         'range': y_range,
                     },
                     hovermode='closest',
