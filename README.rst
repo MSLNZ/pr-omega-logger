@@ -221,7 +221,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
             </omega>
             <!--
               If an OMEGA iServer does not have a calibration report then
-              just create an 'omega' tag and specify the 'serial' attribute.
+              create an empty 'omega' element and specify the 'serial' attribute.
             -->
             <omega serial="58741657"/>
         </calibrations>
