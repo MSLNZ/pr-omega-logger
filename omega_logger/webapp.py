@@ -985,7 +985,10 @@ def current_readings_viewer(tab, n_intervals):
 
     children = []
     margin_right = cfg.value('current_readings/margin_right', '16px')
-    for serial, data in now().json.items():
+
+    items = now().json.items()
+    _sorted = dict(sorted(items, key=lambda item: item[1]['alias']))
+    for serial, data in _sorted.items():
         b = f'{serial} [{data["report_number"]}] - {data["alias"]} @ {data["datetime"][11:]}'
         children.append(html.B(b))
         if data['error']:
