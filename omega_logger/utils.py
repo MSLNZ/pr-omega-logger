@@ -5,6 +5,7 @@ from math import log, floor
 from time import perf_counter
 from datetime import datetime, timedelta
 from xml.etree.ElementTree import Element, SubElement
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 try:
@@ -521,7 +522,26 @@ def database_info(log_dir, omegas):
     :class:`dict`
         The information about all databases.
     """
-    info = {}
+    def process(key, alias, dbase):
+        db = sqlite3.connect(dbase)
+        cursor = db.cursor()
+        cursor.execute("PRAGMA table_info('data');")
+        fields = [f[1] for f in cursor.fetchall()]
+        cursor.execute('SELECT MIN(datetime),MAX(datetime),COUNT(pid) FROM data;')
+        min_date, max_date, count = cursor.fetchone()
+        db.close()
+        file_size = human_file_size(os.stat(dbase).st_size)
+        info = {
+            'alias': alias,
+            'fields': fields,
+            'file_size': file_size,
+            'max_date': max_date,
+            'min_date': min_date,
+            'num_records': count,
+        }
+        return key, info
+
+    items = []
     _regex = re.compile(r'_(?P<serial>[a-zA-Z0-9]+).sqlite3$')
     for filename in os.listdir(log_dir):
         match = _regex.search(filename)
@@ -533,24 +553,12 @@ def database_info(log_dir, omegas):
             # then the iServer is no longer listed in the
             # <serials> element of the configuration file
             continue
-        file = os.path.join(log_dir, filename)
-        db = sqlite3.connect(file)
-        cursor = db.cursor()
-        cursor.execute("PRAGMA table_info('data');")
-        fields = [f[1] for f in cursor.fetchall()]
-        cursor.execute('SELECT MIN(datetime),MAX(datetime),COUNT(pid) FROM data;')
-        min_date, max_date, count = cursor.fetchone()
-        info[serial] = {
-            'alias': record.alias,
-            'fields': fields,
-            'file_size': human_file_size(os.stat(file).st_size),
-            'max_date': max_date,
-            'min_date': min_date,
-            'num_records': count,
-        }
-        db.close()
+        items.append((serial, record.alias, os.path.join(log_dir, filename)))
 
-    return info
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(process, *item) for item in items]
+        data = dict(f.result() for f in futures)
+    return data
 
 
 def email(smtp, body, subject='[omega-logger] Issue'):
