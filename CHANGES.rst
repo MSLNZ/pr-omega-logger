@@ -12,7 +12,8 @@ Version 0.4.0 (in development)
 
 * Changed
 
-  - Use a ThreadPoolExecutor when requesting information about the databases
+  - The default `start` value for the `/fetch` route is now *1 hour ago*
+  - Use a `ThreadPoolExecutor` when requesting information about the databases
 
 Version 0.3.0 (2021-10-03)
 ==========================

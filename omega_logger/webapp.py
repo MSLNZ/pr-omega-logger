@@ -8,7 +8,7 @@ import socket
 import tempfile
 import traceback
 from math import floor, ceil
-from datetime import datetime
+from datetime import datetime, timedelta
 from difflib import get_close_matches
 from concurrent.futures import ThreadPoolExecutor
 
@@ -426,7 +426,7 @@ def fetch():
       <li>
         <b>start</b> : string (optional)
         <p>Start date and time as an ISO 8601 string (e.g., yyyy-mm-dd or yyyy-mm-ddTHH:MM:SS).
-        Default is the earliest record in the database.</p>
+        Default is one hour ago.</p>
       </li>
       <li>
         <b>end</b> : string (optional)
@@ -556,10 +556,12 @@ def fetch():
         try:
             timestamps[kwg] = fromisoformat(time_arg).isoformat(sep='T')
         except TypeError:
+            # the start or end value was not specified, use a default value
+            _now = datetime.now().replace(microsecond=0)
             if kwg == 'start':
-                timestamps[kwg] = None
+                timestamps[kwg] = (_now - timedelta(hours=1)).isoformat(sep='T')
             else:
-                timestamps[kwg] = datetime.now().replace(microsecond=0).isoformat(sep='T')
+                timestamps[kwg] = _now.isoformat(sep='T')
         except ValueError:
             return f'The value for {kwg!r} must be an ISO 8601 string ' \
                    f'(e.g., yyyy-mm-dd or yyyy-mm-ddTHH:MM:SS).<br/>'\
