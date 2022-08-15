@@ -298,6 +298,7 @@ class HTMLTable(object):
                 html.Th('OMEGA logger'),
                 html.Th('Report No.'),
                 html.Th('Description'),
+                html.Th('Std.Unc.'),
                 html.Th('Average'),
                 html.Th('Stdev'),
                 html.Th('Median'),
@@ -320,7 +321,12 @@ class HTMLTable(object):
         """
         tab = data.dtype.names[1]
         values = data[tab]
-        report_number = '<uncalibrated>' if tab == 'dewpoint' else report.number
+        if tab == 'dewpoint':
+            report_number = '<uncalibrated>'
+            std_uncert = 'nan'
+        else:
+            report_number = report.number
+            std_uncert = getattr(report, tab)['expanded_uncertainty'] / report.coverage_factor
         nrows = len(self._table)
         if values.size > 0:
 
@@ -344,6 +350,7 @@ class HTMLTable(object):
                     html.Td(label, style=style),
                     html.Td(report_number, style=style),
                     html.Td(tab.title() if not style else tab.title() + ' [value out of range]', style=style),
+                    html.Td(f'{std_uncert}', style=style),
                     html.Td(f'{np.average(values):.1f}', style=style),
                     html.Td(f'{np.std(values):.1f}', style=style),
                     html.Td(f'{np.median(values):.1f}', style=style),
@@ -358,6 +365,7 @@ class HTMLTable(object):
                     html.Td(label),
                     html.Td(report_number),
                     html.Td(tab.title()),
+                    html.Td(''),
                     html.Td(''),
                     html.Td(''),
                     html.Td(''),
