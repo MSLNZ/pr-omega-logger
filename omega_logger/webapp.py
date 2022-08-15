@@ -983,7 +983,11 @@ def current_readings_viewer(tab, n_intervals):
     n = n_intervals or 0  # n_intervals is initially None
     n += 1
 
-    children = []
+    children = [html.P(html.I(
+        html.Span('ATTENTION: None of the dewpoint values are corrected. '
+                  'They are raw values from the OMEGA iServer.',
+                  style={'color': '#DE3163'})
+    ))]
     margin_right = cfg.value('current_readings/margin_right', '16px')
 
     items = now().json.items()
