@@ -55,11 +55,12 @@
 <span class="c1"># Send a GET request to the /aliases endpoint</span>
 <span class="p">reply = requests.get(</span><span class="s1">&#39;{{ url_root }}aliases&#39;</span><span class="p">)</span>
 <span></span>
-<span class="c1"># Check if there was an issue processing the request. The following line will</span>
-<span class="c1"># only raise an exception if one occurred while processing the request, not if</span>
+<span class="c1"># Check if there was an issue processing the request. The following will raise</span>
+<span class="c1"># an exception only if one occurred while processing the request, not if</span>
 <span class="c1"># there are network issues (network issues are raised when the requests.get()</span>
 <span class="c1"># function is called). If there were no issues, the script continues.</span>
-<span class="n">reply.raise_for_status()</span>
+<span class="kn">if not </span><span class="n">reply.ok:</span>
+<span class="kn">    raise </span><span class="nc">RuntimeError</span><span class="n">(reply.content.decode())</span>
 <span></span>
 <span class="c1"># Access the JSON data and print the key-value pairs of the aliases</span>
 <span class="p">data = reply.json()</span>
