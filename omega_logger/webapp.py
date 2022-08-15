@@ -301,8 +301,8 @@ def now():
       </li>
       <li>
         <b>corrected</b> : integer or boolean (optional)
-        <p>Whether to apply the calibration equation to the data.
-        Default is <i>true</i>.</p>
+        <p>Whether to apply the calibration equation to the temperature and humidity values.
+        The dewpoint value is always uncorrected. Default is <i>true</i>.</p>
       </li>
     </ul>
 
@@ -310,7 +310,8 @@ def now():
     <ul>
       <li>
         <b>/now</b>
-        <p>Return the corrected data from all OMEGA iServers.</p>
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint value(s) from all OMEGA iServers.</p>
       </li>
       <li>
         <b>/now?corrected=false</b>
@@ -318,18 +319,18 @@ def now():
       </li>
       <li>
         <b>/now?serial=12345</b>
-        <p>Return the corrected data from the OMEGA iServer that
-        has the serial number <i>12345</i>.</p>
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint value(s) from the OMEGA iServer that has the serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/now?alias=Mass2</b>
-        <p>Return the corrected data from the OMEGA iServer that
-        has the alias <i>Mass2</i>.</p>
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint value(s) from the OMEGA iServer that has the alias <i>Mass2</i>.</p>
       </li>
       <li>
         <b>/now?alias=Photometric+bench</b>
-        <p>Return the corrected data from the OMEGA iServer that
-        has the alias <i>Photometric bench</i>.</p>
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint value(s) from the OMEGA iServer that has the alias <i>Photometric bench</i>.</p>
       </li>
       <li>
         <b>/now?serial=12345&corrected=0</b>
@@ -343,9 +344,9 @@ def now():
       </li>
       <li>
         <b>/now?serial=12345;6789</b>
-        <p>Return the corrected data from the OMEGA iServer that
-        has the serial number <i>12345</i> and from the OMEGA iServer
-        that has the serial number <i>6789</i>.</p>
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint value(s) from the OMEGA iServer that has the serial number <i>12345</i>
+        and from the OMEGA iServer that has the serial number <i>6789</i>.</p>
       </li>
       <li>
         <b>/now?serial=12345&alias=Mass2&corrected=0</b>
@@ -451,8 +452,8 @@ def fetch():
       </li>
       <li>
         <b>corrected</b> : integer or boolean (optional)
-        <p>Whether to apply the calibration equation to the data.
-        Default is <i>true</i>.</p>
+        <p>Whether to apply the calibration equation to the temperature and humidity values.
+        The dewpoint values are always uncorrected. Default is <i>true</i>.</p>
       </li>
     </ul>
 
@@ -460,19 +461,19 @@ def fetch():
     <ul>
       <li>
         <b>/fetch</b>
-        <p>Return all available corrected values for temperature, humidity,
-        and dewpoint since logging began, from all OMEGA iServers.</p>
+        <p>Return all available corrected values for temperature and humidity,
+        and all uncorrected dewpoint values since logging began, from all OMEGA iServers.</p>
       </li>
       <li>
         <b>/fetch?serial=12345&start=2021-02-16</b>
-        <p>Return the corrected temperature, humidity, and dewpoint values
-        since <i>16th Feb 2021</i> from the OMEGA iServer that has the
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint values since <i>16th Feb 2021</i> from the OMEGA iServer that has the
         serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/fetch?alias=Mass2&start=2021-02-16T19:20:30</b>
-        <p>Return the corrected temperature, humidity, and dewpoint values
-        since <i>19:20:30 on the 16th Feb 2021</i> from the OMEGA iServer
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint values since <i>19:20:30 on the 16th Feb 2021</i> from the OMEGA iServer
         that has the alias <i>Mass2</i>.</p>
       </li>
       <li>
