@@ -10,6 +10,10 @@ Version 0.4.0 (in development)
   - Can now add an OMEGA iServer to a configuration file even if the iServer
     does not (yet) have a calibration report associated with it
 
+* Changed
+
+  - Use a ThreadPoolExecutor when requesting information about the databases
+
 Version 0.3.0 (2021-10-03)
 ==========================
 This release is not backward compatible. The structure of the
