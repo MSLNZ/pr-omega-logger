@@ -239,7 +239,7 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
 
         <!-- Optional: Specify the settings for sending an email (see MSL-IO). -->
         <smtp>
-          <settings>path/to/smtp_settings.txt</settings>
+          <settings>C:\path\to\smtp_settings.txt</settings>
           <from>me</from>
           <to>person1</to>
           <!-- Can include multiple people to send the email to. -->
