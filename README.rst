@@ -1,7 +1,7 @@
 |github tests|
 
-Log the temperature, humidity and dew point from OMEGA iServers to a database
-and creates a web application to interact with the data. The application is
+Logs the temperature, humidity and dewpoint from OMEGA iServers to a database
+and creates a web application to interact with the data. The web application is
 accessed through a web browser at ``http://<host>:<port>``.
 
 Install
@@ -37,102 +37,6 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
 
     <?xml version="1.0" encoding="utf-8"?>
     <msl>
-
-        <!-- Optional: Change how the logging information is printed to stdout. -->
-        <msg_format>Lab={alias!r} Sn={serial} T={0}&#176;C H={1}%rh D={2}&#176;C</msg_format>
-        <msg_format nprobes="2">{model} T1={0} T2={3} H1={1} H2={4} D1={2} D2={5}</msg_format>
-
-        <!-- Optional: The number of seconds to wait between logging events. -->
-        <wait>60</wait>
-
-        <!-- Optional: You can change the host and port values of the web app. -->
-        <host>localhost</host>
-        <port>8080</port>
-
-        <!-- Optional: Change the behaviour of the Current Readings tab. -->
-        <current_readings>
-            <!-- The number of seconds to wait to refresh the page. -->
-            <interval>30</interval>
-            <!-- The size of the font to use to display the readings. -->
-            <font_size>24px</font_size>
-            <!-- The amount of whitespace to separate the values by (on the same line). -->
-            <margin_right>12px</margin_right>
-        </current_readings>
-
-        <!--
-          Optional: Settings for the DatetimeRangePicker.
-          Each sub-element is also optional.
-        -->
-        <datetime_range_picker>
-            <start>
-                <weeks>-1</weeks> <!-- relative to the current date -->
-                <days>0</days> <!-- relative to the current date -->
-                <hour>7</hour> <!-- absolute value between 0-23 -->
-                <minute>0</minute> <!-- absolute value between 0-59 -->
-                <second>0</second> <!-- absolute value between 0-59 -->
-            </start>
-            <end>
-                <weeks>0</weeks>
-                <days>1</days>
-                <hour>12</hour>
-                <minute>0</minute>
-                <second>0</second>
-            </end>
-            <min_date>
-                <weeks>-52</weeks>
-                <days>0</days>
-            </min_date>
-            <max_date>
-                <weeks>0</weeks>
-                <days>10</days>
-            </max_date>
-            <!--
-              See https://www.tutorialspoint.com/momentjs/momentjs_format.htm
-              for valid date and time formats.
-            -->
-            <date_format>D MMM YYYY</date_format>
-            <time_format>h:mm:ss a</time_format>
-            <!--
-              See https://www.w3schools.com/jsref/dom_obj_style.asp
-              for supported style options.
-            -->
-            <date_style>
-                <color>#514EA6</color>
-                <fontSize>32px</fontSize>
-            </date_style>
-            <time_style>
-                <color>#027368</color>
-                <fontSize>24px</fontSize>
-            </time_style>
-            <arrow>
-                <width>50px</width>
-                <height>70px</height>
-                <color>#025159</color>
-            </arrow>
-            <class_name>datetime-range-left</class_name>
-            <text>Refresh</text>
-        </datetime_range_picker>
-
-        <!-- Optional: Use a validator to validate the data before inserting it into the database. -->
-        <validator hmax="60" dmin="10">simple-range</validator>
-
-        <!-- Optional: Whether to disable logging on the WSGI Server. -->
-        <disable_request_logging>true</disable_request_logging>
-
-        <!--
-          Optional: The directory to save the database backup to.
-          If not specified then uses the "<log_dir>/backup" directory.
-        -->
-        <backup_dir>D:\OMEGA\backup</backup_dir>
-
-        <!-- Optional: Settings for sending an email (see MSL-IO). -->
-        <smtp>
-          <settings>path/to/smtp_settings</settings>
-          <from>me</from>
-          <to>person1</to>
-          <!-- Can include multiple people to send the email to. -->
-          <to>person2</to>
-        </smtp>
 
         <!-- The directory to save the databases to. -->
         <log_dir>D:\OMEGA</log_dir>
@@ -229,22 +133,118 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
         <!-- The path to the Equipment Records (see MSL-Equipment). -->
         <registers>
             <register>
-                <path>D:\QUAL\EquipmentRegister.xls</path>
+                <path>D:\Quality\EquipmentRegister.xls</path>
                 <sheet>Equipment</sheet>
             </register>
         </registers>
 
         <!--
           The path to the Connection Records (see MSL-Equipment).
-          A relative path is specified, where "relative" refers to the
+          A relative path can be specified, where "relative" refers to the
           directory where the configuration file is located and not to the
           working directory where the "omega-logger" executable was run.
         -->
         <connections>
             <connection>
-                <path>.\omega_connections.xml</path>
+                <path>omega_connections.xml</path>
             </connection>
         </connections>
+
+        <!-- Optional: Change how the logging information is printed to stdout. -->
+        <msg_format>Lab={alias!r} Sn={serial} T={0}&#176;C H={1}%rh D={2}&#176;C</msg_format>
+        <msg_format nprobes="2">{model} T1={0} T2={3} H1={1} H2={4} D1={2} D2={5}</msg_format>
+
+        <!-- Optional: Change the number of seconds to wait between logging events. -->
+        <wait>60</wait>
+
+        <!-- Optional: Change the host and port values of the web application. -->
+        <host>localhost</host>
+        <port>8080</port>
+
+        <!-- Optional: Change the settings of the Current Readings tab. -->
+        <current_readings>
+            <!-- The number of seconds to wait to refresh the page. -->
+            <interval>30</interval>
+            <!-- The size of the font to use to display the readings. -->
+            <font_size>24px</font_size>
+            <!-- The amount of whitespace to separate the values by (on the same line). -->
+            <margin_right>12px</margin_right>
+        </current_readings>
+
+        <!--
+          Optional: Change the settings for the DatetimeRangePicker.
+          Each sub-element is also optional.
+        -->
+        <datetime_range_picker>
+            <start>
+                <weeks>-1</weeks> <!-- relative to the current date -->
+                <days>0</days> <!-- relative to the current date -->
+                <hour>7</hour> <!-- absolute value between 0-23 -->
+                <minute>0</minute> <!-- absolute value between 0-59 -->
+                <second>0</second> <!-- absolute value between 0-59 -->
+            </start>
+            <end>
+                <weeks>0</weeks>
+                <days>1</days>
+                <hour>12</hour>
+                <minute>0</minute>
+                <second>0</second>
+            </end>
+            <min_date>
+                <weeks>-52</weeks>
+                <days>0</days>
+            </min_date>
+            <max_date>
+                <weeks>0</weeks>
+                <days>10</days>
+            </max_date>
+            <!--
+              See https://www.tutorialspoint.com/momentjs/momentjs_format.htm
+              for valid date and time formats.
+            -->
+            <date_format>D MMM YYYY</date_format>
+            <time_format>h:mm:ss a</time_format>
+            <!--
+              See https://www.w3schools.com/jsref/dom_obj_style.asp
+              for supported style options.
+            -->
+            <date_style>
+                <color>#514EA6</color>
+                <fontSize>32px</fontSize>
+            </date_style>
+            <time_style>
+                <color>#027368</color>
+                <fontSize>24px</fontSize>
+            </time_style>
+            <arrow>
+                <width>50px</width>
+                <height>70px</height>
+                <color>#025159</color>
+            </arrow>
+            <class_name>datetime-range-left</class_name>
+            <text>Refresh</text>
+        </datetime_range_picker>
+
+        <!-- Optional: Use a validator to validate the data before inserting it into the database. -->
+        <validator hmax="60" dmin="10">simple-range</validator>
+
+        <!-- Optional: Whether to disable logging on the WSGI Server. -->
+        <disable_request_logging>true</disable_request_logging>
+
+        <!--
+          Optional: Change the directory to save the database backup to.
+          If not specified, uses the "<log_dir>/backup" directory.
+        -->
+        <backup_dir>D:\OMEGA\backup</backup_dir>
+
+        <!-- Optional: Specify the settings for sending an email (see MSL-IO). -->
+        <smtp>
+          <settings>path/to/smtp_settings.txt</settings>
+          <from>me</from>
+          <to>person1</to>
+          <!-- Can include multiple people to send the email to. -->
+          <to>person2</to>
+        </smtp>
 
     </msl>
 
