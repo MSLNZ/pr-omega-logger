@@ -2,8 +2,8 @@
 Release Notes
 =============
 
-Version 0.4.0 (in development)
-==============================
+Version 0.4.0 (2022-08-16)
+==========================
 * Added
 
   - Support for Python 3.10
