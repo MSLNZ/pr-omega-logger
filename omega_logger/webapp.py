@@ -461,8 +461,8 @@ def fetch():
     <ul>
       <li>
         <b>/fetch</b>
-        <p>Return all available corrected values for temperature and humidity,
-        and all uncorrected dewpoint values since logging began, from all OMEGA iServers.</p>
+        <p>Return the corrected temperature and humidity values and the uncorrected
+        dewpoint values that were acquired in the past hour, from all OMEGA iServers.</p>
       </li>
       <li>
         <b>/fetch?serial=12345&start=2021-02-16</b>
