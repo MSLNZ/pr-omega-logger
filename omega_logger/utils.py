@@ -581,13 +581,10 @@ def email(smtp, body, subject='[omega-logger] Issue'):
     subject : :class:`str`, optional
         The text to include in the subject field.
     """
-    settings = smtp.findtext('settings')
-    frm = smtp.findtext('from')
-    for name in smtp.findall('to'):
-        send_email(
-            name.text,
-            settings,
-            subject=subject,
-            body=body,
-            frm=frm
-        )
+    send_email(
+        smtp.findtext('settings'),
+        [e.text for e in smtp.findall('to')],
+        sender=smtp.findtext('from'),
+        subject=subject,
+        body=body,
+    )
