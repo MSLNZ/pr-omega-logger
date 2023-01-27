@@ -1265,7 +1265,8 @@ def test_reports_one_latest(route):
     [('/reports', '2020'),
      ('/reports', '2020-08.23'),
      ('/reports', '2020.08.23'),
-     ('/reports', '20200823'),
+     ('/reports', '20201823'),
+     ('/reports', '2020-18-23'),
      ('/reports', 'invalid'),
      ('/reports/', '2020')]
 )
