@@ -4,20 +4,26 @@ Release Notes
 
 Version 0.4.1 (in development)
 ==============================
+- Added
 
+  * Support for Python 3.11
+
+- Fixed
+
+  * Compatibility with the main branch of MSL-IO for sending an email
 
 Version 0.4.0 (2022-08-16)
 ==========================
-* Added
+- Added
 
-  - Support for Python 3.10
-  - Can now add an OMEGA iServer to a configuration file even if the iServer
+  * Support for Python 3.10
+  * Can now add an OMEGA iServer to a configuration file even if the iServer
     does not (yet) have a calibration report associated with it
 
-* Changed
+- Changed
 
-  - The default `start` value for the `/fetch` route is now *1 hour ago*
-  - Use a `ThreadPoolExecutor` when requesting information about the databases
+  * The default `start` value for the `/fetch` route is now *1 hour ago*
+  * Use a `ThreadPoolExecutor` when requesting information about the databases
 
 Version 0.3.0 (2021-10-03)
 ==========================
