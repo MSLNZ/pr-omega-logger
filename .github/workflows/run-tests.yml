@@ -9,13 +9,13 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-        os: [windows, ubuntu]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
+        os: [windows-latest, ubuntu-20.04]
         architecture: ["x64"]
 
     steps:
