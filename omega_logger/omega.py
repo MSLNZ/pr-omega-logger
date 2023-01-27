@@ -52,7 +52,7 @@ try:
     while iserver is None:
         try:
             iserver = record.connect()
-        except:
+        except:  # noqa: using bare 'except'
             pass
 
     nprobes = record.connection.properties.get('nprobes', 1)
@@ -82,6 +82,6 @@ try:
 
 except KeyboardInterrupt:
     pass
-except:
+except:  # noqa: using bare 'except'
     traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')

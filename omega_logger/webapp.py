@@ -108,7 +108,7 @@ try:
     path, serials = sys.argv[1:]
     cfg = Config(path)
     dropdown_options, calibrations, omegas = initialize_webapp(cfg, serials)
-except:
+except:  # noqa: using bare 'except'
     traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')
     sys.exit(1)
@@ -196,7 +196,7 @@ def check_invalid_params(*allowed):
 @app.server.route('/<string:path1>/')
 @app.server.route('/<string:path1>/<path:path2>')
 @app.server.route('/<string:path1>/<path:path2>/')
-def page_not_found(**ignore):
+def page_not_found(**ignore):  # noqa: 'ignore' is not used
     """Return page not found for all undefined routes."""
     return make_response(
         render_template('page_not_found.html', url_root=request.url_root),
@@ -968,7 +968,7 @@ def create_csv_file_for_download(n_clicks, figure):
         csv_data[2:n+2, 2*i] = plot['x']
         csv_data[2:n+2, 2*i+1] = plot['y']
 
-    np.savetxt(temp_file, csv_data, fmt='%s', delimiter=',')
+    np.savetxt(temp_file, csv_data, fmt='%s', delimiter=',')  # noqa: csv_data is the correct data type
 
 
 @app.callback(
@@ -1024,6 +1024,6 @@ try:
         server.serve_forever()
 except KeyboardInterrupt:
     pass
-except:
+except:  # noqa: using bare 'except'
     traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')
