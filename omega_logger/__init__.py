@@ -4,7 +4,7 @@ from collections import namedtuple
 from .validators import validator_map
 
 __author__ = 'Measurement Standards Laboratory of New Zealand'
-__copyright__ = '\xa9 2018 - 2022, ' + __author__
+__copyright__ = '\xa9 2018 - 2023, ' + __author__
 __version__ = '0.4.1.dev0'
 
 _v = re.search(r'(\d+)\.(\d+)\.(\d+)[.-]?(.*)', __version__).groups()
