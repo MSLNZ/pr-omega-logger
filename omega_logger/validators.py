@@ -42,7 +42,7 @@ class SimpleRange(Validator):
         """Validates the data by verifying that it is within a certain range.
 
         The term "Simple" refers to the fact that nothing special is done if a
-        value is outside of the allowed range except for writing a message to
+        value is outside the allowed range except for writing a message to
         stdout. A more complex range validator could, for example, send an
         email to notify people.
 
@@ -115,7 +115,7 @@ class WithReset(Validator):
         Parameters
         ----------
         reset_criterion : :class:`int`, optional
-            The maximum number of times that the data can fall outside of
+            The maximum number of times that the data can fall outside
             the specified range before resetting the iServer.
         kwargs
             All additional keyword arguments are passed to

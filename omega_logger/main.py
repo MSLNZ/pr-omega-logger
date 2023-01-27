@@ -219,7 +219,7 @@ def run_backup(cfg):
         for record in original.execute('SELECT * FROM data;'):
             fetched = cursor.fetchone()
             if fetched is None:
-                # although we check above that it is safe to backup the database
+                # although we check above that it is safe to back up the database
                 # it is still possible that for very large databases
                 # it takes longer than <wait> seconds to perform a backup
                 num_missing += 1
@@ -236,7 +236,7 @@ def run_backup(cfg):
             continue
 
         if num_missing > 0:
-            # lets see how often this error occurs before we start deciding what should happen
+            # let's see how often this error occurs before we start deciding what should happen
             handle_error(f'verifying backup failed for {basename}, '
                          f'the backed-up database is missing {num_missing} record(s)')
             continue

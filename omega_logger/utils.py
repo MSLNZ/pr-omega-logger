@@ -79,7 +79,7 @@ def human_file_size(size):
     Returns
     -------
     :class:`str`
-        The file size that is human readable.
+        The file size in a human-readable format.
     """
     thresh = 1000.  # use 1024 instead?
     n = floor(log(size) / log(thresh)) if size > 0 else 0
@@ -177,7 +177,7 @@ def initialize_webapp(cfg, serials):
                 for component in components:
                     label = record.alias
                     if ';' in label:
-                        # a semi-colon is reserved for requesting multiple
+                        # a semicolon is reserved for requesting multiple
                         # iServers in a URL query parameter
                         raise ValueError(f'The alias {label!r} cannot contain a semi-colon')
                     if component:
