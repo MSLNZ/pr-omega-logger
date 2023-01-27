@@ -1,25 +1,21 @@
 """
 Start all OMEGA loggers and the web application or perform a database backup.
 """
+import argparse
+import logging
 import os
 import re
+import sqlite3
 import sys
 import time
-import logging
-import sqlite3
-import argparse
 
-from msl.io import (
-    search,
-    copy,
-    checksum,
-)
 from msl.equipment import Config
+from msl.io import checksum
+from msl.io import copy
+from msl.io import search
 
-from . import (
-    __version__,
-    DEFAULT_WAIT,
-)
+from . import DEFAULT_WAIT
+from . import __version__
 from .utils import email
 
 

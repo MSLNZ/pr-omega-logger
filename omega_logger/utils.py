@@ -1,11 +1,14 @@
 import os
 import re
 import sqlite3
-from math import log, floor
-from time import perf_counter
-from datetime import datetime, timedelta
-from xml.etree.ElementTree import Element, SubElement
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from datetime import timedelta
+from math import floor
+from math import log
+from time import perf_counter
+from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import SubElement
 
 import numpy as np
 try:

@@ -1,17 +1,15 @@
 """
 Start logging a particular OMEGA iServer.
 """
+import logging
 import re
 import sys
-import logging
 import traceback
 
 from msl.equipment import Config
 
-from omega_logger import (
-    validator_map,
-    DEFAULT_WAIT,
-)
+from omega_logger import DEFAULT_WAIT
+from omega_logger import validator_map
 
 
 class AliasFormatter(logging.Formatter):

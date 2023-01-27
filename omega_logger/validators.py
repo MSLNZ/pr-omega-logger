@@ -4,10 +4,8 @@ inserted into a database. All custom-written validators should inherit
 from the :class:`.Validator` class and override the
 :meth:`~.Validator.validate` method.
 """
-from abc import (
-    ABC,
-    abstractmethod,
-)
+from abc import ABC
+from abc import abstractmethod
 
 
 class Validator(ABC):

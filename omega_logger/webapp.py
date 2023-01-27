@@ -3,17 +3,20 @@ Start the Dash app.
 """
 import os
 import re
-import sys
 import socket
+import sys
 import tempfile
 import traceback
-from math import floor, ceil
-from datetime import datetime, timedelta
-from difflib import get_close_matches
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from datetime import timedelta
+from difflib import get_close_matches
+from math import ceil
+from math import floor
 
-import numpy as np
 import dash
+import numpy as np
+import plotly.graph_objs as go
 try:
     from dash import dcc
     from dash import html
@@ -22,37 +25,30 @@ except ImportError:
     # and dash-core-components has been moved to the main Dash repo
     import dash_core_components as dcc
     import dash_html_components as html
-import plotly.graph_objs as go
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
+from flask import current_app
+from flask import has_request_context
+from flask import jsonify
+from flask import make_response
+from flask import render_template
+from flask import request
 from gevent.pywsgi import WSGIServer
 from msl.equipment import Config
-from dash.dependencies import (
-    Input,
-    Output,
-    State,
-)
-from flask import (
-    request,
-    jsonify,
-    current_app,
-    render_template,
-    make_response,
-    has_request_context,
-)
 
-from utils import (
-    fromisoformat,
-    initialize_webapp,
-    find_report,
-    find_reports,
-    read_database,
-    apply_calibration,
-    HTMLTable,
-    datetime_range_picker_kwargs,
-    database_info,
-    DummyCalibrationReport,
-)
-from omega_logger import __version__
 from datetime_range_picker import DatetimeRangePicker
+from omega_logger import __version__
+from utils import DummyCalibrationReport
+from utils import HTMLTable
+from utils import apply_calibration
+from utils import database_info
+from utils import datetime_range_picker_kwargs
+from utils import find_report
+from utils import find_reports
+from utils import fromisoformat
+from utils import initialize_webapp
+from utils import read_database
 
 
 def serve_layout():

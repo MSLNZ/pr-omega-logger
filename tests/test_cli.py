@@ -1,6 +1,7 @@
 import os
 import shutil
-from subprocess import run, PIPE
+from subprocess import PIPE
+from subprocess import run
 
 
 def test_no_args():

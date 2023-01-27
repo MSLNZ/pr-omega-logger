@@ -1,9 +1,11 @@
 import os
-import sys
 import socket
+import sys
 import threading
 from math import isnan
-from subprocess import Popen, PIPE, check_output
+from subprocess import PIPE
+from subprocess import Popen
+from subprocess import check_output
 
 import pytest
 import requests

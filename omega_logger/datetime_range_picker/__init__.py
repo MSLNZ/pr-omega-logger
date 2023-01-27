@@ -1,7 +1,5 @@
-from dash.development.base_component import (
-    _explicitize_args,
-    Component,
-)
+from dash.development.base_component import Component
+from dash.development.base_component import _explicitize_args
 
 # Avoid getting:
 #   AttributeError: module 'datetime_range_picker' has no attribute '__version__'
