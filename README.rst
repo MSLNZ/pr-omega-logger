@@ -246,6 +246,15 @@ This package requires a configuration file that is compatible with `MSL-Equipmen
           <to>person2</to>
         </smtp>
 
+        <!--
+          Optional: Display a Loading graphic when the data in the plot changes.
+          Allowed types are: graph, cube, circle, dot, bar, random
+          where "random" chooses one of "graph", "cube", "circle", "dot" or "bar"
+          on a page reload. The graphic can either be displayed only in the plot
+          area or in full screen mode.
+        -->
+        <loading type="random" fullscreen="false"/>
+
     </msl>
 
 

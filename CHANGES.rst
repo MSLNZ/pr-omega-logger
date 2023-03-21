@@ -6,6 +6,7 @@ Version 0.4.1 (in development)
 ==============================
 - Added
 
+  * Option to display a Loading graphic when the data in the plot changes
   * Support for Python 3.11
 
 - Fixed

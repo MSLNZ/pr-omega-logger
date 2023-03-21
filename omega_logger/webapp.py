@@ -2,6 +2,7 @@
 Start the Dash app.
 """
 import os
+import random
 import re
 import socket
 import sys
@@ -17,6 +18,7 @@ from math import floor
 import dash
 import numpy as np
 import plotly.graph_objs as go
+
 try:
     from dash import dcc
     from dash import html
@@ -52,6 +54,21 @@ from utils import read_database
 
 
 def serve_layout():
+    if loading:
+        typ = loading.get('type', 'default')
+        if typ == 'random':
+            typ = random.choice(('graph', 'cube', 'circle', 'dot', 'default'))
+        elif typ == 'bar':
+            typ = 'default'
+
+        plot_viewer = dcc.Loading(
+            id="loading",
+            type=typ,
+            fullscreen=loading.get('fullscreen', False),
+            children=html.Div(id='plot-viewer'))
+    else:
+        plot_viewer = html.Div(id='plot-viewer')
+
     return html.Div([
         html.A(
             id='api-help-link',
@@ -95,7 +112,7 @@ def serve_layout():
             ],
             style={'display': 'inline-block'},
         ),
-        html.Div(id='plot-viewer'),
+        plot_viewer,
         html.Div(id='current-readings-viewer'),
         dcc.Interval(
             id='current-readings-interval',
@@ -108,6 +125,7 @@ try:
     path, serials = sys.argv[1:]
     cfg = Config(path)
     dropdown_options, calibrations, omegas = initialize_webapp(cfg, serials)
+    loading = cfg.attrib('loading')
 except:  # noqa: using bare 'except'
     traceback.print_exc(file=sys.stderr)
     input('Press <ENTER> to close ...')
