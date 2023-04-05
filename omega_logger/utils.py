@@ -194,7 +194,7 @@ def initialize_webapp(cfg, serials):
     return dropdown_options, calibrations, omegas
 
 
-class CalibrationReport(object):
+class CalibrationReport:
 
     def __init__(self, serial, dbase_file, report, alias):
         """Create a calibration report.
@@ -292,7 +292,7 @@ class DummyCalibrationReport(CalibrationReport):
         return {}
 
 
-class HTMLTable(object):
+class HTMLTable:
 
     def __init__(self):
         """Create the HTML table for the webapp."""

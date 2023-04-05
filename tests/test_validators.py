@@ -3,7 +3,7 @@ from omega_logger.validators import SimpleRange
 
 def test_simple_range():
 
-    class iTHX(object):
+    class iTHX:
 
         def log_warning(self, *args, **kwargs):
             pass
