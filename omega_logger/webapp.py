@@ -18,6 +18,7 @@ from math import floor
 import dash
 import numpy as np
 import plotly.graph_objs as go
+import requests
 
 try:
     from dash import dcc
@@ -95,7 +96,7 @@ def serve_layout():
             id='omega-dropdown',
             options=dropdown_options,
             multi=True,
-            placeholder='Select the OMEGA iServer(s)...',
+            placeholder='Select the sensor(s)...',
         ),
         DatetimeRangePicker(
             id='datetime-range',
@@ -124,7 +125,7 @@ def serve_layout():
 try:
     path, serials = sys.argv[1:]
     cfg = Config(path)
-    dropdown_options, calibrations, omegas = initialize_webapp(cfg, serials)
+    dropdown_options, calibrations, sensors = initialize_webapp(cfg, serials)
     loading = cfg.attrib('loading')
 except:  # noqa: using bare 'except'
     traceback.print_exc(file=sys.stderr)
@@ -137,31 +138,41 @@ app.layout = serve_layout  # set app.layout to a function to serve a dynamic lay
 app.server.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 
-def read_raw(omega):
-    """Read the raw temperature, humidity and dewpoint values from an OMEGA iServer.
+def read_raw(sensor):
+    """Read the raw temperature, humidity and dewpoint values from a sensor.
 
     Parameters
     ----------
-    omega : :class:`msl.equipment.record_types.EquipmentRecord`
-        The Equipment Record of an OMEGA iServer.
+    sensor : :class:`msl.equipment.record_types.EquipmentRecord`
+        The Equipment Record of a sensor.
 
     Returns
     -------
     :class:`str`
-        The serial number of the OMEGA iServer.
+        The serial number of the sensor.
     :class:`dict`
         The data.
     """
-    nprobes = omega.connection.properties.get('nprobes', 1)
-    nbytes = omega.connection.properties.get('nbytes')
+    props = sensor.connection.properties
+    nprobes = props.get('nprobes', 1)
+    nbytes = props.get('nbytes')
 
     error = None
     try:
-        cxn = omega.connect()
-        thd = cxn.temperature_humidity_dewpoint(probe=1, nbytes=nbytes)
-        if nprobes == 2:
-            thd += cxn.temperature_humidity_dewpoint(probe=2, nbytes=nbytes)
-        cxn.disconnect()
+        if sensor.connection.address.startswith('http'):
+            reply = requests.get(sensor.connection.address, timeout=props.get('timeout', 10))
+            reply.raise_for_status()
+            json = reply.json()
+            if json['error']:
+                raise IOError('Cannot read the modbus holding registers')
+            else:
+                thd = (json['temperature'], json['relative_humidity'], json['dewpoint'])
+        else:
+            cxn = sensor.connect()
+            thd = cxn.temperature_humidity_dewpoint(probe=1, nbytes=nbytes)
+            if nprobes == 2:
+                thd += cxn.temperature_humidity_dewpoint(probe=2, nbytes=nbytes)
+            cxn.disconnect()
     except Exception as e:
         error = str(e)
         thd = [None] * (nprobes * 3)
@@ -169,7 +180,7 @@ def read_raw(omega):
     now_iso = datetime.now().replace(microsecond=0).isoformat(sep='T')
     data = {
         'error': error,
-        'alias': omega.alias,
+        'alias': sensor.alias,
         'datetime': now_iso,
         'report_number': None,
     }
@@ -183,7 +194,7 @@ def read_raw(omega):
             'temperature2': thd[3], 'humidity2': thd[4], 'dewpoint2': thd[5]
         })
 
-    return omega.serial, data
+    return sensor.serial, data
 
 
 def requested_serial_alias():
@@ -224,13 +235,13 @@ def page_not_found(**ignore):  # noqa: 'ignore' is not used
 
 @app.server.route('/aliases/')
 def aliases():
-    """<p>Get the aliases of all OMEGA iServers.</p>
+    """<p>Get the aliases of all sensors.</p>
 
     <h3>Parameters</h3>
     <p>None, this endpoint does not require parameters.</p>
 
     <h3>Returns</h3>
-    <p>The keys are the serial numbers of each iServer and
+    <p>The keys are the serial numbers of each sensor and
     the values are the aliases.</p>
 
     <p><i>Example:</i></p>
@@ -240,7 +251,7 @@ def aliases():
   "6789": "Mass2"
 }</pre></span></div></div>
     """
-    data = dict((value.serial, value.alias) for value in omegas.values())
+    data = dict((value.serial, value.alias) for value in sensors.values())
     return jsonify(data)
 
 
@@ -252,7 +263,7 @@ def databases():
     <p>None, this endpoint does not require parameters.</p>
 
     <h3>Returns</h3>
-    <p>The keys are the serial numbers of each iServer and
+    <p>The keys are the serial numbers of each sensor and
     the values contain the information about each database.</p>
 
     <p><i>Example:</i></p>
@@ -291,26 +302,26 @@ def databases():
   }
 }</pre></span></div></div>
     """
-    return jsonify(database_info(cfg.value('log_dir'), omegas))
+    return jsonify(database_info(cfg.value('log_dir'), sensors))
 
 
 @app.server.route('/now/')
 def now():
     """<p>Get the current temperature, humidity and dewpoint for the
-    requested OMEGA iServer(s).</p>
+    requested sensor(s).</p>
 
     <h3>Parameters</h3>
     <ul>
       <li>
         <b>serial</b> : string (optional)
-        <p>The serial number(s) of the OMEGA iServer(s) to get the data from.
-        If requesting data from multiple iServers then the serial numbers must
+        <p>The serial number(s) of the sensor(s) to get the data from.
+        If requesting data from multiple sensors then the serial numbers must
         be separated by a semi-colon.</p>
       </li>
       <li>
         <b>alias</b> : string (optional)
-        <p>The alias(es) of the OMEGA iServer(s) to get the data from.
-        If requesting data from multiple iServers then the aliases must
+        <p>The alias(es) of the sensor(s) to get the data from.
+        If requesting data from multiple sensors then the aliases must
         be separated by a semi-colon.</p>
       </li>
       <li>
@@ -325,54 +336,54 @@ def now():
       <li>
         <b>/now</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint value(s) from all OMEGA iServers.</p>
+        dewpoint value(s) from all sensors.</p>
       </li>
       <li>
         <b>/now?corrected=false</b>
-        <p>Return the uncorrected data from all OMEGA iServers.</p>
+        <p>Return the uncorrected data from all sensors.</p>
       </li>
       <li>
         <b>/now?serial=12345</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint value(s) from the OMEGA iServer that has the serial number <i>12345</i>.</p>
+        dewpoint value(s) from the sensor that has the serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/now?alias=Mass2</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint value(s) from the OMEGA iServer that has the alias <i>Mass2</i>.</p>
+        dewpoint value(s) from the sensor that has the alias <i>Mass2</i>.</p>
       </li>
       <li>
         <b>/now?alias=Photometric+bench</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint value(s) from the OMEGA iServer that has the alias <i>Photometric bench</i>.</p>
+        dewpoint value(s) from the sensor that has the alias <i>Photometric bench</i>.</p>
       </li>
       <li>
         <b>/now?serial=12345&corrected=0</b>
-        <p>Return the uncorrected data from the OMEGA iServer that
+        <p>Return the uncorrected data from the sensor that
         has the serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/now?alias=Photometric+bench&corrected=false</b>
-        <p>Return the uncorrected data from the OMEGA iServer that
+        <p>Return the uncorrected data from the sensor that
         has the alias <i>Photometric bench</i>.</p>
       </li>
       <li>
         <b>/now?serial=12345;6789</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint value(s) from the OMEGA iServer that has the serial number <i>12345</i>
-        and from the OMEGA iServer that has the serial number <i>6789</i>.</p>
+        dewpoint value(s) from the sensor that has the serial number <i>12345</i>
+        and from the sensor that has the serial number <i>6789</i>.</p>
       </li>
       <li>
         <b>/now?serial=12345&alias=Mass2&corrected=0</b>
-        <p>Return the uncorrected data from the OMEGA iServer that
-        has the serial number <i>12345</i> and from the OMEGA iServer
+        <p>Return the uncorrected data from the sensor that
+        has the serial number <i>12345</i> and from the sensor
         that has the alias <i>Mass2</i>.</p>
       </li>
     </ul>
 
     <h3>Returns</h3>
     <p>The keys are the serial numbers of the requested
-    iServers and the value depends on whether the iServer
+    sensors and the value depends on whether the sensor
     has 1 or 2 probes.</p>
     <p><i>Example:</i></p>
     <div class="highlight-console"><div class="highlight"><span class="go">
@@ -408,10 +419,10 @@ def now():
 
     records = []
     requested = requested_serial_alias()
-    for serial, omega in omegas.items():
-        if requested and not requested.intersection({serial, omega.alias}):
+    for serial, record in sensors.items():
+        if requested and not requested.intersection({serial, record.alias}):
             continue
-        records.append(omega)
+        records.append(record)
 
     with ThreadPoolExecutor() as executor:
         futures = [executor.submit(read_raw, record) for record in records]
@@ -433,7 +444,7 @@ def now():
 @app.server.route('/fetch/')
 def fetch():
     """<p>Fetch the temperature, humidity and/or dewpoint values from the database
-    between start and end dates for the requested OMEGA iServer(s).</p>
+    between start and end dates for the requested sensor(s).</p>
 
     <h3>Parameters</h3>
     <ul>
@@ -454,14 +465,14 @@ def fetch():
       </li>
       <li>
         <b>serial</b> : string (optional)
-        <p>The serial number(s) of the OMEGA iServer(s) to get the data from.
-        If requesting data from multiple iServers then the serial numbers must
+        <p>The serial number(s) of the sensor(s) to get the data from.
+        If requesting data from multiple sensors then the serial numbers must
         be separated by a semi-colon.</p>
       </li>
       <li>
         <b>alias</b> : string (optional)
-        <p>The alias(es) of the OMEGA iServer(s) to get the data from.
-        If requesting data from multiple iServers then the aliases must
+        <p>The alias(es) of the sensor(s) to get the data from.
+        If requesting data from multiple sensors then the aliases must
         be separated by a semi-colon.</p>
       </li>
       <li>
@@ -476,35 +487,35 @@ def fetch():
       <li>
         <b>/fetch</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint values that were acquired in the past hour, from all OMEGA iServers.</p>
+        dewpoint values that were acquired in the past hour, from all sensors.</p>
       </li>
       <li>
         <b>/fetch?serial=12345&start=2021-02-16</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint values since <i>16th Feb 2021</i> from the OMEGA iServer that has the
+        dewpoint values since <i>16th Feb 2021</i> from the sensor that has the
         serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/fetch?alias=Mass2&start=2021-02-16T19:20:30</b>
         <p>Return the corrected temperature and humidity values and the uncorrected
-        dewpoint values since <i>19:20:30 on the 16th Feb 2021</i> from the OMEGA iServer
+        dewpoint values since <i>19:20:30 on the 16th Feb 2021</i> from the sensor
         that has the alias <i>Mass2</i>.</p>
       </li>
       <li>
         <b>/fetch?serial=12345&corrected=0&start=2021-02-16T09:20:30&type=temperature</b>
         <p>Return the uncorrected temperature values since <i>09:20:30 on the 16th Feb 2021</i>
-        from the OMEGA iServer that has the serial number <i>12345</i>.</p>
+        from the sensor that has the serial number <i>12345</i>.</p>
       </li>
       <li>
         <b>/fetch?alias=Mass2&start=2021-02-16&end=2021-02-17&type=temperature+humidity</b>
         <p>Return the corrected temperature and humidity values between <i>16th Feb 2021</i>
-        and <i>17th Feb 2021</i> from the OMEGA iServer that has the alias <i>Mass2</i>.</p>
+        and <i>17th Feb 2021</i> from the sensor that has the alias <i>Mass2</i>.</p>
       </li>
     </ui>
 
     <p><h3>Returns</h3></p>
     <p>The keys are the serial numbers of the requested
-    iServers and the value depends on whether the iServer
+    sensors and the value depends on whether the sensor
     has 1 or 2 probes and what <i>type</i> was specified.</p>
     <p><i>Example:</i></p>
     <div class="highlight-console"><div class="highlight"><span class="go">
@@ -607,7 +618,7 @@ def fetch():
 
     fetched = dict()
     requested = requested_serial_alias()
-    for serial, omega in omegas.items():
+    for serial, omega in sensors.items():
         if requested and not requested.intersection({serial, omega.alias}):
             continue
 
@@ -681,23 +692,23 @@ def reports():
     <ul>
       <li>
         <b>serial</b> : string (optional)
-        <p>The serial number(s) of the OMEGA iServer(s) to get the reports of.
-        If requesting reports from multiple iServers then the serial
+        <p>The serial number(s) of the sensor(s) to get the reports of.
+        If requesting reports from multiple sensors then the serial
         numbers must be separated by a semi-colon.</p>
       </li>
       <li>
         <b>alias</b> : string (optional)
-        <p>The alias(es) of the OMEGA iServer(s) to get the reports of.
-        If requesting reports from multiple iServers then the aliases must
+        <p>The alias(es) of the sensor(s) to get the reports of.
+        If requesting reports from multiple sensors then the aliases must
         be separated by a semi-colon.</p>
       </li>
       <li>
         <b>date</b> : string (optional)
         <p>Find the report nearest to the specified date for the specified
-        iServers. The date must be an ISO 8601 string (e.g., yyyy-mm-dd).
+        sensors. The date must be an ISO 8601 string (e.g., yyyy-mm-dd).
         Additional supported values are <i>all</i> (return all reports for
-        the specified iServers) and <i>latest</i> (return the latest report
-        for the specified iServers). Default is <i>all</i>.</p>
+        the specified sensors) and <i>latest</i> (return the latest report
+        for the specified sensors). Default is <i>all</i>.</p>
       </li>
     </ul>
 
@@ -705,33 +716,33 @@ def reports():
     <ul>
       <li>
         <b>/report</b>
-        <p>Return all reports for all iServers.</p>
+        <p>Return all reports for all sensors.</p>
       </li>
       <li>
         <b>/report?serial=12345</b>
-        <p>Return all reports for the iServer that has the serial number
+        <p>Return all reports for the sensor that has the serial number
         <i>12345</i>.</p>
       </li>
       <li>
         <b>/report?alias=Mass2&date=2020-05-16</b>
-        <p>Return the report nearest to <i>16 May 2020</i> for the iServer
+        <p>Return the report nearest to <i>16 May 2020</i> for the sensor
         that has the alias <i>Mass2</i>.</p>
       </li>
       <li>
         <b>/report?date=latest</b>
-        <p>Return the latest report for all iServers.</p>
+        <p>Return the latest report for all sensors.</p>
       </li>
       <li>
         <b>/report?alias=Photometric+bench;Mass2&date=latest</b>
-        <p>Return the latest report for the iServer with the alias
-        <i>Photometric bench</i> and for the iServer with the alias
+        <p>Return the latest report for the sensor with the alias
+        <i>Photometric bench</i> and for the sensor with the alias
         <i>Mass2</i>.</p>
       </li>
     </ui>
 
     <p><h3>Returns</h3></p>
     <p>The keys are the serial numbers of the requested
-    iServers and the value is a list of reports.</p>
+    sensors and the value is a list of reports.</p>
     <p><i>Example:</i></p>
     <div class="highlight-console"><div class="highlight"><span class="go">
 <pre>{
@@ -786,7 +797,7 @@ def reports():
 
     cal_reports = dict()
     requested = requested_serial_alias()
-    for serial, omega in omegas.items():
+    for serial, omega in sensors.items():
         if requested and not requested.intersection({serial, omega.alias}):
             continue
 
@@ -809,13 +820,13 @@ def reports():
 
 @app.server.route('/connections/')
 def connections():
-    """<p>Get the Connection Records of all OMEGA iServers.</p>
+    """<p>Get the Connection Records of all sensors.</p>
 
     <h3>Parameters</h3>
     <p>None, this endpoint does not require parameters.</p>
 
     <h3>Returns</h3>
-    <p>The keys are the aliases of each iServer and the values
+    <p>The keys are the aliases of each sensor and the values
     are the Connection Records.</p>
 
     <p><i>Example:</i></p>
@@ -850,7 +861,7 @@ def connections():
   }
 }</pre></span></div></div>
     """
-    return jsonify({v.alias: v.connection.to_json() for v in omegas.values()})
+    return jsonify({v.alias: v.connection.to_json() for v in sensors.values()})
 
 
 @app.callback(
@@ -1002,7 +1013,7 @@ def current_readings_viewer(tab, n_intervals):
 
     children = [html.P(html.I(
         html.Span('ATTENTION: None of the dewpoint values are corrected. '
-                  'They are raw values from the OMEGA iServer.',
+                  'They are raw values from the sensor.',
                   style={'color': '#DE3163'})
     ))]
     margin_right = cfg.value('current_readings/margin_right', '16px')

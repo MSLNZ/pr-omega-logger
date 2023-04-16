@@ -144,16 +144,17 @@ def initialize_webapp(cfg, serials):
     :class:`dict`
         The keys are the serial numbers and the values are the
         :class:`msl.equipment.record_types.EquipmentRecord`\\s
-        of the OMEGA iServers.
+        of the temperature and humidity sensors.
     """
     dropdown_options = list()
     calibrations = dict()
-    omegas = dict()
+    sensors = dict()
 
     serials = serials.split(',')
     log_dir = cfg.value('log_dir')
     cal_elements = cfg.find('calibrations') or []
-    records = cfg.database().records(manufacturer='OMEGA')
+    db = cfg.database()
+    records = db.records(manufacturer='OMEGA|Vaisala', flags=re.IGNORECASE)
     for record in sorted(records, key=lambda r: r.alias):
         if record.serial not in serials:
             continue
@@ -189,9 +190,9 @@ def initialize_webapp(cfg, serials):
                         'label': label,
                         'value': label,
                     })
-                    omegas[record.serial] = record
+                    sensors[record.serial] = record
 
-    return dropdown_options, calibrations, omegas
+    return dropdown_options, calibrations, sensors
 
 
 class CalibrationReport:

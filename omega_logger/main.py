@@ -92,6 +92,11 @@ def run_webapp(cfg):
         cmd = prefix + ' '.join([sys.executable, '-m', 'omega', f'"{cfg.path}"', serial])
         os.system(cmd)
 
+    # start logging the Vaisala sensor for outside monitoring
+    if cfg.find(r'calibrations/vaisala') is not None:
+        cmd = prefix + ' '.join([sys.executable, '-m', 'vaisala', f'"{cfg.path}"'])
+        os.system(cmd)
+
     # start the Dash web application
     cmd = prefix + ' '.join([sys.executable, '-m', 'webapp', f'"{cfg.path}"', ','.join(serials)])
     os.system(cmd)
