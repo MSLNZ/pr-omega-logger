@@ -154,7 +154,7 @@ install_requires = [
     'requests',
 ]
 
-tests_require = ['pytest', 'pytest-cov', 'requests']
+tests_require = ['pytest', 'pytest-cov']
 
 docs_require = ['sphinx', 'sphinx-rtd-theme']
 
