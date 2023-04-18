@@ -277,7 +277,7 @@ def start(*args):
     parser.add_argument(
         '-V', '--version',
         action='version',
-        version='{}'.format(__version__),
+        version=f'{__version__}',
         help='show the version number and exit'
     )
     parser.add_argument(
