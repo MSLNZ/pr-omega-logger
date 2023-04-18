@@ -715,25 +715,25 @@ def reports():
     <p><i>Examples:</i></p>
     <ul>
       <li>
-        <b>/report</b>
+        <b>/reports</b>
         <p>Return all reports for all sensors.</p>
       </li>
       <li>
-        <b>/report?serial=12345</b>
+        <b>/reports?serial=12345</b>
         <p>Return all reports for the sensor that has the serial number
         <i>12345</i>.</p>
       </li>
       <li>
-        <b>/report?alias=Mass2&date=2020-05-16</b>
+        <b>/reports?alias=Mass2&date=2020-05-16</b>
         <p>Return the report nearest to <i>16 May 2020</i> for the sensor
         that has the alias <i>Mass2</i>.</p>
       </li>
       <li>
-        <b>/report?date=latest</b>
+        <b>/reports?date=latest</b>
         <p>Return the latest report for all sensors.</p>
       </li>
       <li>
-        <b>/report?alias=Photometric+bench;Mass2&date=latest</b>
+        <b>/reports?alias=Photometric+bench;Mass2&date=latest</b>
         <p>Return the latest report for the sensor with the alias
         <i>Photometric bench</i> and for the sensor with the alias
         <i>Mass2</i>.</p>
