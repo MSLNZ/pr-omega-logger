@@ -151,6 +151,7 @@ install_requires = [
     'flask',
     'plotly',
     'dash',
+    'requests',
 ]
 
 tests_require = ['pytest', 'pytest-cov', 'requests']
