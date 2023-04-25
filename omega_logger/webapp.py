@@ -382,9 +382,13 @@ def now():
     </ul>
 
     <h3>Returns</h3>
-    <p>The keys are the serial numbers of the requested
-    sensors and the value depends on whether the sensor
-    has 1 or 2 probes.</p>
+    <p>The keys are the serial numbers of the requested sensors and the value
+    depends on whether the sensor has 1 or 2 probes. If an error has occurred
+    while reading data from a sensor then the value of the "error" key will be
+    a string describing the error, otherwise the value will be <i>null</i>.
+    If uncorrected data is requested, or if a sensor has not been calibrated,
+    then the value of the "report_number" key will be <i>null</i>, otherwise
+    the value will be a string.</p>
     <p><i>Example:</i></p>
     <div class="highlight-console"><div class="highlight"><span class="go">
 <pre>{
@@ -514,9 +518,13 @@ def fetch():
     </ui>
 
     <p><h3>Returns</h3></p>
-    <p>The keys are the serial numbers of the requested
-    sensors and the value depends on whether the sensor
-    has 1 or 2 probes and what <i>type</i> was specified.</p>
+    <p>The keys are the serial numbers of the requested sensors and the value
+    depends on whether the sensor has 1 or 2 probes and what <i>type</i> was
+    specified. If an error has occurred while fetching data from a database
+    then the value of the "error" key will be a string describing the error,
+    otherwise the value will be <i>null</i>. If uncorrected data is requested,
+    or if a sensor has not been calibrated, then the value of the "report_number"
+    key will be <i>null</i>, otherwise the value will be a string.</p>
     <p><i>Example:</i></p>
     <div class="highlight-console"><div class="highlight"><span class="go">
 <pre>{
