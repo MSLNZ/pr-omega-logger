@@ -23,6 +23,9 @@ class AliasFormatter(logging.Formatter):
 
     def format(self, rec):
         if self.alias and rec.levelno > logging.WARNING:
+            if rec.msg.startswith('%s:'):
+                # the ERROR message has already been displayed, do not display it again
+                return ''
             rec.msg = f'{self.alias!r} {rec.msg}'
         return super(AliasFormatter, self).format(rec)
 
