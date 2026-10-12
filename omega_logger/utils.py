@@ -154,7 +154,7 @@ def initialize_webapp(cfg, serials):
     log_dir = cfg.value('log_dir')
     cal_elements = cfg.find('calibrations') or []
     db = cfg.database()
-    records = db.records(manufacturer='OMEGA|Vaisala', flags=re.IGNORECASE)
+    records = db.records(manufacturer='OMEGA|Vaisala|Senseca', flags=re.IGNORECASE)
     for record in sorted(records, key=lambda r: r.alias):
         if record.serial not in serials:
             continue

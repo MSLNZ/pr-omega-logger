@@ -145,13 +145,14 @@ def get_version():
 
 
 install_requires = [
-    'msl-equipment @ https://github.com/MSLNZ/msl-equipment/archive/main.tar.gz',
-    'numpy',
-    'gevent',
-    'flask',
-    'plotly',
-    'dash',
-    'requests',
+    'msl-equipment @ git+https://github.com/MSLNZ/msl-equipment.git@975fc34077677cecaaf7bf42132425339c2d0690', # v0.2.0
+    'msl-io==0.1.0',
+    'numpy==2.0.1',
+    'gevent==24.2.1',
+    'flask==3.0.3',
+    'plotly==5.23.0',
+    'dash==2.17.1',
+    'requests==2.32.3',
 ]
 
 tests_require = ['pytest', 'pytest-cov']

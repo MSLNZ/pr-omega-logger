@@ -97,6 +97,12 @@ def run_webapp(cfg):
         cmd = prefix + ' '.join([sys.executable, '-m', 'vaisala', f'"{cfg.path}"'])
         os.system(cmd)
 
+    # start logging the Senseca sensor as the CR replacement
+    if cfg.find("senseca") is not None:
+        file = os.path.dirname(__file__) + "/senseca.py"
+        cmd = prefix + f"uv run {file}"
+        os.system(cmd)
+
     # start the Dash web application
     cmd = prefix + ' '.join([sys.executable, '-m', 'webapp', f'"{cfg.path}"', ','.join(serials)])
     os.system(cmd)
