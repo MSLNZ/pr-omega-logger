@@ -14,7 +14,7 @@ from datetime import datetime
 from msl.equipment import Connection
 
 # Delta Ohm, HD5017PTC, V1.225-s0.22
-connection = Connection("Modbus::10.12.102.67", timeout=5)
+connection = Connection("Modbus::10.12.102.47", timeout=5)
 
 try:
     logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5s] %(message)s')
